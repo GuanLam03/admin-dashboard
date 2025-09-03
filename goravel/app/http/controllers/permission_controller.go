@@ -24,7 +24,7 @@ func (p *PermissionController) Index(ctx http.Context) http.Response {
         perms = append(perms, Permission{Key: k, Label: v.Label})
     }
 
-    return ctx.Response().Json(http.StatusOK, map[string]interface{}{
+    return ctx.Response().Json(200, map[string]interface{}{
         "permissions": perms,
     })
 }

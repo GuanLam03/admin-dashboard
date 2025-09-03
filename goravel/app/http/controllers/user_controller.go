@@ -24,7 +24,7 @@ func (r *UserController) Index(ctx http.Context) http.Response {
 
 	// Fetch all users
 	if err := facades.Orm().Query().Find(&users); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]interface{}{
+		return ctx.Response().Json(500, map[string]interface{}{
 			"error": "Failed to fetch users",
 		})
 	}
@@ -36,7 +36,7 @@ func (r *UserController) Index(ctx http.Context) http.Response {
 	}
 	var rules []CasbinRule
 	if err := facades.Orm().Query().Table("casbin_rule").Where("ptype = ?", "g").Find(&rules); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]interface{}{
+		return ctx.Response().Json(500, map[string]interface{}{
 			"error": "Failed to fetch casbin rules",
 		})
 	}
@@ -48,7 +48,7 @@ func (r *UserController) Index(ctx http.Context) http.Response {
 	}
 	var roles []Role
 	if err := facades.Orm().Query().Table("roles").Find(&roles); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]interface{}{
+		return ctx.Response().Json(500, map[string]interface{}{
 			"error": "Failed to fetch roles",
 		})
 	}
@@ -78,7 +78,7 @@ func (r *UserController) Index(ctx http.Context) http.Response {
 		})
 	}
 
-	return ctx.Response().Json(http.StatusOK, map[string]interface{}{
+	return ctx.Response().Json(200, map[string]interface{}{
 		"users": response,
 	})
 }
