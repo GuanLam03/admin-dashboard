@@ -127,14 +127,14 @@ func (a *AuthController) Profile(ctx http.Context) http.Response {
     var user models.User
 
     // Get the auth guard
-    auth := facades.Auth(ctx)
+    facades.Auth(ctx).User(&user);
     
     // Try to get user from token
-    if err := auth.User(&user); err != nil {
-        return ctx.Response().Json(401, http.Json{
-            "error": "unauthenticated",
-        })
-    }
+    // if err := auth.User(&user); err != nil {
+    //     return ctx.Response().Json(401, http.Json{
+    //         "error": "unauthenticated",
+    //     })
+    // }
 
 	
     response := map[string]any{

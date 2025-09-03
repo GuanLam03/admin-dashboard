@@ -111,6 +111,8 @@ func init() {
 			&providers.ValidationServiceProvider{},
 			&providers.DatabaseServiceProvider{},
 			&gin.ServiceProvider{},
+			&providers.CasbinServiceProvider{},
+
 			
 
 		},

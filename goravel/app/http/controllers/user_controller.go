@@ -1,6 +1,7 @@
 package controllers
 
 import (
+    "strconv"
 	"github.com/goravel/framework/contracts/http"
 	"goravel/app/models"
     "github.com/goravel/framework/facades"
@@ -16,6 +17,72 @@ func NewUserController() *UserController {
 		// Inject services
 	}
 }
+
+// Index returns all users with their role
+func (r *UserController) Index(ctx http.Context) http.Response {
+	var users []models.User
+
+	// Fetch all users
+	if err := facades.Orm().Query().Find(&users); err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]interface{}{
+			"error": "Failed to fetch users",
+		})
+	}
+
+	// Fetch roles from casbin_rule (ptype=g means user→role assignment)
+	type CasbinRule struct {
+		V0 string // userID
+		V1 string // roleID
+	}
+	var rules []CasbinRule
+	if err := facades.Orm().Query().Table("casbin_rule").Where("ptype = ?", "g").Find(&rules); err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]interface{}{
+			"error": "Failed to fetch casbin rules",
+		})
+	}
+
+	// Fetch all roles to map roleID → roleName
+	type Role struct {
+		ID   uint
+		Name string
+	}
+	var roles []Role
+	if err := facades.Orm().Query().Table("roles").Find(&roles); err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]interface{}{
+			"error": "Failed to fetch roles",
+		})
+	}
+	roleMap := make(map[string]string)
+	for _, role := range roles {
+		roleMap[strconv.Itoa(int(role.ID))] = role.Name
+	}
+
+	// Map userID → roleID from casbin_rule
+	userRoles := make(map[string]string)
+	for _, rule := range rules {
+		userRoles[rule.V0] = rule.V1
+	}
+
+	// Build response with role name
+	response := []map[string]interface{}{}
+	for _, u := range users {
+		roleID := userRoles[strconv.Itoa(int(u.ID))]
+		roleName := roleMap[roleID]
+
+		response = append(response, map[string]interface{}{
+			"id":         u.ID,
+			"name":       u.Name,
+			"email":      u.Email,
+			"created_at": u.CreatedAt,
+			"role":       roleName, 
+		})
+	}
+
+	return ctx.Response().Json(http.StatusOK, map[string]interface{}{
+		"users": response,
+	})
+}
+
 
 func (r *UserController) Show(ctx http.Context) http.Response {
 	return ctx.Response().Success().Json(http.Json{
