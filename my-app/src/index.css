@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+}
+
+
+nav a{
+  text-decoration: none;
+}
+
+nav ol,li{
+  padding: 0;
+}
+
+a{
+  text-decoration: none !important;
+}
