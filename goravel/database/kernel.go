@@ -19,10 +19,12 @@ func (kernel Kernel) Migrations() []schema.Migration {
 		&migrations.M20250828064700CreateDocumentsTable{},
 		&migrations.M20250902040550CreateGoogleDocumentsTable{},
 		&migrations.M20250902042507UpdateGoogleDocumentsTable{},
+		&migrations.M20250904093240CreateSchedulesTable{},
 	}
 }
 func (kernel Kernel) Seeders() []seeder.Seeder {
 	return []seeder.Seeder{
 		&seeders.DatabaseSeeder{},
+		&seeders.ScheduleSeeder{},
 	}
 }

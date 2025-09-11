@@ -19,7 +19,7 @@ import (
 	"github.com/goravel/framework/route"
 	"github.com/goravel/framework/schedule"
 	"github.com/goravel/framework/session"
-	"github.com/goravel/framework/support/carbon"
+	// "github.com/goravel/framework/support/carbon"
 	"github.com/goravel/framework/testing"
 	"github.com/goravel/framework/translation"
 	"github.com/goravel/framework/validation"
@@ -52,7 +52,8 @@ func init() {
 		// Here you may specify the default timezone for your application.
 		// Example: UTC, Asia/Shanghai
 		// More: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-		"timezone": carbon.UTC,
+		//"timezone": carbon.UTC,
+		"timezone": "Asia/Kuala_Lumpur",
 		// Application Locale Configuration
 		//
 		// The application locale determines the default locale that will be used

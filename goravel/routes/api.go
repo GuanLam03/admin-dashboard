@@ -11,6 +11,9 @@ import (
 	"goravel/app/http/controllers/googleDocument"
 	"goravel/app/http/controllers/userManagement"
 	"goravel/app/http/controllers/role"
+	"goravel/app/http/controllers/schedules"
+
+
 
 
 	
@@ -51,7 +54,8 @@ func Api() {
 	})
 
 
-	facades.Route().Middleware(middleware.Auth(), middleware.CasbinMiddleware()).Group(func(router route.Router) {
+	//, middleware.CasbinMiddleware()
+	facades.Route().Middleware(middleware.Auth()).Group(func(router route.Router) {
 		router.Get("/roles", roleController.Index)
 		router.Post("/roles", roleController.Store)
 		router.Post("/roles/:id", roleController.UpdatePermissions)
@@ -79,7 +83,18 @@ func Api() {
 	facades.Route().Get("/google-documents/:id", googleDocumentController.ShowGoogleDocument)
 
 
-	
+
+
+	scheduleController := schedules.NewScheduleController()
+	facades.Route().Get("/schedules",scheduleController.ShowSchedule)
+
+	addScheduleController := schedules.NewAddScheduleController()
+	facades.Route().Post("/add-schedules",addScheduleController.AddSchedule)
+
+	editScheduleController := schedules.NewEditScheduleController()
+	facades.Route().Get("edit-schedules/:id",editScheduleController.ShowSchedule)
+	facades.Route().Post("edit-schedules/:id",editScheduleController.EditSchedule)
+
 
 
 

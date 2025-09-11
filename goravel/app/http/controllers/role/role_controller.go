@@ -206,3 +206,5 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 		"role":    role,
 	})
 }
+
+
