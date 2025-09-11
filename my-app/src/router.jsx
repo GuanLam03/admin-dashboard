@@ -16,7 +16,7 @@ import GoogleDocumentPage from './pages/google_document/GoogleDocumentPage';
 import GoogleDocumentAddPage from './pages/google_document/GoogleDocumentAddPage';
 import GoogleDocumentEditPage from './pages/google_document/GoogleDocumentEditPage';
 import GoogleDocumentViewPage from './pages/google_document/GoogleDocumentViewPage';
-import AdminCalendar from './components/calendar/AdminCalendar';
+
 import SchedulePage from './pages/schedule/SchedulePage';
 import ScheduleAddPage from './pages/schedule/ScheduleAddPage';
 import ScheduleEditPage from './pages/schedule/ScheduleEditPage';
@@ -61,7 +61,7 @@ const router = createBrowserRouter([
 
 
 
-            { path: '/settings', element: <AdminCalendar /> },
+            // { path: '/settings', element: <AdminCalendar /> },
             
         ]
     },
