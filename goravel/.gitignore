@@ -5,3 +5,5 @@
 !.env.example
 storage/framework
 vendor
+storage
+quickstart.go

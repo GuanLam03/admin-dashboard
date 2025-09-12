@@ -6,12 +6,16 @@ services:
     container_name: project-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: testgoravel
-      MYSQL_USER: root
-      MYSQL_PASSWORD:
+      MYSQL_USER: projectuser
+      MYSQL_PASSWORD: projectpass
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 5
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -19,14 +23,17 @@ services:
     build: ./goravel
     container_name: project-backend
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     env_file:
       - ./goravel/.env.docker
     ports:
-      - "3000:3000"   # host:container (maps backend 3000 → localhost:3000)
+      - "3000:3000"
+       
     volumes:
       - ./goravel:/app
-    command: ["sh", "-c", "go run . artisan migrate && go run main.go"]
+      - ./goravel/.env.docker:/app/.env
+    command: ["sh", "-c", "go run . artisan key:generate && go run . artisan migrate && go run main.go"]
 
   frontend:
     build: ./my-app
@@ -34,10 +41,12 @@ services:
     depends_on:
       - backend
     ports:
-      - "3001:3000"   # React dev server
+      - "5173:5173"   # React dev server
     volumes:
       - ./my-app:/app
-    command: ["npm", "start"]
+      - /app/node_modules
+
+    command: ["npm", "run","dev"]
 
 volumes:
   mysql_data:

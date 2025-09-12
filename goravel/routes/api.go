@@ -51,13 +51,14 @@ func Api() {
 		router.Get("/user-management/roles", userManagementController.ShowUserRole)
 	    router.Post("/user-management/{id}/assign-role", userManagementController.AssignRole)
 		router.Get("/roles/:id", roleController.Show)
+		router.Get("/roles", roleController.Index)
+		router.Post("/roles", roleController.Store)
+		
 	})
 
 
 	//, middleware.CasbinMiddleware()
-	facades.Route().Middleware(middleware.Auth()).Group(func(router route.Router) {
-		router.Get("/roles", roleController.Index)
-		router.Post("/roles", roleController.Store)
+	facades.Route().Middleware(middleware.Auth(), middleware.CasbinMiddleware()).Group(func(router route.Router) {
 		router.Post("/roles/:id", roleController.UpdatePermissions)
 	})
 	
