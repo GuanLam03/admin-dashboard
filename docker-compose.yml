@@ -27,7 +27,6 @@ services:
         condition: service_healthy
     env_file:
       - ./goravel/.env.docker
-      - ./goravel/.env.docker:/app/.env 
     ports:
       - "3000:3000"
        
