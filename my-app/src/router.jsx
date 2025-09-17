@@ -20,6 +20,7 @@ import GoogleDocumentViewPage from './pages/google_document/GoogleDocumentViewPa
 import SchedulePage from './pages/schedule/SchedulePage';
 import ScheduleAddPage from './pages/schedule/ScheduleAddPage';
 import ScheduleEditPage from './pages/schedule/ScheduleEditPage';
+import RegisterPage from './pages/RegisterPage';
 
 
 
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
             {
                 path: '/login',
                 element: <LoginPage />
+            },
+            {
+                path: '/register',
+                element: <RegisterPage />
             },
             
         ]

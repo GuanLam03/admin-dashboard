@@ -3,7 +3,8 @@ package controllers
 import (
 	// "fmt"
     // "time"
-  
+
+
     "goravel/app/models"
     "github.com/goravel/framework/facades"
     "github.com/goravel/framework/contracts/http"
@@ -21,6 +22,16 @@ func (a *AuthController) Register(ctx http.Context) http.Response {
     if err := ctx.Request().Bind(&user); err != nil {
         return ctx.Response().Json(400, http.Json{"error": err.Error()})
     }
+
+
+    // Check if the email already exists in the database
+    var existingUser models.User
+    facades.Orm().Query().Where("email = ?", user.Email).First(&existingUser)
+    
+    if existingUser.ID != 0 {
+     return ctx.Response().Json(400, http.Json{"error": "email already taken"})
+    }
+    
 
     // Hash the password
     hashed, err := facades.Hash().Make(user.Password)
