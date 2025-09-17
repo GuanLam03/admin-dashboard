@@ -33,7 +33,7 @@ services:
     volumes:
       - ./goravel:/app
       - ./goravel/.env.docker:/app/.env
-    command: ["./goravel/entrypoint.sh"]
+    command: ["/app/entrypoint.sh"]
 
 
   frontend:
