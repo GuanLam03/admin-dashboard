@@ -33,7 +33,7 @@ services:
     volumes:
       - ./goravel:/app
       - ./goravel/.env.docker:/app/.env
-    command: ["/app/entrypoint.sh"]
+    command: ["sh", "-c", "go run . artisan key:generate && go run . artisan migrate && go run main.go"]
 
 
   frontend:
