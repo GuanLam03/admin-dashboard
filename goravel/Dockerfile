@@ -7,8 +7,10 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main .
+# Copy and ensure entrypoint has execute permissions
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 3000
 
-CMD ["./main"]
+CMD ["/app/entrypoint.sh"]
