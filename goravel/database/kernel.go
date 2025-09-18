@@ -26,5 +26,10 @@ func (kernel Kernel) Seeders() []seeder.Seeder {
 	return []seeder.Seeder{
 		&seeders.DatabaseSeeder{},
 		&seeders.ScheduleSeeder{},
+		&seeders.UserSeeder{},
+		&seeders.RoleSeeder{},
+		&seeders.GoogleDocumentSeeder{},
+		&seeders.UserRoleSeeder{},
+		&seeders.RolePermissionSeeder{},
 	}
 }
