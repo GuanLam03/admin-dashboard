@@ -15,7 +15,7 @@ Sample data
 - Developer (developer@gmail.com): Developer
 - Client (client@gmail.com)
   
--> all user password is <<qwer1234>>
+-> all user password is "qwer1234"
 
 ----------
 Roles and Permissions
