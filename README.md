@@ -8,8 +8,9 @@
 
 
 -------
-Sample data 
+Sample dummy data 
 
+User
 - Manager (manager@gmail.com): Super Admin
 - Admin (admin@gmail.com): Reader
 - Developer (developer@gmail.com): Developer
