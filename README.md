@@ -22,13 +22,13 @@ User
 Roles and Permissions
 
 Super Admin:
-View Roles: Allowed to GET on /roles (View the roles list)
-Create Role: Allowed to POST to /roles (Create a new role)
-Edit Role: Allowed to POST to /roles/:id (Edit an existing role)
+- View Roles: Allowed to GET on /roles (View the roles list)
+- Create Role: Allowed to POST to /roles (Create a new role)
+- Edit Role: Allowed to POST to /roles/:id (Edit an existing role)
 
 Developer:
-View Roles: Allowed to GET on /roles (View the roles list)
-Create Role: Allowed to POST to /roles (Create a new role)
+- View Roles: Allowed to GET on /roles (View the roles list)
+- Create Role: Allowed to POST to /roles (Create a new role)
 
 Reader:
-View Roles: Allowed to GET on /roles (View the roles list)
+- View Roles: Allowed to GET on /roles (View the roles list)
