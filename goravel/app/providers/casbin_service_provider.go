@@ -2,7 +2,7 @@ package providers
 
 import (
 	"log"
-	
+	"fmt"
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/util"
 
@@ -17,12 +17,17 @@ type CasbinServiceProvider struct{}
 
 // Register binds the Casbin enforcer singleton to the Goravel service container
 func (c *CasbinServiceProvider) Register(app foundation.Application) {
-	db := facades.Config().Env("DB_DSN", "root:@tcp(127.0.0.1:3306)/testgoravel?charset=utf8mb4&parseTime=True").(string)
+	//DB_DSN is docker else use local databse
+	dbDSN := facades.Config().Env("DB_DSN", "")
 
+	if dbDSN == "" {
+		dbName := facades.Config().Env("DB_DATABASE", "").(string)
+		dbDSN = fmt.Sprintf("root:@tcp(127.0.0.1:3306)/%s?charset=utf8mb4&parseTime=True", dbName)
+	}
 
 	app.Singleton(CasbinBinding, func(app foundation.Application) (any, error) {
 		// 2. Initialize the Gorm adapter (will auto-create "casbin_rule" table if not exists)
-		adapter, err := gormadapter.NewAdapter("mysql",db,true)
+		adapter, err := gormadapter.NewAdapter("mysql",dbDSN.(string),true)
 
 		if err != nil {
 			log.Fatalf("failed to create Casbin adapter: %v", err)

@@ -191,7 +191,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 
 	roleID := int(role.ID)
 	// Remove all existing policies for this role
-	_, _ = enforcer.DeleteRolesForUser(strconv.Itoa(roleID))
+	_, _ = enforcer.DeletePermissionsForUser(strconv.Itoa(roleID))
 
 	// Insert new policies
 	for _, permKey := range body.Permissions {
@@ -200,6 +200,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 			_, _ = enforcer.AddPolicy(strconv.Itoa(roleID), object, action)
 		}
 	}
+	
 
 	return ctx.Response().Json(200, map[string]interface{}{
 		"message": "Role and permissions updated",
