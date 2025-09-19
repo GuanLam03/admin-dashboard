@@ -20,6 +20,7 @@ func (kernel Kernel) Migrations() []schema.Migration {
 		&migrations.M20250902040550CreateGoogleDocumentsTable{},
 		&migrations.M20250902042507UpdateGoogleDocumentsTable{},
 		&migrations.M20250904093240CreateSchedulesTable{},
+		&migrations.M20250918163250UpdateUsersTable{},
 	}
 }
 func (kernel Kernel) Seeders() []seeder.Seeder {
