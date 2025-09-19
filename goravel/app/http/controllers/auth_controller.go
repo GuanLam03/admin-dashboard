@@ -4,7 +4,7 @@ import (
 	// "fmt"
     // "time"
 
-
+    "github.com/pquerna/otp/totp"
     "goravel/app/models"
     "github.com/goravel/framework/facades"
     "github.com/goravel/framework/contracts/http"
@@ -48,7 +48,9 @@ func (a *AuthController) Register(ctx http.Context) http.Response {
 }
 
 
-func (a *AuthController) Login(ctx http.Context) http.Response {
+
+// with google authenticator (new)
+func (c *AuthController) Login(ctx http.Context) http.Response {
     email := ctx.Request().Input("email")
     password := ctx.Request().Input("password")
 
@@ -57,22 +59,31 @@ func (a *AuthController) Login(ctx http.Context) http.Response {
         return ctx.Response().Json(401, http.Json{"error": "invalid credentials"})
     }
 
-    // Check password
     if !facades.Hash().Check(password, user.Password) {
         return ctx.Response().Json(401, http.Json{"error": "invalid credentials"})
     }
 
-    // Generate JWT
+    // If 2FA is enabled, don’t log in yet
+    if user.TwoFactorEnabled {
+        return ctx.Response().Json(200, http.Json{
+            "message":      "2FA required",
+            "twofa_required": true,
+            "user_id":      user.ID,
+        })
+    }
+
+    // Normal login (no 2FA)
     token, err := facades.Auth(ctx).Login(&user)
     if err != nil {
         return ctx.Response().Json(500, http.Json{"error": err.Error()})
     }
 
     cookie := "jwt_token=" + token + "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400"
-    ctx.Response().Header("Set-Cookie", cookie)  // using header as goravel cookie does not support sameSite (https://www.goravel.dev/the-basics/response.html#attach-header)
+    ctx.Response().Header("Set-Cookie", cookie)
 
-    return ctx.Response().Json(200, http.Json{"message": "login success"})
+    return ctx.Response().Json(200, http.Json{"message": "login success", "token": token})
 }
+
 
 
 
@@ -93,6 +104,7 @@ func (a *AuthController) Profile(ctx http.Context) http.Response {
     response := map[string]any{
         "name":       user.Name,
         "email":      user.Email,
+        "two_factor_enabled": user.TwoFactorEnabled,
         "created_at": user.CreatedAt,
     }
 
@@ -103,3 +115,66 @@ func (a *AuthController) Profile(ctx http.Context) http.Response {
 
 
 
+
+func (c *AuthController) VerifyTwoFA(ctx http.Context) http.Response {
+    userId := ctx.Request().Input("user_id")
+    code := ctx.Request().Input("code")
+
+    var user models.User
+    if err := facades.Orm().Query().Find(&user, userId); err != nil {
+        return ctx.Response().Json(404, http.Json{"error": "user not found"})
+    }
+
+    if !user.TwoFactorEnabled {
+        return ctx.Response().Json(400, http.Json{"error": "2FA not enabled"})
+    }
+
+    decryptedSecret, err := facades.Crypt().DecryptString(user.TwoFactorSecret)
+    if err != nil {
+        return ctx.Response().Json(500, http.Json{"error": "failed to decrypt 2FA secret"})
+    }
+
+    // Validate TOTP code from Google Authenticator
+    if totp.Validate(code, decryptedSecret) {
+        token, err := facades.Auth(ctx).Login(&user)
+        if err != nil {
+            return ctx.Response().Json(500, http.Json{"error": err.Error()})
+        }
+
+        cookie := "jwt_token=" + token + "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400"
+        ctx.Response().Header("Set-Cookie", cookie)
+
+        return ctx.Response().Json(200, http.Json{"message": "login success", "token": token})
+    }
+
+    return ctx.Response().Json(400, http.Json{"error": "invalid 2FA code"})
+}
+
+
+
+
+// func (a *AuthController) Login(ctx http.Context) http.Response {
+//     email := ctx.Request().Input("email")
+//     password := ctx.Request().Input("password")
+
+//     var user models.User
+//     if err := facades.Orm().Query().Where("email", email).First(&user); err != nil {
+//         return ctx.Response().Json(401, http.Json{"error": "invalid credentials"})
+//     }
+
+//     // Check password
+//     if !facades.Hash().Check(password, user.Password) {
+//         return ctx.Response().Json(401, http.Json{"error": "invalid credentials"})
+//     }
+
+//     // Generate JWT
+//     token, err := facades.Auth(ctx).Login(&user)
+//     if err != nil {
+//         return ctx.Response().Json(500, http.Json{"error": err.Error()})
+//     }
+
+//     cookie := "jwt_token=" + token + "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400"
+//     ctx.Response().Header("Set-Cookie", cookie)  // using header as goravel cookie does not support sameSite (https://www.goravel.dev/the-basics/response.html#attach-header)
+
+//     return ctx.Response().Json(200, http.Json{"message": "login success"})
+// }

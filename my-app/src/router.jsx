@@ -21,6 +21,9 @@ import SchedulePage from './pages/schedule/SchedulePage';
 import ScheduleAddPage from './pages/schedule/ScheduleAddPage';
 import ScheduleEditPage from './pages/schedule/ScheduleEditPage';
 import RegisterPage from './pages/RegisterPage';
+import SettingsPage from './pages/settings/SettingsPage';
+import TwoFactorSettingsPage from './pages/settings/TwoFactorEnablePage';
+import TwoFactorDisablePage from './pages/settings/TwoFactorDisablePage';
 
 
 
@@ -56,6 +59,14 @@ const router = createBrowserRouter([
             { path: '/schedules', element: <SchedulePage /> },
             { path: '/schedules/create', element: <ScheduleAddPage /> },
             { path: '/schedules/edit/:id', element: <ScheduleEditPage /> },
+
+            { path: '/settings', element: <SettingsPage /> },
+            { path: '/settings/twofactor', element: <TwoFactorSettingsPage /> },
+            { path: '/settings/twofactor/disable', element: <TwoFactorDisablePage /> },
+
+
+
+           
 
 
 

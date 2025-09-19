@@ -12,6 +12,8 @@ import (
 	"goravel/app/http/controllers/userManagement"
 	"goravel/app/http/controllers/role"
 	"goravel/app/http/controllers/schedules"
+	"goravel/app/http/controllers/googleAuthenticator"
+
 
 
 
@@ -24,7 +26,6 @@ func Api() {
 	// 	middleware.RecoverNotify(), 
 	// )
 
-
 	// users
 	userController := controllers.NewUserController()
 	// Auth
@@ -35,12 +36,15 @@ func Api() {
 	// permissions
 	permissionController := controllers.NewPermissionController()
 
+	//setting google authenticator
+	twofaController := googleAuthenticator.NewTwoFAController()
+
 	
 	facades.Route().Get("/users/{id}", userController.Show)
 	facades.Route().Post("/login", authController.Login)
+	facades.Route().Post("/login/twofa",authController.VerifyTwoFA)
 	facades.Route().Post("/register", authController.Register)
 
-	
 
 	facades.Route().Middleware(middleware.Auth()).Group(func(router route.Router) {
 		router.Get("/profile", authController.Profile)
@@ -52,7 +56,11 @@ func Api() {
 	    router.Post("/user-management/{id}/assign-role", userManagementController.AssignRole)
 		router.Get("/roles/:id", roleController.Show)
 		
-		
+		// 2 factor authentication
+		router.Get("/twofa/qrcode",twofaController.GenerateQRCode)
+		router.Post("/twofa/enable",twofaController.ConfirmEnable)
+		router.Post("/twofa/disable",twofaController.ConfirmDisable)
+
 		
 	})
 
@@ -96,10 +104,14 @@ func Api() {
 	facades.Route().Post("/add-schedules",addScheduleController.AddSchedule)
 
 	editScheduleController := schedules.NewEditScheduleController()
-	facades.Route().Get("edit-schedules/:id",editScheduleController.ShowSchedule)
-	facades.Route().Post("edit-schedules/:id",editScheduleController.EditSchedule)
+	facades.Route().Get("/edit-schedules/:id",editScheduleController.ShowSchedule)
+	facades.Route().Post("/edit-schedules/:id",editScheduleController.EditSchedule)
 
 
+
+
+
+	
 
 
 
