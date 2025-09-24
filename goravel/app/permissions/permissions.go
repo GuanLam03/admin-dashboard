@@ -11,7 +11,18 @@ var Permissions = map[string]Permission{
 	"roles.create": {Label: "Create Role", Object: "/roles", Action: "POST"},
 	"roles.edit":   {Label: "Edit Role", Object: "/roles/:id", Action: "POST"},
 	// "roles.delete": {Label: "Delete Role", Object: "/roles/:id", Action: "DELETE"},
+
+	// Gmail Technical
+	"gmail.technical.read":  {Label: "Read Technical Emails", Object: "/gmail/technical/*", Action: "GET"},
+	"gmail.technical.reply": {Label: "Reply Technical Emails", Object: "/gmail/technical/messages/:id/reply", Action: "POST"},
+
+	// Gmail Support
+	"gmail.support.read":  {Label: "Read Support Emails", Object: "/gmail/support/*", Action: "GET"},
+	"gmail.support.reply": {Label: "Reply Support Emails", Object: "/gmail/support/messages/:id/reply", Action: "POST"},
 }
+
+
+
 
 // Helper function for backend
 func PermissionKeyToObjectAction(key string) (string, string) {

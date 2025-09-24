@@ -1,13 +1,11 @@
 import { Outlet, Navigate, NavLink } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import api from "../api/axios";
 
-
 export default function DefaultLayout() {
-  const { setUser,user, loading, logout,setLoading } = useAuth();
-
-  
+  const { setUser, user, loading, logout, setLoading } = useAuth();
+  const [emailsOpen, setEmailsOpen] = useState(false);
 
   useEffect(() => {
     api.get("/profile")
@@ -16,13 +14,11 @@ export default function DefaultLayout() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (!user) return <Navigate to="/login" />;
 
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
+  // 🔹 small helper
+  const hasPermission = (perm) => user?.permissions?.includes(perm);
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -34,99 +30,100 @@ export default function DefaultLayout() {
         <nav className="mt-6">
           <ol>
             <li>
-              <NavLink
-                to="/dashboard"
-                end
-                className={({ isActive }) =>
-                  `block px-4 py-2 hover:bg-blue-100 ${
-                    isActive ? "bg-blue-500 text-white" : "text-gray-700"
-                  }`
-                }
-              >
+              <NavLink to="/dashboard" end className={({ isActive }) =>
+                `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
                 Home
               </NavLink>
             </li>
+
             <li>
-              <NavLink
-                to="/profile"
-                className={({ isActive }) =>
-                  `block px-4 py-2 hover:bg-blue-100 ${
-                    isActive ? "bg-blue-500 text-white" : "text-gray-700"
-                  }`
-                }
-              >
+              <NavLink to="/profile" className={({ isActive }) =>
+                `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
                 Profile
               </NavLink>
             </li>
+
             <li>
-              <NavLink
-                to="/user-management"
-                className={({ isActive }) =>
-                  `block px-4 py-2 hover:bg-blue-100 ${
-                    isActive ? "bg-blue-500 text-white" : "text-gray-700"
-                  }`
-                }
-              >
+              <NavLink to="/user-management" className={({ isActive }) =>
+                `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
                 User Management
               </NavLink>
             </li>
+
             <li>
-              <NavLink
-                to="/roles"
-                className={({ isActive }) =>
-                  `block px-4 py-2 hover:bg-blue-100 ${
-                    isActive ? "bg-blue-500 text-white" : "text-gray-700"
-                  }`
-                }
-              >
+              <NavLink to="/roles" className={({ isActive }) =>
+                `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
                 Roles
               </NavLink>
             </li>
+
             <li>
-              <NavLink
-                to="/documents"
-                className={({ isActive }) =>
-                  `block px-4 py-2 hover:bg-blue-100 ${
-                    isActive ? "bg-blue-500 text-white" : "text-gray-700"
-                  }`
-                }
-              >
+              <NavLink to="/documents" className={({ isActive }) =>
+                `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
                 Documents
               </NavLink>
             </li>
+
             <li>
-              <NavLink
-                to="/google-documents"
-                className={({ isActive }) =>
-                  `block px-4 py-2 hover:bg-blue-100 ${
-                    isActive ? "bg-blue-500 text-white" : "text-gray-700"
-                  }`
-                }
-              >
+              <NavLink to="/google-documents" className={({ isActive }) =>
+                `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
                 Google Documents
               </NavLink>
             </li>
+
             <li>
-              <NavLink
-                to="/schedules"
-                className={({ isActive }) =>
-                  `block px-4 py-2 hover:bg-blue-100 ${
-                    isActive ? "bg-blue-500 text-white" : "text-gray-700"
-                  }`
-                }
-              >
-                Schedueles
+              <NavLink to="/schedules" className={({ isActive }) =>
+                `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
+                Schedules
               </NavLink>
             </li>
+
+            {/* 🔹 Emails Section */}
+            {(hasPermission("gmail.technical.read") || hasPermission("gmail.support.read")) && (
+              <li>
+                <div>
+                  <button
+                    className="w-full flex justify-between items-center text-blue-600 hover:bg-blue-100 rounded px-4 py-2"
+                    onClick={() => setEmailsOpen(!emailsOpen)}
+                  >
+                    <span>Emails</span>
+                    <svg
+                      className={`w-4 h-4 transition-transform duration-200 ${emailsOpen ? "rotate-90" : ""}`}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  {emailsOpen && (
+                    <ol className="ml-4 mt-2">
+                      {hasPermission("gmail.technical.read") && (
+                        <li>
+                          <NavLink to="/emails/technical" className={({ isActive }) =>
+                            `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
+                            Technical Emails
+                          </NavLink>
+                        </li>
+                      )}
+                      {hasPermission("gmail.support.read") && (
+                        <li>
+                          <NavLink to="/emails/support" className={({ isActive }) =>
+                            `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
+                            Support Emails
+                          </NavLink>
+                        </li>
+                      )}
+                    </ol>
+                  )}
+                </div>
+              </li>
+            )}
+
             <li>
-              <NavLink
-                to="/settings"
-                className={({ isActive }) =>
-                  `block px-4 py-2 hover:bg-blue-100 ${
-                    isActive ? "bg-blue-500 text-white" : "text-gray-700"
-                  }`
-                }
-              >
+              <NavLink to="/settings" className={({ isActive }) =>
+                `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
                 Settings
               </NavLink>
             </li>
@@ -138,25 +135,13 @@ export default function DefaultLayout() {
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <header className="bg-white shadow-sm px-6 py-4 flex justify-end items-center">
-          
-          {/* Bootstrap Dropdown */}
           <div className="dropdown">
-            <button
-              className="dropdown-toggle"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
+            <button className="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               {user.name}
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
               <li>
-                <button
-                  className="dropdown-item" 
-                  onClick={logout}
-                >
-                  Logout
-                </button>
+                <button className="dropdown-item" onClick={logout}>Logout</button>
               </li>
             </ul>
           </div>

@@ -24,6 +24,10 @@ import RegisterPage from './pages/RegisterPage';
 import SettingsPage from './pages/settings/SettingsPage';
 import TwoFactorSettingsPage from './pages/settings/TwoFactorEnablePage';
 import TwoFactorDisablePage from './pages/settings/TwoFactorDisablePage';
+import EmailsLayout from './pages/email/EmailsLayout';
+import TechnicalEmailsPage from './pages/email/TechnicalEmailsPage';
+import SupportEmailsPage from './pages/email/SupportEmailsPage';
+import MessageViewPage from './pages/email/MessageViewPage';
 
 
 
@@ -60,6 +64,24 @@ const router = createBrowserRouter([
             { path: '/schedules/create', element: <ScheduleAddPage /> },
             { path: '/schedules/edit/:id', element: <ScheduleEditPage /> },
 
+            {
+                path: "/emails",
+                element: <EmailsLayout />,
+                children: [
+                    {
+                        path: "technical", // /emails/technical
+                        element: <TechnicalEmailsPage />,
+                    },
+                    {
+                        path: "support", // /emails/support
+                        element: <SupportEmailsPage />,
+                    },
+                    {
+                        path: ":folder/:id", // e.g. /emails/technical/123
+                        element: <MessageViewPage />, // detail page
+                    },
+                ],
+            },
             { path: '/settings', element: <SettingsPage /> },
             { path: '/settings/twofactor', element: <TwoFactorSettingsPage /> },
             { path: '/settings/twofactor/disable', element: <TwoFactorDisablePage /> },

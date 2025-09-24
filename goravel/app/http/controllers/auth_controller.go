@@ -1,9 +1,11 @@
 package controllers
 
 import (
-	// "fmt"
     // "time"
 
+    "fmt"
+    "goravel/app/permissions"
+    "github.com/casbin/casbin/v2"
     "github.com/pquerna/otp/totp"
     "goravel/app/models"
     "github.com/goravel/framework/facades"
@@ -95,22 +97,65 @@ func (a *AuthController) Logout(ctx http.Context) http.Response {
 }
 
 
-func (a *AuthController) Profile(ctx http.Context) http.Response {
-    var user models.User
+// func (a *AuthController) Profile(ctx http.Context) http.Response {
+//     var user models.User
 
-    // Get the auth guard
-    facades.Auth(ctx).User(&user);
+//     // Get the auth guard
+//     facades.Auth(ctx).User(&user);
 	
-    response := map[string]any{
-        "name":       user.Name,
-        "email":      user.Email,
-        "two_factor_enabled": user.TwoFactorEnabled,
-        "created_at": user.CreatedAt,
+//     response := map[string]any{
+//         "name":       user.Name,
+//         "email":      user.Email,
+//         "two_factor_enabled": user.TwoFactorEnabled,
+//         "created_at": user.CreatedAt,
+//     }
+
+//     return ctx.Response().Json(200, http.Json{
+//         "user": response,
+//     })
+// }
+
+func (a *AuthController) Profile(ctx http.Context) http.Response {
+	var user models.User
+	facades.Auth(ctx).User(&user)
+
+    enforcerAny, err := facades.App().Make("casbin")
+    if err != nil {
+        return ctx.Response().Json(500, "Failed to get Casbin enforcer")
+        
     }
 
-    return ctx.Response().Json(200, http.Json{
-        "user": response,
-    })
+    enforcer := enforcerAny.(*casbin.Enforcer)
+
+	// Step 1: get roles for this user
+	roles,_ := enforcer.GetRolesForUser(fmt.Sprint(user.ID)) // g(userId, roleId)
+
+	// Step 2: collect permissions for each role
+	permissionsList := []string{}
+	for _, role := range roles {
+		policies,_ := enforcer.GetFilteredPolicy(0, role) // p(role, obj, act)
+		for _, policy := range policies {
+			if len(policy) >= 3 {
+				key := permissions.PermissionObjectActionToKey(policy[1], policy[2])
+				if key != "" {
+					permissionsList = append(permissionsList, key)
+				}
+			}
+		}
+	}
+
+	response := map[string]any{
+		"name":              user.Name,
+		"email":             user.Email,
+		"two_factor_enabled": user.TwoFactorEnabled,
+		"created_at":        user.CreatedAt,
+		"roles":             roles,
+		"permissions":       permissionsList,
+	}
+
+	return ctx.Response().Json(200, http.Json{
+		"user": response,
+	})
 }
 
 

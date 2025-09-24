@@ -13,6 +13,8 @@ import (
 	"goravel/app/http/controllers/role"
 	"goravel/app/http/controllers/schedules"
 	"goravel/app/http/controllers/googleAuthenticator"
+	"goravel/app/http/controllers/gmail"
+
 
 
 
@@ -38,6 +40,9 @@ func Api() {
 
 	//setting google authenticator
 	twofaController := googleAuthenticator.NewTwoFAController()
+
+	//Gmail
+	gmailController := gmail.NewGmailController()
 
 	
 	facades.Route().Get("/users/{id}", userController.Show)
@@ -70,6 +75,18 @@ func Api() {
 		router.Get("/roles", roleController.Index)
 		router.Post("/roles", roleController.Store)
 		router.Post("/roles/:id", roleController.UpdatePermissions)
+
+
+		//Gmail routes
+		router.Get("/gmail/technical/messages", gmailController.ListMessages)
+		router.Get("/gmail/technical/messages/:id", gmailController.ReadMessage)
+		router.Post("/gmail/technical/messages/:id/reply", gmailController.ReplyMessage)
+
+
+
+		router.Get("/gmail/support/messages", gmailController.ListMessages)
+		router.Get("/gmail/support/messages/:id", gmailController.ReadMessage)
+		router.Post("/gmail/support/messages/:id/reply", gmailController.ReplyMessage)
 		
 	})
 	
@@ -106,6 +123,13 @@ func Api() {
 	editScheduleController := schedules.NewEditScheduleController()
 	facades.Route().Get("/edit-schedules/:id",editScheduleController.ShowSchedule)
 	facades.Route().Post("/edit-schedules/:id",editScheduleController.EditSchedule)
+
+
+
+	facades.Route().Get("/gmail/auth", gmailController.RedirectToGoogle)
+	facades.Route().Get("/oauth/google/callback", gmailController.HandleCallback)
+
+
 
 
 
