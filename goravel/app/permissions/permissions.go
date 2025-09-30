@@ -14,11 +14,11 @@ var Permissions = map[string]Permission{
 
 	// Gmail Technical
 	"gmail.technical.read":  {Label: "Read Technical Emails", Object: "/gmail/technical/*", Action: "GET"},
-	"gmail.technical.reply": {Label: "Reply Technical Emails", Object: "/gmail/technical/messages/:id/reply", Action: "POST"},
+	"gmail.technical.replyFoward": {Label: "Reply & Forward Technical Emails", Object: "/gmail/technical/messages/*", Action: "POST"},
 
 	// Gmail Support
 	"gmail.support.read":  {Label: "Read Support Emails", Object: "/gmail/support/*", Action: "GET"},
-	"gmail.support.reply": {Label: "Reply Support Emails", Object: "/gmail/support/messages/:id/reply", Action: "POST"},
+	"gmail.support.replyFoward": {Label: "Reply & Foward Support Emails", Object: "/gmail/support/messages/*", Action: "POST"},
 }
 
 

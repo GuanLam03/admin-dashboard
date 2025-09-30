@@ -5,7 +5,17 @@ import api from "../api/axios";
 
 export default function DefaultLayout() {
   const { setUser, user, loading, logout, setLoading } = useAuth();
-  const [emailsOpen, setEmailsOpen] = useState(false);
+
+  const [emailsOpen, setEmailsOpen] = useState(() => {
+    // Load from localStorage on first render
+    return localStorage.getItem("emailsOpen") === "true";
+  });
+
+  // Sync state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("emailsOpen", emailsOpen.toString());
+  }, [emailsOpen]);
+
 
   useEffect(() => {
     api.get("/profile")
@@ -23,7 +33,7 @@ export default function DefaultLayout() {
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-sm flex-shrink-0">
+      <aside className="w-64 bg-gray-50 shadow-sm flex-shrink-0">
         <div className="p-6 text-2xl font-bold text-blue-600">
           Admin Dashboard
         </div>
@@ -115,6 +125,12 @@ export default function DefaultLayout() {
                           </NavLink>
                         </li>
                       )}
+                      <li>
+                          <NavLink to="/emails/settings" className={({ isActive }) =>
+                            `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
+                            Emails Settings
+                          </NavLink>
+                        </li>
                     </ol>
                   )}
                 </div>
@@ -134,7 +150,7 @@ export default function DefaultLayout() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-white shadow-sm px-6 py-4 flex justify-end items-center">
+        <header className="bg-gray-50 shadow-sm px-6 py-4 flex justify-end items-center">
           <div className="dropdown">
             <button className="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               {user.name}

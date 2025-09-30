@@ -28,6 +28,7 @@ import EmailsLayout from './pages/email/EmailsLayout';
 import TechnicalEmailsPage from './pages/email/TechnicalEmailsPage';
 import SupportEmailsPage from './pages/email/SupportEmailsPage';
 import MessageViewPage from './pages/email/MessageViewPage';
+import EmailsSettingsPage from './pages/email/email_settings/EmailsSettingsPage';
 
 
 
@@ -80,6 +81,12 @@ const router = createBrowserRouter([
                         path: ":folder/:id", // e.g. /emails/technical/123
                         element: <MessageViewPage />, // detail page
                     },
+                    {
+                        path: "settings", // e.g. /emails/technical/123
+                        element: <EmailsSettingsPage />, // detail page
+                    },
+
+                    
                 ],
             },
             { path: '/settings', element: <SettingsPage /> },

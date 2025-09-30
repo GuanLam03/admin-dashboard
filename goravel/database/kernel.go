@@ -22,6 +22,8 @@ func (kernel Kernel) Migrations() []schema.Migration {
 		&migrations.M20250904093240CreateSchedulesTable{},
 		&migrations.M20250918163250UpdateUsersTable{},
 		&migrations.M20250922151403CreateGmailAccountsTable{},
+		&migrations.M20250925141435UpdateGmailAccountsTable{},
+		&migrations.M20250930104236CreateGmailTemplatesTable{},
 	}
 }
 func (kernel Kernel) Seeders() []seeder.Seeder {

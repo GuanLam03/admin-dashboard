@@ -43,6 +43,12 @@ func Api() {
 
 	//Gmail
 	gmailController := gmail.NewGmailController()
+	replyGmailController := gmail.NewReplyGmailController()
+	forwardGmailController := gmail.NewForwardGmailController()
+
+	templateController := gmail.NewTemplateController()
+
+
 
 	
 	facades.Route().Get("/users/{id}", userController.Show)
@@ -80,13 +86,23 @@ func Api() {
 		//Gmail routes
 		router.Get("/gmail/technical/messages", gmailController.ListMessages)
 		router.Get("/gmail/technical/messages/:id", gmailController.ReadMessage)
-		router.Post("/gmail/technical/messages/:id/reply", gmailController.ReplyMessage)
+		router.Post("/gmail/technical/messages/:id/reply", replyGmailController.ReplyMessage)
+		router.Post("/gmail/technical/messages/forward", forwardGmailController.ForwardMessage)
 
 
 
 		router.Get("/gmail/support/messages", gmailController.ListMessages)
 		router.Get("/gmail/support/messages/:id", gmailController.ReadMessage)
-		router.Post("/gmail/support/messages/:id/reply", gmailController.ReplyMessage)
+		router.Post("/gmail/support/messages/:id/reply", replyGmailController.ReplyMessage)
+		router.Post("/gmail/support/messages/forward", forwardGmailController.ForwardMessage)
+
+		
+
+
+
+	
+
+
 		
 	})
 	
@@ -128,9 +144,22 @@ func Api() {
 
 	facades.Route().Get("/gmail/auth", gmailController.RedirectToGoogle)
 	facades.Route().Get("/oauth/google/callback", gmailController.HandleCallback)
+	facades.Route().Get("/gmail/accounts", gmailController.ListAccounts)
+	facades.Route().Post("/gmail/remove-accounts/:email", gmailController.DeleteAccount)
+
+	facades.Route().Get("/gmail/accounts/teams", gmailController.GetGmailAccountTeams)
+
+	facades.Route().Post("/gmail/technical/messages/:id/star", gmailController.ToggleStar)
+	facades.Route().Post("/gmail/support/messages/:id/star", gmailController.ToggleStar)
 
 
 
+
+	facades.Route().Get("/gmail/templates", templateController.ShowTemplates)
+	facades.Route().Post("/gmail/templates", templateController.AddTemplate)
+	facades.Route().Post("/gmail/templates/edit/:id", templateController.EditTemplate)
+	facades.Route().Post("/gmail/templates/remove/:id", templateController.RemoveTemplate)
+	
 
 
 

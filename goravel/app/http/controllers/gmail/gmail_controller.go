@@ -3,15 +3,15 @@ package gmail
 import (
 	"fmt"
 	"encoding/base64"
-	   "sync"
-	   "strings"
-	   "time"
+	"sync"
+	"strings"
+	"time"
 	"golang.org/x/sync/errgroup"
 	"context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
-"google.golang.org/api/option"
+	"google.golang.org/api/option"
 	"github.com/goravel/framework/facades"
     "github.com/goravel/framework/contracts/http"
     "goravel/app/models"
@@ -31,72 +31,78 @@ func getOAuthConfig() *oauth2.Config {
 		ClientSecret: facades.Config().Env("GOOGLE_CLIENT_SECRET").(string),
 		RedirectURL:  facades.Config().Env("GOOGLE_REDIRECT_URI").(string),
 		Scopes: []string{
-			gmail.GmailReadonlyScope,
+			gmail.GmailModifyScope,
 			gmail.GmailSendScope,
 		},
 		Endpoint: google.Endpoint,
 	}
 }
 
-// Step 1: Redirect user to Google
 func (c *GmailController) RedirectToGoogle(ctx http.Context) http.Response {
-	account := ctx.Request().Input("account")
+    team := ctx.Request().Query("team") // technical / support / etc.
 
-	url := getOAuthConfig().AuthCodeURL(account, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
-	return ctx.Response().Redirect(http.StatusFound, url)
+    url := getOAuthConfig().AuthCodeURL(team, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+    return ctx.Response().Json(http.StatusOK, url)
 }
 
-// Step 2: Handle callback
 func (c *GmailController) HandleCallback(ctx http.Context) http.Response {
-	code := ctx.Request().Query("code")
+    code := ctx.Request().Query("code")
+    team := ctx.Request().Query("state") // <-- from AuthCodeURL
 
+    token, err := getOAuthConfig().Exchange(context.Background(), code)
+    if err != nil {
+        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+            "error": "Failed to exchange token",
+        })
+    }
 
-	token, err := getOAuthConfig().Exchange(context.Background(), code)
-	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to exchange token",
-		})
-	}
+    config := getOAuthConfig()
+    client := config.Client(context.Background(), token)
 
-	// Create Gmail service with the new token
-	config := getOAuthConfig()
-	client := config.Client(context.Background(), token)
+    srv, err := gmail.New(client)
+    if err != nil {
+        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+            "error": "Failed to create Gmail service",
+        })
+    }
 
-	srv, err := gmail.New(client)
-	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to create Gmail service",
-		})
-	}
+    profile, err := srv.Users.GetProfile("me").Do()
+    if err != nil {
+        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+            "error": "Failed to fetch Gmail profile",
+        })
+    }
 
-	// Get Gmail profile (fetch the real email)
-	profile, err := srv.Users.GetProfile("me").Do()
-	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to fetch Gmail profile",
-		})
-	}
+    //  Check if this Gmail is already linked to another department
+    var existing models.GmailAccount
+    err = facades.Orm().Query().Where("email", profile.EmailAddress).First(&existing)
+    if err == nil && existing.ID != 0 {
+        return ctx.Response().Json(http.StatusBadRequest, map[string]string{
+            "error": "This Gmail account is already assigned to " + *existing.Team,
+        })
+    }
+    
+    // Save new account
+    err = facades.Orm().Query().Create(&models.GmailAccount{
+        Email:        profile.EmailAddress,
+        Team:         &team,
+        AccessToken:  token.AccessToken,
+        RefreshToken: token.RefreshToken,
+        Expiry:       &token.Expiry,
+    })
+    if err != nil {
+        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+            "error": "Failed to save Gmail account",
+        })
+    }
 
-	// Save to DB
-	err = facades.Orm().Query().Create(&models.GmailAccount{
-		Email:        profile.EmailAddress, // ✅ real Gmail email
-		AccessToken:  token.AccessToken,
-		RefreshToken: token.RefreshToken,
-		Expiry:       &token.Expiry,
-
-	})
-	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to save Gmail account",
-		})
-	}
-
-	return ctx.Response().Json(http.StatusOK, map[string]interface{}{
-		"message": "Mailbox connected successfully!",
-		"account": profile.EmailAddress,
-	
-	})
+    return ctx.Response().Json(http.StatusOK, map[string]interface{}{
+        "message": "Mailbox connected successfully!",
+        "account": profile.EmailAddress,
+        "team":   team,
+    })
 }
+
 
 
 func GetClientFromDB(accountEmail string) (*gmail.Service, error) {
@@ -132,308 +138,127 @@ func GetClientFromDB(accountEmail string) (*gmail.Service, error) {
 	return gmail.NewService(context.Background(), option.WithHTTPClient(client))
 }
 
-// func (c *GmailController) ListMessages(ctx http.Context) http.Response {
-//     email := ctx.Request().Query("email") // /gmail/messages?email=hgledgetech@gmail.com
 
 
-//     srv, err := GetClientFromDB(email) // ✅ already *gmail.Service
-//     if err != nil {
-//         return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-//             "error": "Failed to get Gmail client",
-//         })
-//     }
-
-//     // res, _ := srv.Users.Messages.List("me").MaxResults(10).Do()
-// 	res, err := srv.Users.Messages.List("me").MaxResults(10).Do()
-// 	if err != nil {
-// 		facades.Log().Errorf("Gmail API error for %s: %v", email, err)
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-// 			"error": err.Error(),
-// 		})
-// 	}
-
-
-//     messages := []map[string]string{}
-//     for _, m := range res.Messages {
-//         msg, _ := srv.Users.Messages.Get("me", m.Id).Do()
-//         messages = append(messages, map[string]string{
-//             "id":      m.Id,
-//             "snippet": msg.Snippet,
-//         })
-//     }
-
-// 	facades.Log().Infof("Fetching Gmail messages for %s", email)
-// 	if err != nil {
-//     facades.Log().Errorf("Gmail error: %v", err)
-//     return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-//         "error": err.Error(),
-//     })
-// }
-
-
-
-//     return ctx.Response().Json(http.StatusOK, messages)
-// }
-
-// func (c *GmailController) ListMessages(ctx http.Context) http.Response {
-// 	email := ctx.Request().Query("email") // /gmail/messages?email=hgledgetech@gmail.com
-
-// 	// Get the Gmail client from DB
-// 	srv, err := GetClientFromDB(email)
-// 	if err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-// 			"error": "Failed to get Gmail client",
-// 		})
-// 	}
-
-// 	// Fetch the list of message IDs (this is a blocking call, but not too slow)
-// 	res, err := srv.Users.Messages.List("me").MaxResults(10).Do()
-// 	if err != nil {
-// 		facades.Log().Errorf("Gmail API error for %s: %v", email, err)
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-// 			"error": err.Error(),
-// 		})
-// 	}
-
-// 	// Prepare the error group for goroutines
-// 	var g errgroup.Group
-// 	messages := make([]map[string]any, len(res.Messages))
-
-// 	// Loop through the messages and fetch them concurrently
-// 	for i, m := range res.Messages {
-// 		// Capture the index to ensure correct result placement
-// 		i, m := i, m
-// 		g.Go(func() error {
-// 			// Fetch full message with headers
-// 			msg, err := srv.Users.Messages.Get("me", m.Id).Format("metadata").Do()
-// 			if err != nil {
-// 				facades.Log().Errorf("Failed to fetch message %s: %v", m.Id, err)
-// 				return err
-// 			}
-
-// 			var from, subject, date string
-// 			for _, h := range msg.Payload.Headers {
-// 				switch h.Name {
-// 				case "From":
-// 					from = h.Value
-// 				case "Subject":
-// 					subject = h.Value
-// 				case "Date":
-// 					date = h.Value
-// 				}
-// 			}
-
-// 			// Unread status check
-// 			unread := false
-// 			for _, label := range msg.LabelIds {
-// 				if label == "UNREAD" {
-// 					unread = true
-// 					break
-// 				}
-// 			}
-
-// 			messages[i] = map[string]any{
-// 				"id":      msg.Id,
-// 				"from":    from,
-// 				"subject": subject,
-// 				"snippet": msg.Snippet,
-// 				"date":    date,
-// 				"unread":  unread,
-// 			}
-// 			return nil
-// 		})
-
-// 	}
-
-// 	// Wait for all goroutines to finish, and handle errors if any
-// 	if err := g.Wait(); err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-// 			"error": fmt.Sprintf("Failed to fetch some messages: %v", err),
-// 		})
-// 	}
-
-// 	// Log successful message fetch
-// 	facades.Log().Infof("Fetched %d Gmail messages for %s", len(messages), email)
-
-// 	// Return the fetched messages as a JSON response
-// 	return ctx.Response().Json(http.StatusOK, messages)
-// }
-
-//reply message will not get, only get the initial message
-// func (c *GmailController) ListMessages(ctx http.Context) http.Response {
-// 	email := ctx.Request().Query("email")
-// 	srv, err := GetClientFromDB(email)
-// 	if err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": "Failed to get Gmail client"})
-// 	}
-
-// 	res, err := srv.Users.Messages.List("me").MaxResults(50).Do()
-// 	if err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": err.Error()})
-// 	}
-
-// 	var g errgroup.Group
-// 	threadMap := make(map[string]*gmail.Message)
-// 	mu := &sync.Mutex{}
-
-// 	for _, m := range res.Messages {
-// 		m := m // capture range variable
-// 		g.Go(func() error {
-// 			msg, err := srv.Users.Messages.Get("me", m.Id).Format("metadata").Do()
-// 			if err != nil {
-// 				facades.Log().Errorf("Failed to fetch message %s: %v", m.Id, err)
-// 				return nil // ignore failed message
-// 			}
-
-// 			mu.Lock()
-// 			defer mu.Unlock()
-
-// 			// If thread not in map, or this msg is earlier, store it
-// 			if existing, exists := threadMap[msg.ThreadId]; !exists || msg.InternalDate < existing.InternalDate {
-// 				threadMap[msg.ThreadId] = msg
-// 			}
-
-// 			return nil
-// 		})
-// 	}
-
-// 	if err := g.Wait(); err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to fetch messages: %v", err)})
-// 	}
-
-// 	// Build response
-// 	messages := []map[string]any{}
-// 	for _, msg := range threadMap {
-// 		var from, subject, date string
-// 		for _, h := range msg.Payload.Headers {
-// 			switch h.Name {
-// 			case "From":
-// 				from = h.Value
-// 			case "Subject":
-// 				subject = h.Value
-// 			case "Date":
-// 				date = h.Value
-// 			}
-// 		}
-// 		unread := false
-// 		for _, label := range msg.LabelIds {
-// 			if label == "UNREAD" {
-// 				unread = true
-// 				break
-// 			}
-// 		}
-// 		messages = append(messages, map[string]any{
-// 			"id":       msg.Id,
-// 			"threadId": msg.ThreadId,
-// 			"from":     from,
-// 			"subject":  subject,
-// 			"snippet":  msg.Snippet,
-// 			"date":     date,
-// 			"unread":   unread,
-// 		})
-// 	}
-
-// 	return ctx.Response().Json(http.StatusOK, messages)
-// }
-
-//get thread initial messages
 func (c *GmailController) ListMessages(ctx http.Context) http.Response {
-    email := ctx.Request().Query("email")
-	pageToken := ctx.Request().Query("pageToken") // for pagination
-    srv, err := GetClientFromDB(email)
-    if err != nil {
-        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": "Failed to get Gmail client"})
-    }
+	email := ctx.Request().Query("email")
+	pageToken := ctx.Request().Query("pageToken")
+	labelFilter  := ctx.Request().Query("label") // inbox, starred
 
-      // Request 50 threads per page
-    call := srv.Users.Threads.List("me").MaxResults(50)
-    if pageToken != "" {
-        call = call.PageToken(pageToken)
-    }
-
-    res, err := call.Do()
-    if err != nil {
-        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-            "error": err.Error(),
-        })
-    }
-
-    var g errgroup.Group
-    threadMap := make(map[string]*gmail.Thread)  // To store full thread information
-    replyCountMap := make(map[string]int)       // To track the number of replies per thread
-	mu := &sync.Mutex{}
-
-    for _, t := range res.Threads {
-        t := t // capture range variable
-        g.Go(func() error {
-            // Fetch the full thread details
-            thread, err := srv.Users.Threads.Get("me", t.Id).Do()
-            if err != nil {
-                facades.Log().Errorf("Failed to fetch thread %s: %v", t.Id, err)
-                return nil // ignore failed thread
-            }
-
-            mu.Lock()
-            defer mu.Unlock()
-
-            // Store the thread
-            threadMap[t.Id] = thread
-
-            // Count the number of replies in the thread (total messages minus 1 for the initial message)
-            replyCountMap[t.Id] = len(thread.Messages) - 1
-
-            return nil
-        })
-    }
-
-    // Wait for all goroutines to finish
-    if err := g.Wait(); err != nil {
-        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to fetch threads: %v", err)})
-    }
-
-    // Build the response, showing the initial message and number of replies
-    messages := []map[string]any{}
-    for threadId, thread := range threadMap {
-        // Get the first message in the thread (typically the earliest one)
-        firstMessage := thread.Messages[0]
-
-        // Extract headers like From, Subject, Date from the first message
-        var from, subject, date string
-        for _, h := range firstMessage.Payload.Headers {
-            switch h.Name {
-            case "From":
-                from = h.Value
-            case "Subject":
-                subject = h.Value
-            case "Date":
-                date = h.Value
-            }
-        }
-
-        // Get the number of replies (stored in replyCountMap)
-        replyCount := replyCountMap[threadId]
-
-        // Build the response object for this thread
-        messages = append(messages, map[string]any{
-            "id":         firstMessage.Id,
-            "threadId":   threadId,
-            "from":       from,
-            "subject":    subject,
-            "snippet":    firstMessage.Snippet,
-            "date":       date,
-            "replyCount": replyCount,
-        })
-
-		
-
-    }
-
-	response := map[string]any{
-		"messages":      messages,           
-		"nextPageToken": res.NextPageToken,  
+	srv, err := GetClientFromDB(email)
+	if err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError,
+			map[string]string{"error": "Failed to get Gmail client"})
 	}
 
-    return ctx.Response().Json(http.StatusOK, response)
+	// Request 20 threads per page
+	call := srv.Users.Threads.List("me").MaxResults(20)
+
+	if labelFilter == "starred" {
+		call = call.LabelIds("STARRED")
+	} else if labelFilter == "inbox" {
+		call = call.LabelIds("INBOX")
+	}
+
+	if pageToken != "" {
+		call = call.PageToken(pageToken)
+	}
+	res, err := call.Do()
+	if err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError,
+			map[string]string{"error": err.Error()})
+	}
+
+	var g errgroup.Group
+	threadMap := make(map[string]*gmail.Thread)
+	replyCountMap := make(map[string]int)
+	mu := &sync.Mutex{}
+
+	// fetch each thread concurrently
+	for _, t := range res.Threads {
+		t := t
+		g.Go(func() error {
+			thread, err := srv.Users.Threads.Get("me", t.Id).Do()
+			if err != nil {
+				facades.Log().Errorf("Failed to fetch thread %s: %v", t.Id, err)
+				return nil
+			}
+			mu.Lock()
+			threadMap[t.Id] = thread
+			replyCountMap[t.Id] = len(thread.Messages) - 1
+			mu.Unlock()
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError,
+			map[string]string{"error": fmt.Sprintf("Failed to fetch threads: %v", err)})
+	}
+
+	// build response
+	messages := []map[string]any{}
+	for threadId, thread := range threadMap {
+		latestMessage := thread.Messages[len(thread.Messages)-1]
+
+		// parse headers
+		var from, subject, date string
+		for _, h := range latestMessage.Payload.Headers {
+			switch h.Name {
+			case "From":
+				from = h.Value
+				if strings.Contains(from, "<") {
+					from = strings.TrimSpace(strings.Split(from, "<")[0])
+				}
+			case "Subject":
+				subject = h.Value
+			case "Date":
+				date = h.Value
+			}
+		}
+
+
+		// unread and starred check
+		isUnread := false
+		isStarred := false
+		isPromotions := false // Track if the message belongs to CATEGORY_PROMOTIONS
+		for _, m := range thread.Messages {
+			fmt.Println("Label: ",m.LabelIds);
+			for _, lbl := range m.LabelIds {
+				if lbl == "UNREAD" {
+					isUnread = true
+				}
+				if lbl == "STARRED" {
+					isStarred = true
+				}
+				if lbl == "CATEGORY_PROMOTIONS" {
+					isPromotions = true
+				}
+			}
+		}
+
+		// Skip the message if it not has "CATEGORY_PROMOTIONS" label
+		if isPromotions {
+			continue // Skip this thread if it's promotions
+		}
+
+		// response row
+		messages = append(messages, map[string]any{
+			"id":           latestMessage.Id,
+			"threadId":     threadId,
+			"from":         from,
+			"subject":      subject,
+			"snippet":      latestMessage.Snippet,
+			"date":         date,
+			"replyCount":   replyCountMap[threadId],
+			"isUnread":     isUnread,
+			"isStarred":    isStarred,
+		})
+	}
+
+	return ctx.Response().Json(http.StatusOK, map[string]any{
+		"messages":      messages,
+		"nextPageToken": res.NextPageToken,
+	})
 }
 
 
@@ -455,15 +280,16 @@ func (c *GmailController) ReadMessage(ctx http.Context) http.Response {
 		})
 	}
 
-	// Fetch the single message first to get threadId
-	msg, err := srv.Users.Messages.Get("me", messageID).Format("full").Do()
+	// Fetch the thread directly using messageID
+	// Trick: we don't know the threadId yet, so we fetch the message in metadata (cheap + small payload)
+	msg, err := srv.Users.Messages.Get("me", messageID).Format("metadata").Do()
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
 			"error": fmt.Sprintf("Failed to fetch message %s: %v", messageID, err),
 		})
 	}
 
-	// Fetch the full thread
+	// Now fetch the whole thread (only ONE full request)
 	thread, err := srv.Users.Threads.Get("me", msg.ThreadId).Format("full").Do()
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
@@ -479,15 +305,50 @@ func (c *GmailController) ReadMessage(ctx http.Context) http.Response {
 		date := getHeader(m.Payload.Headers, "Date")
 		body := extractMessageBody(m.Payload)
 
+		// Default to the raw header first
+		formattedDate := date
+
+		parsedDate, err := time.Parse(time.RFC1123Z, date)
+		if err != nil {
+			// Gmail sometimes includes "(PDT)" or "(UTC)" etc, strip it
+			parts := strings.Split(date, "(")
+			cleanDate := strings.TrimSpace(parts[0])
+
+			parsedDate, err = time.Parse(time.RFC1123Z, cleanDate)
+			if err != nil {
+				// try fallback without zone offset
+				parsedDate, err = time.Parse(time.RFC1123, cleanDate)
+			}
+		}
+
+		if err == nil {
+			formattedDate = parsedDate.Local().Format("Jan 02, 2006, 3:04 PM")
+		}
+
+
 		messages = append(messages, map[string]any{
 			"id":      m.Id,
 			"from":    from,
 			"subject": subject,
-			"date":    date,
+			"date":    formattedDate,
 			"snippet": m.Snippet,
 			"body":    body,
+			"labels":  m.LabelIds, // <-- contains "UNREAD"
 		})
+
+		fmt.Println("m: ",m.Id);
+		// If this message was unread → mark it as read
+		if contains(m.LabelIds, "UNREAD") {
+			_, err := srv.Users.Messages.Modify("me", m.Id, &gmail.ModifyMessageRequest{
+				RemoveLabelIds: []string{"UNREAD"},
+			}).Do()
+			if err != nil {
+				facades.Log().Errorf("Failed to mark message %s as read: %v", messageID, err)
+			}
+		}
 	}
+
+	
 
 	// Build response
 	result := map[string]any{
@@ -497,6 +358,17 @@ func (c *GmailController) ReadMessage(ctx http.Context) http.Response {
 
 	return ctx.Response().Json(http.StatusOK, result)
 }
+
+// helper
+func contains(list []string, item string) bool {
+	for _, v := range list {
+		if v == item {
+			return true
+		}
+	}
+	return false
+}
+
 
 // helper to extract a specific header
 func getHeader(headers []*gmail.MessagePartHeader, key string) string {
@@ -544,155 +416,6 @@ func extractMessageBody(payload *gmail.MessagePart) string {
 
 
 
-// func (c *GmailController) ReplyMessage(ctx http.Context) http.Response {
-// 	messageID := ctx.Request().Route("id")
-// 	email := ctx.Request().Input("email")
-// 	body := ctx.Request().Input("body")
-
-// 	if messageID == "" || email == "" || body == "" {
-// 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
-// 			"error": "Missing required parameters",
-// 		})
-// 	}
-
-// 	// Get Gmail client
-// 	srv, err := GetClientFromDB(email)
-// 	if err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-// 			"error": "Failed to get Gmail client",
-// 		})
-// 	}
-
-// 	// Fetch original message to get threadId and recipient
-// 	origMsg, err := srv.Users.Messages.Get("me", messageID).Format("full").Do()
-// 	if err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-// 			"error": fmt.Sprintf("Failed to fetch original message: %v", err),
-// 		})
-// 	}
-
-// 	// Get original "From" to reply to
-// 	to := getHeader(origMsg.Payload.Headers, "From")
-// 	subject := getHeader(origMsg.Payload.Headers, "Subject")
-// 	if subject[:3] != "Re:" {
-// 		subject = "Re: " + subject
-// 	}
-
-// 	// Build raw RFC2822 message
-// 	raw := fmt.Sprintf("To: %s\r\nSubject: %s\r\nIn-Reply-To: %s\r\nReferences: %s\r\n\r\n%s",
-// 		to, subject, origMsg.Id, origMsg.Id, body)
-
-// 	// Encode in base64 URL encoding
-// 	message := &gmail.Message{
-// 		Raw: base64.URLEncoding.EncodeToString([]byte(raw)),
-// 		ThreadId: origMsg.ThreadId,
-// 	}
-
-// 	_, err = srv.Users.Messages.Send("me", message).Do()
-// 	if err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-// 			"error": fmt.Sprintf("Failed to send reply: %v", err),
-// 		})
-// 	}
-
-// 	return ctx.Response().Json(http.StatusOK, map[string]string{
-// 		"message": "Reply sent successfully",
-// 	})
-// }
-
-// func (c *GmailController) ReplyMessage(ctx http.Context) http.Response {
-// 	messageID := ctx.Request().Route("id")
-// 	email := ctx.Request().Input("email")
-// 	body := ctx.Request().Input("body")
-
-// 	if messageID == "" || email == "" || body == "" {
-// 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
-// 			"error": "Missing required parameters",
-// 		})
-// 	}
-
-// 	srv, err := GetClientFromDB(email)
-// 	if err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-// 			"error": "Failed to get Gmail client",
-// 		})
-// 	}
-
-// 	origMsg, err := srv.Users.Messages.Get("me", messageID).Format("full").Do()
-// 	if err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-// 			"error": fmt.Sprintf("Failed to fetch original message: %v", err),
-// 		})
-// 	}
-
-// 	to := getHeader(origMsg.Payload.Headers, "From")
-// 	subject := getHeader(origMsg.Payload.Headers, "Subject")
-// 	if !strings.HasPrefix(subject, "Re:") {
-// 		subject = "Re: " + subject
-// 	}
-
-// 	messageIDHeader := getHeader(origMsg.Payload.Headers, "Message-ID")
-// 	if !strings.HasPrefix(messageIDHeader, "<") {
-// 		messageIDHeader = "<" + messageIDHeader + ">"
-// 	}
-
-// 	// Use original message date (format it properly)
-// 	timestamp := time.Unix(origMsg.InternalDate/1000, 0).Format("Mon, Jan 2, 2006 at 3:04PM")
-// 	originalBody := getMessageBody(origMsg)
-
-// 	// Build HTML body with quoted section
-// 	quotedHTML := fmt.Sprintf(`
-// <div dir="ltr">%s</div><br>
-// <div class="gmail_quote">
-//   <div dir="ltr" class="gmail_attr">On %s, %s wrote:</div>
-//   <blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px solid #ccc;padding-left:1ex">
-//     <div dir="ltr">%s</div>
-//   </blockquote>
-// </div>`,
-// 		body, timestamp, to, originalBody)
-
-// 	raw := fmt.Sprintf(
-// 		"To: %s\r\nSubject: %s\r\nIn-Reply-To: %s\r\nReferences: %s\r\nContent-Type: text/html; charset=\"UTF-8\"\r\n\r\n%s",
-// 		to, subject, messageIDHeader, messageIDHeader, quotedHTML,
-// 	)
-
-// 	encoded := base64.URLEncoding.EncodeToString([]byte(raw))
-// 	message := &gmail.Message{
-// 		Raw:      encoded,
-// 		ThreadId: origMsg.ThreadId,
-// 	}
-
-// 	_, err = srv.Users.Messages.Send("me", message).Do()
-// 	if err != nil {
-// 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-// 			"error": fmt.Sprintf("Failed to send reply: %v", err),
-// 		})
-// 	}
-
-// 	return ctx.Response().Json(http.StatusOK, map[string]string{
-// 		"message": "Reply sent successfully",
-// 	})
-// }
-
-// // Extract text/plain body if exists, else fallback to snippet
-// func getMessageBody(msg *gmail.Message) string {
-//     if msg.Payload != nil && len(msg.Payload.Parts) > 0 {
-//         for _, part := range msg.Payload.Parts {
-//             if part.MimeType == "text/plain" && part.Body != nil && part.Body.Data != "" {
-//                 // Gmail’s body data is base64 URL safe encoded
-//                 data, err := base64.URLEncoding.DecodeString(part.Body.Data)
-//                 if err == nil {
-//                     return string(data)
-//                 }
-//             }
-//         }
-//     }
-//     // fallback
-//     return msg.Snippet
-// }
-
-
-
 func getHTMLBody(msg *gmail.Message) string {
 	if msg.Payload.MimeType == "text/html" && msg.Payload.Body != nil && msg.Payload.Body.Data != "" {
 		data, err := base64.URLEncoding.DecodeString(msg.Payload.Body.Data)
@@ -714,94 +437,107 @@ func getHTMLBody(msg *gmail.Message) string {
 }
 
 
-// ReplyMessage handles replying to an email
-func (c *GmailController) ReplyMessage(ctx http.Context) http.Response {
-	messageID := ctx.Request().Route("id")
-	email := ctx.Request().Input("email")  
-	body := ctx.Request().Input("body")  
 
-	// Validate inputs
-	if messageID == "" || email == "" || body == "" {
-		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
-			"error": "Missing required parameters",
+
+
+// GET /gmail/accounts
+func (c *GmailController) ListAccounts(ctx http.Context) http.Response {
+	var accounts []models.GmailAccount
+	if err := facades.Orm().Query().Get(&accounts); err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to fetch accounts",
 		})
 	}
+	return ctx.Response().Json(http.StatusOK, accounts)
+}
 
-	// Get Gmail client
+// DELETE /gmail/accounts/:email
+func (c *GmailController) DeleteAccount(ctx http.Context) http.Response {
+	email := ctx.Request().Route("email")
+
+	if _,err := facades.Orm().Query().Where("email", email).Delete(&models.GmailAccount{}); err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to delete account",
+		})
+	}
+	return ctx.Response().Json(http.StatusOK, map[string]string{
+		"message": "Account removed",
+	})
+}
+
+
+func (c *GmailController) GetGmailAccountTeams(ctx http.Context) http.Response{
+	return ctx.Response().Json(http.StatusOK, models.GmailAccountTeams); 
+}
+
+
+
+func (c *GmailController) ToggleStar(ctx http.Context) http.Response {
+	threadID := ctx.Request().Route("id")
+	email := ctx.Request().Query("email")
+
 	srv, err := GetClientFromDB(email)
 	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to get Gmail client",
-		})
+		return ctx.Response().Json(http.StatusInternalServerError,
+			map[string]string{"error": "Failed to get Gmail client"})
 	}
 
-	// Fetch the original message to get threadId, subject, and other details
-	origMsg, err := srv.Users.Messages.Get("me", messageID).Format("full").Do()
+	// 1. Get the thread with messages
+	thread, err := srv.Users.Threads.Get("me", threadID).Format("full").Do()
 	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": fmt.Sprintf("Failed to fetch original message: %v", err),
-		})
+		return ctx.Response().Json(http.StatusInternalServerError,
+			map[string]string{"error": "Failed to fetch thread"})
 	}
 
-	// Extract "From" and "Subject" headers
-	to := getHeader(origMsg.Payload.Headers, "From")
-	subject := getHeader(origMsg.Payload.Headers, "Subject")
+	fmt.Printf("Thread ID: %s\n", threadID)
+fmt.Printf("Number of messages: %d\n", len(thread.Messages))
+for i, msg := range thread.Messages {
+    fmt.Printf("Message %d ID: %s, Labels: %v\n", i, msg.Id, msg.LabelIds)
+}
 
-	// Make sure the subject has "Re:" prefix for reply
-	if !strings.HasPrefix(subject, "Re:") {
-		subject = "Re: " + subject
+	if len(thread.Messages) == 0 {
+		return ctx.Response().Json(http.StatusNotFound,
+			map[string]string{"error": "No messages in thread"})
 	}
 
-	// Message-ID for "In-Reply-To" and "References"
-	messageIDHeader := getHeader(origMsg.Payload.Headers, "Message-ID")
-	if !strings.HasPrefix(messageIDHeader, "<") {
-		messageIDHeader = "<" + messageIDHeader + ">"
+	// 2. Latest message = last in slice
+	latest := thread.Messages[len(thread.Messages)-1]
+
+	// 3. Check if latest is starred
+	isStarred := false
+	for _, lbl := range latest.LabelIds {
+		if lbl == "STARRED" {
+			isStarred = true
+			break
+		}
 	}
 
-	// Get the timestamp of the original message
-	timestamp := time.Unix(origMsg.InternalDate/1000, 0).Format("Mon, Jan 2, 2006 at 3:04PM")
-
-	// Get the original HTML body
-	originalHTMLBody := getHTMLBody(origMsg)
-
-	// Construct the reply body in HTML
-	htmlReply := fmt.Sprintf(`
-<div dir="ltr">%s</div><br>
-<div class="gmail_quote">
-  <div dir="ltr" class="gmail_attr">
-    On %s, %s wrote:
-  </div>
-  <blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px solid #ccc;padding-left:1ex">
-    %s
-  </blockquote>
-</div>`,
-		body, timestamp, to, originalHTMLBody)
-
-	// Construct the raw MIME email with proper headers
-	raw := fmt.Sprintf(
-		"To: %s\r\nSubject: %s\r\nIn-Reply-To: %s\r\nReferences: %s\r\nContent-Type: text/html; charset=\"UTF-8\"\r\n\r\n%s",
-		to, subject, messageIDHeader, messageIDHeader, htmlReply,
-	)
-
-	// Base64 encode the raw message
-	encoded := base64.URLEncoding.EncodeToString([]byte(raw))
-
-	// Create the Gmail message object
-	message := &gmail.Message{
-		Raw:      encoded,
-		ThreadId: origMsg.ThreadId,
+	if isStarred {
+		// 4a. Unstar = remove STARRED from all messages in thread
+		for _, msg := range thread.Messages {
+			_, err := srv.Users.Messages.Modify("me", msg.Id, &gmail.ModifyMessageRequest{
+				RemoveLabelIds: []string{"STARRED"},
+			}).Do()
+			if err != nil {
+				return ctx.Response().Json(http.StatusInternalServerError,
+					map[string]string{"error": fmt.Sprintf("Failed to unstar message %s: %v", msg.Id, err)})
+			}
+		}
+	} else {
+		// 4b. Star = add STARRED only to latest message
+		_, err := srv.Users.Messages.Modify("me", latest.Id, &gmail.ModifyMessageRequest{
+			AddLabelIds: []string{"STARRED"},
+		}).Do()
+		if err != nil {
+			return ctx.Response().Json(http.StatusInternalServerError,
+				map[string]string{"error": fmt.Sprintf("Failed to star message: %v", err)})
+		}
 	}
 
-	// Send the reply using Gmail API
-	_, err = srv.Users.Messages.Send("me", message).Do()
-	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": fmt.Sprintf("Failed to send reply: %v", err),
-		})
-	}
-
-	// Return success response
-	return ctx.Response().Json(http.StatusOK, map[string]string{
-		"message": "Reply sent successfully",
+	// 5. Return response
+	return ctx.Response().Json(http.StatusOK, map[string]any{
+		"threadId":  threadID,
+		"messageId": latest.Id,
+		"starred":   !isStarred, // new status
 	})
 }
