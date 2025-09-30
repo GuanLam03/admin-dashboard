@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import api from "../../api/axios";
-import ReplyIcon from '@mui/icons-material/Reply';
-import ReplyBox from "./ReplyBox";
+import ShortcutIcon from '@mui/icons-material/Shortcut';
+import MessageActionBox from "./MessageActionBox";
+
+
+
 
 export default function MessageViewPage() {
-  const { folder,id } = useParams(); 
+  const { folder, id } = useParams();
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email"); // query param
 
@@ -13,7 +16,8 @@ export default function MessageViewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-   const [showReply, setShowReply] = useState(false);
+  const [showReply, setShowReply] = useState(false);
+  const [showForward, setShowForward] = useState(false);
 
   useEffect(() => {
     async function fetchThread() {
@@ -31,6 +35,16 @@ export default function MessageViewPage() {
       fetchThread();
     }
   }, [id, email]);
+
+  const handleReplyClick = () => {
+    setShowReply(true);
+    setShowForward(false); // Hide forward button when replying
+  };
+
+  const handleForwardClick = () => {
+    setShowForward(true);
+    setShowReply(false); // Hide reply button when forwarding
+  };
 
   if (loading) return <p className="p-4">Loading...</p>;
   if (error) return <p className="p-4 text-red-500">{error}</p>;
@@ -52,32 +66,70 @@ export default function MessageViewPage() {
 
           <div dangerouslySetInnerHTML={{ __html: message.body }} />
 
-          {/* Show Reply button only on the last message */}
+          {/* Show Reply/Forward buttons only on the last message */}
           {index === thread.messages.length - 1 && (
-            <>
-              {!showReply && (
-                <div
-                  className="flex justify-between items-center mt-4 border border-gray-400 rounded-full px-4 py-2 w-[120px] text-gray-600 font-semibold hover:bg-gray-100 cursor-pointer"
-                  onClick={() => setShowReply(true)}
-                >
-                  <ReplyIcon />
-                  <span className="ml-2">Reply</span>
+            <div className="flex flex-col space-y-4 mt-4">
+              {/* Show Reply and Forward buttons at the top */}
+              {!showReply && !showForward && (
+                <div className="flex space-x-4">
+                  <div
+                    className="flex justify-between items-center border border-gray-400 rounded-full px-4 py-2 w-[120px] text-gray-600 font-semibold hover:bg-gray-100 cursor-pointer"
+                    onClick={handleReplyClick}
+                  >
+                    <ShortcutIcon className="scale-x-[-1]"/>
+                    <span className="ml-2">Reply</span>
+                  </div>
+                  <div
+                    className="flex justify-between items-center border border-gray-400 rounded-full px-4 py-2 w-[150px] text-gray-600 font-semibold hover:bg-gray-100 cursor-pointer"
+                    onClick={handleForwardClick}
+                  >
+                    <ShortcutIcon />
+                    <span className="ml-2">Forward</span>
+                  </div>
                 </div>
               )}
 
+              {/* Show ReplyBox for Reply */}
               {showReply && (
-                <ReplyBox
-                  mailbox={folder}
-                  messageId={message.id}
-                  email={email}
-                  onSent={() => {
-                    setShowReply(false);
-                    fetchThread(); // refresh thread after reply
-                  }}
-                  onCancel={() => setShowReply(false)}
-                />
+                <div className="flex flex-col space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-semibold">Reply</h3>
+                  </div>
+                  <MessageActionBox
+                    mailbox={folder}
+                    messageId={message.id}
+                    email={email}
+                    type="reply"
+                    onSent={() => {
+                      setShowReply(false);
+                      fetchThread(); // Refresh thread after reply
+                    }}
+                    onCancel={() => setShowReply(false)}
+                  />
+                </div>
               )}
-            </>
+
+              {/* Show ReplyBox for Forward */}
+              {showForward && (
+                <div className="flex flex-col space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-semibold">Forward</h3>
+                  </div>
+                  <MessageActionBox
+                    mailbox={folder}
+                    messageId={message.id}
+                    email={email}
+                    type="forward"
+                    originalMessage={message}
+                    onSent={() => {
+                      setShowForward(false);
+                      fetchThread(); // Refresh thread after forward
+                    }}
+                    onCancel={() => setShowForward(false)}
+                  />
+                </div>
+              )}
+            </div>
           )}
         </div>
       ))}
