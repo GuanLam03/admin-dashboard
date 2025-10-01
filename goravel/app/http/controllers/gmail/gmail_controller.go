@@ -198,23 +198,17 @@ func (c *GmailController) ListMessages(ctx http.Context) http.Response {
 	// build response
 	messages := []map[string]any{}
 	for threadId, thread := range threadMap {
+		firstMessage := thread.Messages[0]
 		latestMessage := thread.Messages[len(thread.Messages)-1]
 
 		// parse headers
 		var from, subject, date string
-		for _, h := range latestMessage.Payload.Headers {
-			switch h.Name {
-			case "From":
-				from = h.Value
-				if strings.Contains(from, "<") {
-					from = strings.TrimSpace(strings.Split(from, "<")[0])
-				}
-			case "Subject":
-				subject = h.Value
-			case "Date":
-				date = h.Value
-			}
+		from = getHeader(latestMessage.Payload.Headers,"From")
+		if strings.Contains(from, "<") {
+			from = strings.TrimSpace(strings.Split(from, "<")[0])
 		}
+		subject = getHeader(firstMessage.Payload.Headers,"Subject")
+		date = getHeader(latestMessage.Payload.Headers,"Date")
 
 
 		// unread and starred check
