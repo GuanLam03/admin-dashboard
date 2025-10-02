@@ -39,6 +39,7 @@ export default function InboxPage({ folder, emailAddress }) {
       const url = `/gmail/${folder}/messages?email=${emailAddress}&label=${activeTab}${pageToken ? `&pageToken=${pageToken}` : ""}`;
       const res = await api.get(url);
 
+  
       const sorted = res.data.messages.sort((a, b) => parseGmailDate(b.date) - parseGmailDate(a.date));
 
       setEmails(prev =>
@@ -154,7 +155,7 @@ export default function InboxPage({ folder, emailAddress }) {
                   {email.from} {replyCount}
                 </td>
                 <td className="px-2 py-2">
-                  <span className={isUnread}>{email.subject}</span>{" "}
+                  <span className={isUnread}>{email.subject}</span>{" - "}
                   <span className="text-gray-500">{email.snippet}</span>
                 </td>
                 <td className={`px-2 py-2 text-right text-sm text-gray-600 ${isUnread}`}>

@@ -3,6 +3,7 @@ import api from "../../api/axios";
 import { HiOutlineTemplate } from "react-icons/hi";
 import { Tooltip } from "bootstrap"; 
 import CloseIcon from '@mui/icons-material/Close';
+import Editor from "../../tools/Editor";
 
 
 // const templates = [
@@ -150,7 +151,7 @@ export default function MessageActionBox({ mailbox, messageId, email, onSent, ty
       )}
 
       {/* User’s text */}
-      <textarea
+      {/* <textarea
         ref={textareaRef}
         className="w-full resize-none rounded-md p-2 focus:outline-none overflow-hidden"
         placeholder={type === "forward" ? "Write your message..." : "Write your reply..."}
@@ -160,6 +161,11 @@ export default function MessageActionBox({ mailbox, messageId, email, onSent, ty
           adjustHeight();
         }}
         style={{ minHeight: "100px" }}
+      /> */}
+
+      <Editor
+        value={body}
+        onChange={setBody}
       />
 
       {/* Forwarded HTML preview */}
@@ -172,7 +178,7 @@ export default function MessageActionBox({ mailbox, messageId, email, onSent, ty
 
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
 
-      <div className="flex items-center gap-2 ">
+      <div className="flex items-center gap-2 mt-4">
         <button
           className="px-4 py-2 bg-blue-600 text-white !rounded-full hover:bg-blue-700"
           onClick={handleSend}

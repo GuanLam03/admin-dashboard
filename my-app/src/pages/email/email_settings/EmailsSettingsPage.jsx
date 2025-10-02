@@ -6,6 +6,7 @@ import api from "../../../api/axios";
 import { MdExpandMore } from "react-icons/md";
 import { MdExpandLess } from "react-icons/md";
 import CloseIcon from '@mui/icons-material/Close';
+import Editor from "../../../tools/Editor";
 
 export default function EmailsSettingsPage() {
   const [accounts, setAccounts] = useState([]);
@@ -174,11 +175,18 @@ export default function EmailsSettingsPage() {
                     key={t.id}
                     className="flex justify-between items-center border p-2 rounded"
                   >
-                    <div>
+                    {/* <div>
                       <p className="font-medium">{t.name}</p>
                       <p className="text-gray-600 text-sm line-clamp-2">
                         {t.content}
                       </p>
+                    </div> */}
+                    <div>
+                      <p className="font-medium">{t.name}</p>
+                      <div
+                        className="text-gray-600 text-sm line-clamp-2"
+                        dangerouslySetInnerHTML={{ __html: t.content }}
+                      />
                     </div>
                     <div className="flex gap-2">
                       <button
@@ -222,7 +230,7 @@ export default function EmailsSettingsPage() {
                 setEditingTemplate({ ...editingTemplate, name: e.target.value })
               }
             />
-            <textarea
+            {/* <textarea
               className="w-full border p-2 rounded h-[50vh]"
               placeholder="Template content"
               value={editingTemplate?.content || ""}
@@ -232,7 +240,14 @@ export default function EmailsSettingsPage() {
                   content: e.target.value,
                 })
               }
+            /> */}
+            <Editor
+              value={editingTemplate?.content || ""}
+              onChange={(content) =>
+                setEditingTemplate({ ...editingTemplate, content })
+              }
             />
+
             <div className="flex justify-end gap-2 mt-4">
               <button
                 className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
@@ -250,6 +265,8 @@ export default function EmailsSettingsPage() {
           </div>
         </div>
       )}
+
+ 
     </div>
   );
 }
