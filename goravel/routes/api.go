@@ -14,6 +14,12 @@ import (
 	"goravel/app/http/controllers/schedules"
 	"goravel/app/http/controllers/googleAuthenticator"
 	"goravel/app/http/controllers/gmail"
+	"goravel/app/http/controllers/adsTracking"
+	"goravel/app/http/controllers/adsCampaign"
+	"goravel/app/http/controllers/adsLogs"
+
+
+
 
 
 
@@ -48,6 +54,16 @@ func Api() {
 
 	templateController := gmail.NewTemplateController()
 
+	addAdsCampaignController := adsCampaign.NewAddAdsCampaignController()
+	editAdsCampaignController := adsCampaign.NewEditAdsCampaignController()
+	adsCampaignController := adsCampaign.NewAdsCampaignController()
+	reportAdsCampaignController := adsCampaign.NewReportAdsCampaignController()
+
+
+	adsLogController := adsLogs.NewAdsLogController()
+
+
+	adsTrackingController := adsTracking.NewAdsTrackingController()
 
 
 	
@@ -71,6 +87,22 @@ func Api() {
 		router.Get("/twofa/qrcode",twofaController.GenerateQRCode)
 		router.Post("/twofa/enable",twofaController.ConfirmEnable)
 		router.Post("/twofa/disable",twofaController.ConfirmDisable)
+
+
+		// Add ads campaign
+		router.Post("/add-ads-campaign",addAdsCampaignController.AddAdsCampaign)
+
+		//List ads campaign
+		router.Get("/ads-campaign",adsCampaignController.ListAdsCampaigns)
+		// Show edit ads campaign
+		router.Get("/edit-ads-campaign/:id",editAdsCampaignController.ShowAdsCampaign)
+		router.Post("/edit-ads-campaign/:id",editAdsCampaignController.EditAdsCampaign)
+
+		router.Get("/ads-campaign/report/:campaign_id",reportAdsCampaignController.ShowReportAdsCampaign)
+
+		//List ads log
+		router.Get("/ads-logs",adsLogController.ListAdsLogs)
+
 
 		
 	})
@@ -160,6 +192,10 @@ func Api() {
 	facades.Route().Post("/gmail/templates/edit/:id", templateController.EditTemplate)
 	facades.Route().Post("/gmail/templates/remove/:id", templateController.RemoveTemplate)
 	
+
+	facades.Route().Get("/:code",adsTrackingController.Track)
+
+	facades.Route().Get("/postback",adsTrackingController.PostBackAdsTracking)
 
 
 

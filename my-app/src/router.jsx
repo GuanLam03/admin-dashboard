@@ -29,6 +29,15 @@ import TechnicalEmailsPage from './pages/email/TechnicalEmailsPage';
 import SupportEmailsPage from './pages/email/SupportEmailsPage';
 import MessageViewPage from './pages/email/MessageViewPage';
 import EmailsSettingsPage from './pages/email/email_settings/EmailsSettingsPage';
+import AdsTrackingPage from './pages/ads_tracking/ads_campaign/AdsCampaignPage';
+import AdsCampaignPage from './pages/ads_tracking/ads_campaign/AdsCampaignPage';
+import AdsCampaignAddPage from './pages/ads_tracking/ads_campaign/AdsCampaignAddPage';
+import AdsTrackingLayout from './pages/ads_tracking/AdsTrackingLayout';
+import AdsCampaignEditPage from './pages/ads_tracking/ads_campaign/AdsCampaignEditPage';
+import AdsReportPage from './pages/ads_tracking/ads_report/AdsReportPage';
+import AdsCampaignReportPage from './pages/ads_tracking/ads_campaign/AdsCampaignReportPage';
+import AdsLogPage from './pages/ads_tracking/ads_log/AdsLogPage';
+
 
 
 
@@ -89,6 +98,31 @@ const router = createBrowserRouter([
                     
                 ],
             },
+            {
+                path: "/ads-tracking",
+                element: <AdsTrackingLayout />,
+                children: [
+                    { path: 'campaign', element: <AdsCampaignPage />, },
+                    { path: 'campaign/add', element: <AdsCampaignAddPage /> },
+                    { path: 'campaign/edit/:id', element: <AdsCampaignEditPage /> },
+                    { path: 'campaign/report/:id', element: <AdsCampaignReportPage /> },
+
+
+                    { path: 'log', element: <AdsLogPage /> },
+
+
+                    { path: 'report', element: <AdsReportPage /> },
+
+
+
+                    
+                ],
+            },
+            
+
+
+   
+
             { path: '/settings', element: <SettingsPage /> },
             { path: '/settings/twofactor', element: <TwoFactorSettingsPage /> },
             { path: '/settings/twofactor/disable', element: <TwoFactorDisablePage /> },

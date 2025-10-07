@@ -6,15 +6,7 @@ import api from "../api/axios";
 export default function DefaultLayout() {
   const { setUser, user, loading, logout, setLoading } = useAuth();
 
-  const [emailsOpen, setEmailsOpen] = useState(() => {
-    // Load from localStorage on first render
-    return localStorage.getItem("emailsOpen") === "true";
-  });
-
-  // Sync state to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem("emailsOpen", emailsOpen.toString());
-  }, [emailsOpen]);
+ const [sidebar, toggleSidebar] = useSidebarState();
 
 
   useEffect(() => {
@@ -27,7 +19,7 @@ export default function DefaultLayout() {
   if (loading) return <div>Loading...</div>;
   if (!user) return <Navigate to="/login" />;
 
-  // 🔹 small helper
+  // small helper
   const hasPermission = (perm) => user?.permissions?.includes(perm);
 
   return (
@@ -88,17 +80,17 @@ export default function DefaultLayout() {
               </NavLink>
             </li>
 
-            {/* 🔹 Emails Section */}
+            {/*  Emails Section */}
             {(hasPermission("gmail.technical.read") || hasPermission("gmail.support.read")) && (
               <li>
                 <div>
                   <button
                     className="w-full flex justify-between items-center text-blue-600 hover:bg-blue-100 rounded px-4 py-2"
-                    onClick={() => setEmailsOpen(!emailsOpen)}
+                    onClick={() => toggleSidebar("emails")}
                   >
                     <span>Emails</span>
                     <svg
-                      className={`w-4 h-4 transition-transform duration-200 ${emailsOpen ? "rotate-90" : ""}`}
+                      className={`w-4 h-4 transition-transform duration-200 ${sidebar.emails ? "rotate-90" : ""}`}
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
@@ -107,7 +99,7 @@ export default function DefaultLayout() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
-                  {emailsOpen && (
+                  {sidebar.emails && (
                     <ol className="ml-4 mt-2">
                       {hasPermission("gmail.technical.read") && (
                         <li>
@@ -136,6 +128,58 @@ export default function DefaultLayout() {
                 </div>
               </li>
             )}
+
+         
+            {/*  Ads Tracking Section */}
+            <li>
+              <div>
+                <button
+                  className="w-full flex justify-between items-center text-blue-600 hover:bg-blue-100 rounded px-4 py-2"
+                  onClick={() => toggleSidebar("ads")}
+                >
+                  <span>Ads Tracking</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-200 ${sidebar.ads ? "rotate-90" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                {sidebar.ads && (
+                  <ol className="ml-4 mt-2">
+  
+                      <li>
+                        <NavLink to="/ads-tracking/campaign" className={({ isActive }) =>
+                          `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
+                          Ads Campaign
+                        </NavLink>
+                      </li>
+                    
+
+                      <li>
+                        <NavLink to="/ads-tracking/log" className={({ isActive }) =>
+                          `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
+                          Ads Log
+                        </NavLink>
+                      </li>
+
+                       <li>
+                        <NavLink to="/ads-tracking/report" className={({ isActive }) =>
+                          `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
+                          Ads Report
+                        </NavLink>
+                      </li>
+                    
+                  
+                  </ol>
+                )}
+              </div>
+            </li>
+            
+
 
             <li>
               <NavLink to="/settings" className={({ isActive }) =>
@@ -170,4 +214,23 @@ export default function DefaultLayout() {
       </div>
     </div>
   );
+}
+
+
+
+function useSidebarState() {
+  const [state, setState] = useState(() => {
+    const stored = localStorage.getItem("sidebarStates");
+    return stored ? JSON.parse(stored) : {};
+  });
+
+  useEffect(() => {
+    localStorage.setItem("sidebarStates", JSON.stringify(state));
+  }, [state]);
+
+  const toggle = (key) => {
+    setState(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  return [state, toggle];
 }

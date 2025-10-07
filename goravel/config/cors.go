@@ -16,7 +16,8 @@ func init() {
 		// To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 		"paths":                []string{"*"},
 		"allowed_methods":      []string{"*"},
-		"allowed_origins":      []string{"http://localhost:5173"},
+		"allowed_origins":      []string{"http://localhost:5173","http://localhost:8000"},
+		// "allowed_origins":      []string{"*"},
 		"allowed_headers":      []string{"*"},
 		"exposed_headers":      []string{},
 		"max_age":              0,
