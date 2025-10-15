@@ -17,6 +17,7 @@ func (r *M20251006115649UpdateAdsCampaignsTable) Up() error {
 	return facades.Schema().Table("ads_campaigns", func(table schema.Blueprint) {
 		table.Text("tracking_link").Nullable().After("code")
 		table.Text("postback_link").Nullable().After("tracking_link")
+		table.String("status", 20).Default("active").After("postback_link")
 
 	})
 }
@@ -26,5 +27,7 @@ func (r *M20251006115649UpdateAdsCampaignsTable) Down() error {
 	return facades.Schema().Table("ads_campaigns", func(table schema.Blueprint) {
 		table.DropColumn("tracking_link")
 		table.DropColumn("postback_link")
+		table.DropColumn("status")
+
 	})
 }

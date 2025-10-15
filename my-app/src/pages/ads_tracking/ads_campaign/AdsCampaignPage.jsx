@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../../api/axios";
 import { useNavigate } from "react-router-dom";
 import DataTable from "datatables.net-dt";
+import { options } from "@fullcalendar/core/preact.js";
 
 export default function AdsCampaignPage() {
 
@@ -10,6 +11,7 @@ export default function AdsCampaignPage() {
 
       name: "",
       target_url: "",
+      status:"",
       fdate: "",
       tdate: ""
   });
@@ -18,6 +20,9 @@ export default function AdsCampaignPage() {
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
+  const [statusOptions, setStatusOptions] = useState([]);
+
+
   const fetchAdsCampaign = async () => {
       try {
           const params = new URLSearchParams();
@@ -25,8 +30,10 @@ export default function AdsCampaignPage() {
             if (filters[key]) params.append(key, filters[key]);
           });
           const res = await api.get(`/ads-campaign?${params.toString()}`);
+       
           console.log(res);
           setAdsCamapaign(res.data.ads_campaigns || []);
+          setStatusOptions(res.data.status || [])
       } catch (err) {
           setError(`Error fetching adsCampaign: ${err.message}`);
       }
@@ -56,6 +63,8 @@ export default function AdsCampaignPage() {
               { data: "target_url", title: "Target Url" },
               { data: "tracking_link", title: "Tracking Link (Marketing)" },
               { data: "postback_link", title: "Postback Link (Client)" },
+              { data: "status", title: "Status" },
+
 
               { data: "created_at", title: "Created At" },
               { data: "updated_at", title: "Updated At" },
@@ -122,6 +131,25 @@ export default function AdsCampaignPage() {
                 <div>
                     <label>Target Url</label>
                     <input type="text" value={filters.target_url} onChange={(e) => setFilters({ ...filters, target_url: e.target.value })} className="border rounded p-2 w-full" />
+                </div>
+                <div>
+                    <label>Status</label>
+                    {/* <input type="text" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })} className="border rounded p-2 w-full" /> */}
+                    <select
+                        name="status"
+                        value={filters.status}
+                        onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                        className="border rounded p-2 w-full"
+                        
+                    >
+                        <option value=""></option>
+                        {Object.entries(statusOptions).map(([value, label]) => (
+                            <option key={value} value={value}>
+                                {label.charAt(0).toUpperCase() + label.slice(1)}
+                            </option>
+                        ))}
+                        
+                    </select>
                 </div>
 
                 <div>

@@ -13,18 +13,26 @@ function AdsCampaignEditPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const [statusOptions, setStatusOptions] = useState([]);
+
+
  
   useEffect(() => {
     const fetchAdsCampaign = async () => {
       try {
         const res = await api.get(`/edit-ads-campaign/${id}`);
         const result = res.data.ads_campaign;
+        const statusList = res.data.status || [];
+
         setFormData({
             name: result.name || "",
             target_url: result.target_url || "",
             tracking_link: result.tracking_link || "",
-            postback_link: result.postback_link || ""
+            postback_link: result.postback_link || "",
+            status: result.status || "",
         });
+
+        setStatusOptions(statusList);
 
       } catch (err) {
         console.error(err);
@@ -140,6 +148,27 @@ function AdsCampaignEditPage() {
                 />
               </td>
             </tr>
+
+           <tr>
+            <th className="text-left p-2 border">Status</th>
+            <td className="p-2 border">
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="border rounded p-2 w-full"
+                required
+              >
+                {Object.entries(statusOptions).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label.charAt(0).toUpperCase() + label.slice(1)}
+                  </option>
+                ))}
+                
+              </select>
+            </td>
+          </tr>
+
 
           </tbody>
         </table>

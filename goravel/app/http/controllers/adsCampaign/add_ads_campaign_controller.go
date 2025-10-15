@@ -29,6 +29,8 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 			"error": "Invalid request body",
 		})
 	}
+	// add status active
+	adsCampaign.Status = models.AdsCampaignStatusMap["active"]
 
 	errResp, err := validateAdsCampaignInput(adsCampaign)
 	if err != nil {
@@ -50,7 +52,7 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 	trackingLink := fmt.Sprintf("%s:%s/%s", basedUrl, port, adsCampaign.Code)
 	adsCampaign.TrackingLink = &trackingLink
 
-	postbackLink := fmt.Sprintf("%s:%s/postback/?log_id={logId}&product_id={productId}&value={value}", basedUrl, port)
+	postbackLink := fmt.Sprintf("%s:%s/postback/", basedUrl, port)
 	adsCampaign.PostbackLink = &postbackLink
 
 

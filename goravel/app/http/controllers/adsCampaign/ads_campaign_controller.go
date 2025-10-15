@@ -23,8 +23,11 @@ func (a *AdsCampaignController) ListAdsCampaigns(ctx http.Context) http.Response
 		return ctx.Response().Json(500, map[string]string{"error": err.Error()})
 	}
 
+	var status  = models.AdsCampaignStatusMap
+
 	return ctx.Response().Json(200, map[string]any{
 		"ads_campaigns": adsCampaigns,
+		"status" : status,
 	})
 }
 
@@ -38,6 +41,10 @@ func (a *AdsCampaignController) filter(ctx http.Context) ([]models.AdsCampaign, 
 
 	if targetUrl := ctx.Request().Query("target_url"); targetUrl != "" {
 		query = query.Where("target_url LIKE ?", "%" + targetUrl + "%")
+	}
+
+	if status := ctx.Request().Query("status"); status != "" {
+		query = query.Where("status", status)
 	}
 
 	if fdate := ctx.Request().Query("fdate"); fdate != "" {

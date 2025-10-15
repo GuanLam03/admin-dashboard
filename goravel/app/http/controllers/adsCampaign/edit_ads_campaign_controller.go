@@ -23,9 +23,12 @@ func (e *EditAdsCampaignController) ShowAdsCampaign(ctx http.Context) http.Respo
 		return ctx.Response().Json(404, map[string]string{"error": "Ads Campaign not found"})
 	}
 
+	status := models.AdsCampaignStatusMap
+	delete(status, "removed")
 
 	return ctx.Response().Json(200, map[string]any{
 		"ads_campaign": adsCampaign,
+		"status" : status,
 	})
 }
 
@@ -57,6 +60,7 @@ func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Respo
 	//update to existing data
 	adsCampaign.Name = editAdsCampaign.Name
 	adsCampaign.TargetUrl = editAdsCampaign.TargetUrl
+	adsCampaign.Status = editAdsCampaign.Status
 	
 
 	if err := facades.Orm().Query().Save(&adsCampaign); err != nil {
