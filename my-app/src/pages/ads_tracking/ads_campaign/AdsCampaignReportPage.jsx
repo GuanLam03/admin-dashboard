@@ -32,22 +32,23 @@ export default function AdsCampaignReportPage() {
   const fetchLogs = async () => {
     try {
       const res = await api.get(`/ads-campaign/report/${id}`);
-      const logsData = res.data.data || [];
-      const summary = res.data.summary || {};
+      console.log(res.data)
+      // const logsData = res.data.data || [];
+      // const summary = res.data.summary || {};
 
-      // compute conversion rate (if not from backend)
-      const conversionRate =
-        summary.total_clicks > 0
-          ? ((summary.total_conversions / summary.total_clicks) * 100).toFixed(2)
-          : 0;
+      // // compute conversion rate (if not from backend)
+      // const conversionRate =
+      //   summary.total_clicks > 0
+      //     ? ((summary.total_conversions / summary.total_clicks) * 100).toFixed(2)
+      //     : 0;
 
-      setLogs(logsData);
-      setStats({
-        totalClicks: summary.total_clicks || 0,
-        totalConversions: summary.total_conversions || 0,
-        totalRevenue: summary.total_revenue || 0,
-        conversionRate,
-      });
+      // setLogs(logsData);
+      // setStats({
+      //   totalClicks: summary.total_clicks || 0,
+      //   totalConversions: summary.total_conversions || 0,
+      //   totalRevenue: summary.total_revenue || 0,
+      //   conversionRate,
+      // });
     } catch (err) {
       console.error("Error fetching logs:", err);
     }
@@ -176,14 +177,14 @@ export default function AdsCampaignReportPage() {
       </div>
 
       {/* Logs Table */}
-      <div className="bg-white shadow-sm rounded p-4">
+      {/* <div className="bg-white shadow-sm rounded p-4">
         <h5 className="font-semibold mb-4">Detailed Logs</h5>
         <table
           id="adsLogsTable"
           className="display"
           style={{ width: "100%" }}
         ></table>
-      </div>
+      </div> */}
     </div>
   );
 }

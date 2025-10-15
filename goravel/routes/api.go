@@ -195,7 +195,7 @@ func Api() {
 
 	facades.Route().Get("/:code",adsTrackingController.Track)
 
-	facades.Route().Get("/postback",adsTrackingController.PostBackAdsTracking)
+	facades.Route().Post("/postback",adsTrackingController.PostBackAdsTracking)
 
 
 

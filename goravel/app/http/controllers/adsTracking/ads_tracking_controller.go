@@ -5,8 +5,11 @@ import (
 	"encoding/json"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
+	"github.com/goravel/framework/contracts/database/orm"
 	"strconv"
 	"goravel/app/models"
+	"github.com/mileusna/useragent"
+	"gorm.io/datatypes"
 )
 
 type AdsTrackingController struct {
@@ -44,10 +47,23 @@ func getGeoInfo(ip string) (*geoResponse, error) {
 	return &data, nil
 }
 
+func getDeviceType(ua useragent.UserAgent) string {
+    if ua.Mobile {
+        return "mobile"
+    }
+    if ua.Tablet {
+        return "tablet"
+    }
+    return "desktop"
+}
+
+
+
 func (a *AdsTrackingController) Track(ctx http.Context) http.Response {
 	code := ctx.Request().Route("code")
-
-	// Find the campaign
+	clickedUrl := ctx.Request().FullUrl()
+	
+	// Find campaign
 	var campaign models.AdsCampaign
 	if err := facades.Orm().Query().Where("code", code).First(&campaign); err != nil || campaign.ID == 0 {
 		return ctx.Response().Json(http.StatusNotFound, map[string]string{
@@ -55,12 +71,19 @@ func (a *AdsTrackingController) Track(ctx http.Context) http.Response {
 		})
 	}
 
-
 	ip := ctx.Request().Ip()
 	userAgent := ctx.Request().Header("User-Agent")
 	referrer := ctx.Request().Header("Referer")
 
-	// Get geolocation info from IP
+	ua := useragent.Parse(userAgent)
+	deviceType := getDeviceType(ua)
+	deviceName := ua.Device
+	osName := ua.OS
+	osVersion := ua.OSVersion
+	browserName := ua.Name
+	browserVersion := ua.Version
+
+
 	var country, region, city *string
 	if geo, err := getGeoInfo(ip); err == nil {
 		country = &geo.Country
@@ -68,79 +91,130 @@ func (a *AdsTrackingController) Track(ctx http.Context) http.Response {
 		city = &geo.City
 	}
 
+	var logDetail models.AdsLogDetail
+	var log models.AdsLog
 
-	log := models.AdsLog{
-		AdsCampaignId: campaign.ID,
-		Ip:            &ip,
-		Country:       country,
-		Region:        region,
-		City:          city,
-		UserAgent:     &userAgent,
-		Referrer:      &referrer,
-		Converted:     false,
-	}
 
-	if err := facades.Orm().Query().Create(&log); err != nil {
+	err := facades.Orm().Transaction(func(tx orm.Query) error {
+		logDetail = models.AdsLogDetail{
+			Ip:             &ip,
+			Country:        country,
+			Region:         region,
+			City:           city,
+			UserAgent:      &userAgent,
+			Referrer:       &referrer,
+			DeviceType:     &deviceType,
+			DeviceName:     &deviceName,
+			OsName:         &osName,
+			OsVersion:      &osVersion,
+			BrowserName:    &browserName,
+			BrowserVersion: &browserVersion,
+		}
+
+		if err := tx.Create(&logDetail); err != nil {
+			return err
+		}
+
+		log = models.AdsLog{
+			AdsCampaignId:  campaign.ID,
+			AdsLogDetailId: logDetail.ID,
+			ClickedUrl:  clickedUrl,
+		}
+
+		if err := tx.Create(&log); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to log ad tracking",
+			"error": err.Error(),
 		})
 	}
 
-	clientUrl := fmt.Sprintf("%s?log_id=%d",campaign.TargetUrl,log.ID)
-
+	clientUrl := fmt.Sprintf("%s?log_id=%d", campaign.TargetUrl, log.ID)
 	return ctx.Response().Redirect(http.StatusFound, clientUrl)
 }
 
+
 func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Response {
-	logId := ctx.Request().Query("log_id")
-	productId := ctx.Request().Query("product_id")
-	value := ctx.Request().Query("value")
+	var req struct {
+		EventName string          `json:"event_name"`
+		AdsLogId  string          `json:"ads_log_id"`
+		Data      map[string]interface{} `json:"data"`
+	}
 
-	if logId == "" {
-		return ctx.Response().Json(http.StatusBadRequest, http.Json{
-			"error": "log_id is required",
+	if err := ctx.Request().Bind(&req); err != nil {
+		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
+			"error": "Invalid request body",
 		})
 	}
 
-	// Find the existing log record
-	var adsLog models.AdsLog
-	if err := facades.Orm().Query().Find(&adsLog, logId); err != nil {
-		return ctx.Response().Json(http.StatusNotFound, http.Json{
-			"error": "Log not found",
+	if errors, err := validatePostBackAdsTrackingInput(req); err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+			"error": err.Error(),
+		})
+	} else if errors != nil {
+		return ctx.Response().Json(http.StatusBadRequest, errors)
+	}
+
+
+	adsLogID, _ := strconv.ParseUint(req.AdsLogId, 10, 64)
+
+	// Check if AdsLog exists
+	exists, err := facades.Orm().Query().
+		Model(&models.AdsLog{}).
+		Where("id", adsLogID).
+		Exists()
+	if err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+			"error": "Database error",
+		})
+	}
+	if !exists {
+		return ctx.Response().Json(http.StatusNotFound, map[string]string{
+			"error": "Ads Log not found",
+		})
+	}
+	jsonData, _ := json.Marshal(req.Data)
+
+	eventLog := models.AdsEventLog{
+		AdsLogId:  uint(adsLogID),
+		EventName: req.EventName,
+		Data:      datatypes.JSON(jsonData),
+	}
+
+	if err := facades.Orm().Query().Create(&eventLog); err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+			"error": err.Error(),
 		})
 	}
 
-	// Parse value 
-	var parsedValue *float64
-	if value != "" {
-		v, err := strconv.ParseFloat(value, 64)
-		if err == nil {
-			parsedValue = &v
-		}
+	return ctx.Response().NoContent(http.StatusOK)
+}
+
+
+func validatePostBackAdsTrackingInput(req interface{}) (map[string]interface{}, error) {
+	// Convert input struct → map for validator
+	payload := map[string]any{}
+	bytes, _ := json.Marshal(req)
+	if err := json.Unmarshal(bytes, &payload); err != nil {
+		return nil, fmt.Errorf("failed to parse input: %v", err)
 	}
 
-	// Parse productId to uint
-	var parsedProductID *uint
-	if productId != "" {
-		if pid, err := strconv.ParseUint(productId, 10, 64); err == nil {
-			pidUint := uint(pid)
-			parsedProductID = &pidUint
-		}
+	validator, err := facades.Validation().Make(payload, models.AdsEventLogRules)
+	if err != nil {
+		return nil, fmt.Errorf("validation setup error: %v", err)
 	}
 
-	adsLog.Converted = true
-	adsLog.ClientProductId = parsedProductID
-	adsLog.Value = parsedValue
-
-	if err := facades.Orm().Query().Save(&adsLog); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": "Failed to update log: " + err.Error(),
-		})
+	if validator.Fails() {
+		return map[string]interface{}{
+			"errors": validator.Errors().All(),
+		}, nil
 	}
 
-	return ctx.Response().Json(http.StatusOK, http.Json{
-		"status":  "success",
-		"message": "Log updated successfully",
-		"data":    adsLog,
-	})
+
+	return nil, nil
 }
