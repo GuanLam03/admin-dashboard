@@ -53,7 +53,7 @@ func (g *GoogleCalendarController) getService() (*calendar.Service, string, erro
 		return nil, "", fmt.Errorf("unable to create calendar service: %w", err)
 	}
 
-	// Get calendar ID from .env (or just use "primary")
+	// Get calendar ID from .env (or just use "")
 	calendarIDAny := facades.Config().Env("GOOGLE_CALENDAR_ID", "")
 	calendarID, ok := calendarIDAny.(string)
 	if !ok || calendarID == "" {
