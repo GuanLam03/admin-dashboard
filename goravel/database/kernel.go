@@ -21,6 +21,15 @@ func (kernel Kernel) Migrations() []schema.Migration {
 		&migrations.M20250902042507UpdateGoogleDocumentsTable{},
 		&migrations.M20250904093240CreateSchedulesTable{},
 		&migrations.M20250918163250UpdateUsersTable{},
+		&migrations.M20250922151403CreateGmailAccountsTable{},
+		&migrations.M20250925141435UpdateGmailAccountsTable{},
+		&migrations.M20250930104236CreateGmailTemplatesTable{},
+		&migrations.M20251002161658CreateAdsCampaignsTable{},
+		&migrations.M20251002205238CreateAdsLogsTable{},
+		&migrations.M20251006115649UpdateAdsCampaignsTable{},
+		&migrations.M20251009152316CreateAdsEventLogsTable{},
+		&migrations.M20251009171322UpdateAdsLogsTable{},
+		&migrations.M20251009193011CreateAdsLogDetailsTable{},
 	}
 }
 func (kernel Kernel) Seeders() []seeder.Seeder {
@@ -32,5 +41,6 @@ func (kernel Kernel) Seeders() []seeder.Seeder {
 		&seeders.GoogleDocumentSeeder{},
 		&seeders.UserRoleSeeder{},
 		&seeders.RolePermissionSeeder{},
+		&seeders.AdsTrackingSeeder{},
 	}
 }

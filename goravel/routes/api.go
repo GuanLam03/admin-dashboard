@@ -13,6 +13,14 @@ import (
 	"goravel/app/http/controllers/role"
 	"goravel/app/http/controllers/schedules"
 	"goravel/app/http/controllers/googleAuthenticator"
+	"goravel/app/http/controllers/gmail"
+	"goravel/app/http/controllers/adsTracking"
+	"goravel/app/http/controllers/adsCampaign"
+	"goravel/app/http/controllers/adsLogs"
+
+
+
+
 
 
 
@@ -39,6 +47,25 @@ func Api() {
 	//setting google authenticator
 	twofaController := googleAuthenticator.NewTwoFAController()
 
+	//Gmail
+	gmailController := gmail.NewGmailController()
+	replyGmailController := gmail.NewReplyGmailController()
+	forwardGmailController := gmail.NewForwardGmailController()
+
+	templateController := gmail.NewTemplateController()
+
+	addAdsCampaignController := adsCampaign.NewAddAdsCampaignController()
+	editAdsCampaignController := adsCampaign.NewEditAdsCampaignController()
+	adsCampaignController := adsCampaign.NewAdsCampaignController()
+	reportAdsCampaignController := adsCampaign.NewReportAdsCampaignController()
+
+
+	adsLogController := adsLogs.NewAdsLogController()
+
+
+	adsTrackingController := adsTracking.NewAdsTrackingController()
+
+
 	
 	facades.Route().Get("/users/{id}", userController.Show)
 	facades.Route().Post("/login", authController.Login)
@@ -61,6 +88,22 @@ func Api() {
 		router.Post("/twofa/enable",twofaController.ConfirmEnable)
 		router.Post("/twofa/disable",twofaController.ConfirmDisable)
 
+
+		// Add ads campaign
+		router.Post("/add-ads-campaign",addAdsCampaignController.AddAdsCampaign)
+
+		//List ads campaign
+		router.Get("/ads-campaign",adsCampaignController.ListAdsCampaigns)
+		// Show edit ads campaign
+		router.Get("/edit-ads-campaign/:id",editAdsCampaignController.ShowAdsCampaign)
+		router.Post("/edit-ads-campaign/:id",editAdsCampaignController.EditAdsCampaign)
+
+		router.Get("/ads-campaign/report/:campaign_id",reportAdsCampaignController.ShowReportAdsCampaign)
+
+		//List ads log
+		router.Get("/ads-logs",adsLogController.ListAdsLogs)
+
+
 		
 	})
 
@@ -70,6 +113,28 @@ func Api() {
 		router.Get("/roles", roleController.Index)
 		router.Post("/roles", roleController.Store)
 		router.Post("/roles/:id", roleController.UpdatePermissions)
+
+
+		//Gmail routes
+		router.Get("/gmail/technical/messages", gmailController.ListMessages)
+		router.Get("/gmail/technical/messages/:id", gmailController.ReadMessage)
+		router.Post("/gmail/technical/messages/:id/reply", replyGmailController.ReplyMessage)
+		router.Post("/gmail/technical/messages/forward", forwardGmailController.ForwardMessage)
+
+
+
+		router.Get("/gmail/support/messages", gmailController.ListMessages)
+		router.Get("/gmail/support/messages/:id", gmailController.ReadMessage)
+		router.Post("/gmail/support/messages/:id/reply", replyGmailController.ReplyMessage)
+		router.Post("/gmail/support/messages/forward", forwardGmailController.ForwardMessage)
+
+		
+
+
+
+	
+
+
 		
 	})
 	
@@ -107,6 +172,30 @@ func Api() {
 	facades.Route().Get("/edit-schedules/:id",editScheduleController.ShowSchedule)
 	facades.Route().Post("/edit-schedules/:id",editScheduleController.EditSchedule)
 
+
+
+	facades.Route().Get("/gmail/auth", gmailController.RedirectToGoogle)
+	facades.Route().Get("/oauth/google/callback", gmailController.HandleCallback)
+	facades.Route().Get("/gmail/accounts", gmailController.ListAccounts)
+	facades.Route().Post("/gmail/remove-accounts/:email", gmailController.DeleteAccount)
+
+	facades.Route().Get("/gmail/accounts/teams", gmailController.GetGmailAccountTeams)
+
+	facades.Route().Post("/gmail/technical/messages/:id/star", gmailController.ToggleStar)
+	facades.Route().Post("/gmail/support/messages/:id/star", gmailController.ToggleStar)
+
+
+
+
+	facades.Route().Get("/gmail/templates", templateController.ShowTemplates)
+	facades.Route().Post("/gmail/templates", templateController.AddTemplate)
+	facades.Route().Post("/gmail/templates/edit/:id", templateController.EditTemplate)
+	facades.Route().Post("/gmail/templates/remove/:id", templateController.RemoveTemplate)
+	
+
+	facades.Route().Get("/:code",adsTrackingController.Track)
+
+	facades.Route().Post("/postback",adsTrackingController.PostBackAdsTracking)
 
 
 

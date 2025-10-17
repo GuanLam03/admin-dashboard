@@ -33,7 +33,7 @@ func CasbinMiddleware() http.Middleware {
 			 ctx.Response().String(http.StatusUnauthorized, fmt.Sprintf("User ID: %d is forbidden", sub)).Abort()
         }
 
-		fmt.Println("CasbinMiddleware invoked")
+		fmt.Println("CasbinMiddleware invoked:",obj)
 
 		ctx.Request().Next()
     }

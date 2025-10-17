@@ -24,6 +24,20 @@ import RegisterPage from './pages/RegisterPage';
 import SettingsPage from './pages/settings/SettingsPage';
 import TwoFactorSettingsPage from './pages/settings/TwoFactorEnablePage';
 import TwoFactorDisablePage from './pages/settings/TwoFactorDisablePage';
+import EmailsLayout from './pages/email/EmailsLayout';
+import TechnicalEmailsPage from './pages/email/TechnicalEmailsPage';
+import SupportEmailsPage from './pages/email/SupportEmailsPage';
+import MessageViewPage from './pages/email/MessageViewPage';
+import EmailsSettingsPage from './pages/email/email_settings/EmailsSettingsPage';
+import AdsTrackingPage from './pages/ads_tracking/ads_campaign/AdsCampaignPage';
+import AdsCampaignPage from './pages/ads_tracking/ads_campaign/AdsCampaignPage';
+import AdsCampaignAddPage from './pages/ads_tracking/ads_campaign/AdsCampaignAddPage';
+import AdsTrackingLayout from './pages/ads_tracking/AdsTrackingLayout';
+import AdsCampaignEditPage from './pages/ads_tracking/ads_campaign/AdsCampaignEditPage';
+import AdsReportPage from './pages/ads_tracking/ads_report/AdsReportPage';
+import AdsCampaignReportPage from './pages/ads_tracking/ads_campaign/AdsCampaignReportPage';
+import AdsLogPage from './pages/ads_tracking/ads_log/AdsLogPage';
+
 
 
 
@@ -59,6 +73,55 @@ const router = createBrowserRouter([
             { path: '/schedules', element: <SchedulePage /> },
             { path: '/schedules/create', element: <ScheduleAddPage /> },
             { path: '/schedules/edit/:id', element: <ScheduleEditPage /> },
+
+            {
+                path: "/emails",
+                element: <EmailsLayout />,
+                children: [
+                    {
+                        path: "technical", // /emails/technical
+                        element: <TechnicalEmailsPage />,
+                    },
+                    {
+                        path: "support", // /emails/support
+                        element: <SupportEmailsPage />,
+                    },
+                    {
+                        path: ":folder/:id", // e.g. /emails/technical/123
+                        element: <MessageViewPage />, // detail page
+                    },
+                    {
+                        path: "settings", // e.g. /emails/technical/123
+                        element: <EmailsSettingsPage />, // detail page
+                    },
+
+                    
+                ],
+            },
+            {
+                path: "/ads-tracking",
+                element: <AdsTrackingLayout />,
+                children: [
+                    { path: 'campaign', element: <AdsCampaignPage />, },
+                    { path: 'campaign/add', element: <AdsCampaignAddPage /> },
+                    { path: 'campaign/edit/:id', element: <AdsCampaignEditPage /> },
+                    { path: 'campaign/report/:id', element: <AdsCampaignReportPage /> },
+
+
+                    { path: 'log', element: <AdsLogPage /> },
+
+
+                    { path: 'report', element: <AdsReportPage /> },
+
+
+
+                    
+                ],
+            },
+            
+
+
+   
 
             { path: '/settings', element: <SettingsPage /> },
             { path: '/settings/twofactor', element: <TwoFactorSettingsPage /> },
