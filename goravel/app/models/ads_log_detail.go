@@ -20,4 +20,6 @@ type AdsLogDetail struct {
 	OsVersion       *string `json:"os_version"`       // e.g., "14.4", "10"
 	BrowserName     *string `json:"browser_name"`     // e.g., "Chrome", "Safari"
 	BrowserVersion  *string `json:"browser_version"`  // e.g., "117.0.0.0"
+
+	ClickedUrl   string `json:"clicked_url"`
 }

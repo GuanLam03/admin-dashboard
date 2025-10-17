@@ -109,6 +109,7 @@ func (a *AdsTrackingController) Track(ctx http.Context) http.Response {
 			OsVersion:      &osVersion,
 			BrowserName:    &browserName,
 			BrowserVersion: &browserVersion,
+			ClickedUrl:  clickedUrl,
 		}
 
 		if err := tx.Create(&logDetail); err != nil {
@@ -118,7 +119,7 @@ func (a *AdsTrackingController) Track(ctx http.Context) http.Response {
 		log = models.AdsLog{
 			AdsCampaignId:  campaign.ID,
 			AdsLogDetailId: logDetail.ID,
-			ClickedUrl:  clickedUrl,
+			
 		}
 
 		if err := tx.Create(&log); err != nil {
@@ -134,7 +135,7 @@ func (a *AdsTrackingController) Track(ctx http.Context) http.Response {
 		})
 	}
 
-	clientUrl := fmt.Sprintf("%s?log_id=%d", campaign.TargetUrl, log.ID)
+	clientUrl := fmt.Sprintf("%s?ads_log_id=%d", campaign.TargetUrl, log.ID)
 	return ctx.Response().Redirect(http.StatusFound, clientUrl)
 }
 
@@ -197,7 +198,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 
 
 func validatePostBackAdsTrackingInput(req interface{}) (map[string]interface{}, error) {
-	// Convert input struct → map for validator
+	// Convert input struct > map for validator
 	payload := map[string]any{}
 	bytes, _ := json.Marshal(req)
 	if err := json.Unmarshal(bytes, &payload); err != nil {
