@@ -110,6 +110,8 @@ func (a *AdsTrackingController) Track(ctx http.Context) http.Response {
 			BrowserName:    &browserName,
 			BrowserVersion: &browserVersion,
 			ClickedUrl:  clickedUrl,
+			AdsCampaignId:  campaign.ID,
+
 		}
 
 		if err := tx.Create(&logDetail); err != nil {
@@ -142,59 +144,75 @@ func (a *AdsTrackingController) Track(ctx http.Context) http.Response {
 
 func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Response {
 	var req struct {
-		EventName string          `json:"event_name"`
-		AdsLogId  string          `json:"ads_log_id"`
+		EventName string                 `json:"event_name"`
+		AdsLogId  string                 `json:"ads_log_id"`
 		Data      map[string]interface{} `json:"data"`
 	}
 
+	// 1. Invalid JSON / request body
 	if err := ctx.Request().Bind(&req); err != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
-			"error": "Invalid request body",
+			"code":        "400",
+			"status_name": "bad_request",
 		})
 	}
 
-	if errors, err := validatePostBackAdsTrackingInput(req); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": err.Error(),
+	// 2. Validation error
+	if errors, err := validatePostBackAdsTrackingInput(req); err != nil || errors != nil {
+		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
+			"code":        "400",
+			"status_name": "bad_request",
 		})
-	} else if errors != nil {
-		return ctx.Response().Json(http.StatusBadRequest, errors)
 	}
 
+	// 3. Parse ads_log_id
+	adsLogID, err := strconv.ParseUint(req.AdsLogId, 10, 64)
+	if err != nil {
+		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
+			"code":        "400",
+			"status_name": "bad_request",
+		})
+	}
 
-	adsLogID, _ := strconv.ParseUint(req.AdsLogId, 10, 64)
-
-	// Check if AdsLog exists
+	// 4. Check if AdsLog exists
 	exists, err := facades.Orm().Query().
 		Model(&models.AdsLog{}).
 		Where("id", adsLogID).
 		Exists()
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Database error",
+			"code":        "500",
+			"status_name": "internal_server_error",
 		})
 	}
 	if !exists {
 		return ctx.Response().Json(http.StatusNotFound, map[string]string{
-			"error": "Ads Log not found",
+			"code":        "404",
+			"status_name": "not_found",
 		})
 	}
-	jsonData, _ := json.Marshal(req.Data)
 
+	// 5. Create event log
+	jsonData, _ := json.Marshal(req.Data)
 	eventLog := models.AdsEventLog{
 		AdsLogId:  uint(adsLogID),
 		EventName: req.EventName,
 		Data:      datatypes.JSON(jsonData),
 	}
-
 	if err := facades.Orm().Query().Create(&eventLog); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": err.Error(),
+			"code":        "500",
+			"status_name": "internal_server_error",
 		})
 	}
 
-	return ctx.Response().NoContent(http.StatusOK)
+	// 6. Success
+	return ctx.Response().Json(http.StatusOK, map[string]string{
+		"code":        "200",
+		"status_name": "successful",
+	})
 }
+
 
 
 func validatePostBackAdsTrackingInput(req interface{}) (map[string]interface{}, error) {
