@@ -122,6 +122,11 @@ func Api() {
 		router.Post("/edit-ads-campaign/:id",editAdsCampaignController.EditAdsCampaign)
 		//report ads campaign
 		router.Get("/ads-campaign/report/:campaign_id",reportAdsCampaignController.ShowReportAdsCampaign)
+		router.Get("/ads-campaign/report/:campaign_id/filter",reportAdsCampaignController.ShowReportAdsFilterCampaign)
+		// show support parameter
+		router.Get("/add-ads-campaign/support-parameters",addAdsCampaignController.ShowSupportParameter)
+
+
 		//List ads log
 		router.Get("/ads-logs",adsLogController.ListAdsLogs)
 
@@ -159,7 +164,7 @@ func Api() {
 
 
 	
-
+	facades.Route().Get("/ads-campaign/report/ads-log-details/:campaign_id",reportAdsCampaignController.ShowReportAdsLogDetailsCampaign)
 
 
 

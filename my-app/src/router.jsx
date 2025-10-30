@@ -37,6 +37,7 @@ import AdsCampaignEditPage from './pages/ads_tracking/ads_campaign/AdsCampaignEd
 import AdsReportPage from './pages/ads_tracking/ads_report/AdsReportPage';
 import AdsCampaignReportPage from './pages/ads_tracking/ads_campaign/AdsCampaignReportPage';
 import AdsLogPage from './pages/ads_tracking/ads_log/AdsLogPage';
+import AdsCampaignLogPage from './pages/ads_tracking/ads_campaign/AdsCampaignLogPage';
 
 
 
@@ -106,6 +107,9 @@ const router = createBrowserRouter([
                     { path: 'campaign/add', element: <AdsCampaignAddPage /> },
                     { path: 'campaign/edit/:id', element: <AdsCampaignEditPage /> },
                     { path: 'campaign/report/:id', element: <AdsCampaignReportPage /> },
+                    { path: 'campaign/log/:id', element: <AdsCampaignLogPage /> },
+
+
 
 
                     { path: 'log', element: <AdsLogPage /> },

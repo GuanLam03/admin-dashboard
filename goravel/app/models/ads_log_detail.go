@@ -22,4 +22,6 @@ type AdsLogDetail struct {
 	BrowserVersion  *string `json:"browser_version"`  // e.g., "117.0.0.0"
 
 	ClickedUrl   string `json:"clicked_url"`
+	AdsCampaignId   uint `json:"ads_campaign_id"`
+
 }

@@ -10,6 +10,11 @@ import (
 	"goravel/app/models"
 	"github.com/mileusna/useragent"
 	"gorm.io/datatypes"
+
+	"io"
+	httpRaw "net/http"
+	"net/url"
+	"regexp"
 )
 
 type AdsTrackingController struct {
@@ -149,7 +154,6 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 		Data      map[string]interface{} `json:"data"`
 	}
 
-	// 1. Invalid JSON / request body
 	if err := ctx.Request().Bind(&req); err != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
 			"code":        "400",
@@ -157,7 +161,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 		})
 	}
 
-	// 2. Validation error
+	// Validation error
 	if errors, err := validatePostBackAdsTrackingInput(req); err != nil || errors != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
 			"code":        "400",
@@ -165,7 +169,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 		})
 	}
 
-	// 3. Parse ads_log_id
+	// Parse ads_log_id
 	adsLogID, err := strconv.ParseUint(req.AdsLogId, 10, 64)
 	if err != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
@@ -174,7 +178,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 		})
 	}
 
-	// 4. Check if AdsLog exists
+	// Check if AdsLog exists
 	exists, err := facades.Orm().Query().
 		Model(&models.AdsLog{}).
 		Where("id", adsLogID).
@@ -192,7 +196,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 		})
 	}
 
-	// 5. Create event log
+	// Create event log
 	jsonData, _ := json.Marshal(req.Data)
 	eventLog := models.AdsEventLog{
 		AdsLogId:  uint(adsLogID),
@@ -205,8 +209,9 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 			"status_name": "internal_server_error",
 		})
 	}
+	// Trigger background postback
+	go sendCampaignPostback(eventLog)
 
-	// 6. Success
 	return ctx.Response().Json(http.StatusOK, map[string]string{
 		"code":        "200",
 		"status_name": "successful",
@@ -234,6 +239,163 @@ func validatePostBackAdsTrackingInput(req interface{}) (map[string]interface{}, 
 		}, nil
 	}
 
+	// Check allowed "data" fields
+	allowed := map[string]bool{}
+	for _, k := range models.AllowedEventDataFields {
+		allowed[k] = true
+	}
+
+	if data, ok := payload["data"].(map[string]interface{}); ok {
+		for key := range data {
+			if !allowed[key] {
+				// facades.Log().Errorf("invalid field '%s' in data", key)
+				return map[string]interface{}{
+					"errors": fmt.Sprintf("invalid field '%s' in data", key),
+				}, nil
+			}
+		}
+	}
 
 	return nil, nil
+}
+
+
+func sendCampaignPostback(eventLog models.AdsEventLog) {
+	// Get campaign ID from ads_logs
+	var campaignID uint
+	if err := facades.Orm().Query().
+		Table("ads_logs").
+		Select("ads_campaign_id").
+		Where("id", eventLog.AdsLogId).
+		Get(&campaignID); 
+		err != nil {
+			facades.Log().Errorf("Failed to get campaign ID for ads_log_id=%d: %v", eventLog.AdsLogId, err)
+			return
+		}
+
+	// Find postback url 
+	var postback models.AdsCampaignPostback
+	if err := facades.Orm().Query().
+		Where("ads_campaign_id", campaignID).
+		Where("event_name", eventLog.EventName).
+		First(&postback);
+		err != nil {
+			facades.Log().Errorf("Postback query error (campaign_id=%d, event=%s): %v", campaignID, eventLog.EventName, err)
+			return
+		}
+
+	if postback.ID == 0 {
+		facades.Log().Infof("No matching postback found (campaign_id=%d, event=%s) — skipping", campaignID, eventLog.EventName)
+		return
+	}
+
+	// Parse event data
+	var data map[string]interface{}
+	_ = json.Unmarshal(eventLog.Data, &data)
+
+	// Build placeholders dynamically from allowed data fields
+	placeholders := make(map[string]string)
+	for _, key := range models.AllowedEventDataFields {
+		if val, ok := data[key]; ok {
+			placeholders[key] = fmt.Sprintf("%v", val)
+		} else {
+			placeholders[key] = ""
+		}
+	}
+
+	// Get click_id from ads_log_details
+	var adsLogDetail models.AdsLogDetail
+	if err := facades.Orm().Query().
+		Table("ads_log_details AS ald").
+		Join("INNER JOIN ads_logs AS al ON ald.id = al.ads_log_detail_id").
+		Where("ald.id", eventLog.AdsLogId).
+		First(&adsLogDetail); 
+		err != nil {
+			facades.Log().Errorf("Failed to get AdsLogDetail for ads_log_id=%d: %v", eventLog.AdsLogId, err)
+			return
+		}
+
+	clickID := extractClickID(adsLogDetail.ClickedUrl)
+	// Add click_id as placeholder
+	placeholders["click_id"] = clickID
+
+	finalURL := replacePlaceholders(postback.PostbackUrl, placeholders)
+
+	// Send HTTP request (Get by default)
+	resp, err := httpRaw.Get(finalURL)
+	fmt.Println("res",resp)
+	var (
+		statusCode  *int
+		respBodyStr *string
+		errorMsg    *string
+	)
+
+	if err != nil {
+		errStr := err.Error()
+		errorMsg = &errStr
+	} else {
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		bodyStr := string(body)
+		respBodyStr = &bodyStr
+		code := resp.StatusCode
+		statusCode = &code
+	}
+
+	// Log result
+	postbackLog := models.AdsCampaignPostbackLog{
+		AdsEventLogId:         &eventLog.ID,
+		AdsCampaignPostbackId: postback.ID,
+		Url:                   finalURL,
+		RequestMethod:         "Get",
+		ResponseStatus:        statusCode,
+		ResponseBody:          respBodyStr,
+		ErrorMessage:          errorMsg,
+	}
+	if err := facades.Orm().Query().Create(&postbackLog); err != nil {
+		facades.Log().Errorf("Failed to save postback log (campaign_id=%d, event=%s): %v", campaignID, eventLog.EventName, err)
+	}
+}
+
+//Replace placeholders dynamically
+func replacePlaceholders(urlTemplate string, values map[string]string) string {
+	re := regexp.MustCompile(`\{([a-zA-Z0-9_]+)\}`)
+	return re.ReplaceAllStringFunc(urlTemplate, func(match string) string {
+		key := re.FindStringSubmatch(match)[1]
+		if val, ok := values[key]; ok {
+			return url.QueryEscape(val)
+		}
+		return match
+	})
+}
+
+func extractClickID(clickedURL string) string {
+	u, err := url.Parse(clickedURL)
+	if err != nil {
+		return ""
+	}
+
+	query := u.Query()
+	candidateKeys := []string{
+		"cid", "click_id", "clickid",
+		"fbclid", "gclid", "ttclid", "msclkid", "twclid", "gbraid", "wbraid",
+	}
+
+	for _, key := range candidateKeys {
+		if val := query.Get(key); val != "" {
+			return val
+		}
+	}
+
+	return ""
+}
+
+
+func getString(data map[string]interface{}, key string) string {
+	if val, ok := data[key]; ok {
+		if s, ok := val.(string); ok {
+			return s
+		}
+	}
+	return ""
 }
