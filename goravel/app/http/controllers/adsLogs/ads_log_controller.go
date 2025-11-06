@@ -16,13 +16,17 @@ func NewAdsLogController() *AdsLogController {
 }
 
 func (a *AdsLogController) ListAdsLogs(ctx http.Context) http.Response {
-	adsLogs, err := a.filter(ctx)
-	if err != nil {
-		return ctx.Response().Json(500, map[string]any{"error": err.Error()})
-	}
+	// adsLogs, err := a.filter(ctx)
+	// if err != nil {
+	// 	return ctx.Response().Json(500, map[string]any{"error": err.Error()})
+	// }
+
+	// return ctx.Response().Json(200, map[string]any{
+	// 	"ads_logs": adsLogs,
+	// })
 
 	return ctx.Response().Json(200, map[string]any{
-		"ads_logs": adsLogs,
+		"ads_logs": "test",
 	})
 }
 

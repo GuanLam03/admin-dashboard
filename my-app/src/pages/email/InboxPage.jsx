@@ -49,7 +49,7 @@ export default function InboxPage({ folder, emailAddress }) {
       );
       setNextPageToken(res.data.nextPageToken || null);
     } catch (err) {
-      setError("Failed to fetch emails. Please try again later.");
+      setError(err.response.data.error);
       
     } finally {
       setLoading(false);

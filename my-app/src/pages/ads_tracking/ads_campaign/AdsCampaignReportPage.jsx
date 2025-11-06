@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import DataTable from "datatables.net-dt";
 import {
-  PieChart,
-  Pie,
   Cell,
   Tooltip,
   ResponsiveContainer,
@@ -16,104 +14,260 @@ import {
 } from "recharts";
 import api from "../../../api/axios";
 
+import LanguageIcon from '@mui/icons-material/Language';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import DevicesIcon from '@mui/icons-material/Devices';
+import AndroidIcon from '@mui/icons-material/Android';
+import EventIcon from '@mui/icons-material/Event';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { Dropdown, ButtonGroup } from "react-bootstrap";
+import CircularProgress from '@mui/material/CircularProgress';
+
 export default function AdsCampaignReportPage() {
   const { id } = useParams();
-  const [logs, setLogs] = useState([]);
+  const [tableLoading, setTableLoading] = useState(false);
   const [stats, setStats] = useState({
     totalClicks: 0,
     totalConversions: 0,
     totalRevenue: 0,
     conversionRate: 0,
   });
+  const [countryStats, setCountryStats] = useState([]);
 
   const colorMap = {};
-  const COLORS = ["red", "green", "yellow", "orange"];
 
-  const fetchLogs = async () => {
+  const [tableData, setTableData] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState("");
+
+  const [filters, setFilters] = useState({
+        fdate: "",
+        tdate: "",
+  });
+
+  
+    // const filtersRef = useRef(filters);
+    //   useEffect(() => {
+    //     filtersRef.current = filters;
+    // }, [filters]);
+
+  const [activeFilter, setActiveFilter] = useState(null);
+  const [selectedOption, setSelectedOption] = useState({});
+
+
+  // Fetch campaign summary (total clicks, revenue, etc.)
+  const fetchSummaryData = async () => {
     try {
       const res = await api.get(`/ads-campaign/report/${id}`);
-      console.log(res.data)
-      // const logsData = res.data.data || [];
-      // const summary = res.data.summary || {};
+      const summary = res.data.summary || {};
+      const countryStatsFromAPI = res.data.country_stats || {};
 
-      // // compute conversion rate (if not from backend)
-      // const conversionRate =
-      //   summary.total_clicks > 0
-      //     ? ((summary.total_conversions / summary.total_clicks) * 100).toFixed(2)
-      //     : 0;
+      // Compute conversion rate (if not from backend)
+      const conversionRate =
+        summary.total_clicks > 0
+          ? ((summary.total_conversions / summary.total_clicks) * 100).toFixed(2)
+          : 0;
 
-      // setLogs(logsData);
-      // setStats({
-      //   totalClicks: summary.total_clicks || 0,
-      //   totalConversions: summary.total_conversions || 0,
-      //   totalRevenue: summary.total_revenue || 0,
-      //   conversionRate,
-      // });
+      setStats({
+        totalClicks: summary.total_clicks || 0,
+        totalConversions: summary.total_conversions || 0,
+        totalRevenue: summary.total_revenue || 0,
+        conversionRate,
+      });
+
+      setCountryStats(countryStatsFromAPI); // Set the country stats
     } catch (err) {
-      console.error("Error fetching logs:", err);
+      console.error("Error fetching campaign summary:", err);
     }
   };
 
- 
-    const getColor = (country) => {
+
+
+
+  const getColor = (country) => {
     if (!colorMap[country]) {
-        const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#a4de6c", "#d0ed57"];
-        colorMap[country] = colors[Object.keys(colorMap).length % colors.length];
+      const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#a4de6c", "#d0ed57"];
+      colorMap[country] = colors[Object.keys(colorMap).length % colors.length];
     }
     return colorMap[country];
-    };
-
-
+  };
 
   useEffect(() => {
-    fetchLogs();
+    fetchSummaryData();
   }, [id]);
 
-  useEffect(() => {
-    if (!logs.length) return;
 
-    const table = new DataTable("#adsLogsTable", {
-      data: logs,
-      destroy: true,
-      columns: [
-        { data: "id", title: "ID" },
-        { data: "ip", title: "IP Address" },
-        { data: "country", title: "Country" },
-        { data: "city", title: "City" },
-        { data: "referrer", title: "Referrer" },
-        {
-          data: "converted",
-          title: "Converted",
-          render: (v) => (v ? "Yes" : "No"),
-        },
-        { data: "value", title: "Value" },
-        { data: "created_at", title: "Date" },
-      ],
-    });
-
-    return () => table.destroy();
-  }, [logs]);
-
-  // Pie chart for conversion breakdown
-  const pieData = [
-    { name: "Converted", value: stats.totalConversions },
-    { name: "Not Converted", value: stats.totalClicks - stats.totalConversions },
-  ];
 
   // Bar chart by country
-  const countryStats = logs.reduce((acc, log) => {
-    if (!log.country) return acc;
-    if (!acc[log.country]) acc[log.country] = { country: log.country, clicks: 0 };
-    acc[log.country].clicks++;
-    return acc;
-  }, {});
-  const barData = Object.values(countryStats);
+  const barData = countryStats.map(stat => ({
+    country: stat.Country,
+    clicks: stat.Count,
+    revenue: stat.TotalRevenue, // optional, if needed in chart
+  }));
+
+  // ------------------
+
+
+  const filterComponents = [
+    {
+      type: "dropdown",
+      key: "country",
+      icon: <LanguageIcon />,
+      options: [
+        { key: "country", label: "Country" },
+        { key: "city", label: "City" },
+      ],
+    },
+    {
+      type: "button",
+      key: "ip",
+      icon: <VisibilityIcon />,
+      label: "IP",
+    },
+    {
+      type: "dropdown",
+      key: "device",
+      icon: <DevicesIcon />,
+      options: [
+        { key: "device_type", label: "Device Type" },
+        { key: "device_name", label: "Device Name" },
+      ],
+    },
+    {
+      type: "dropdown",
+      key: "os",
+      icon: <AndroidIcon />,
+      options: [
+        { key: "os_name", label: "OS Name" },
+        { key: "os_version", label: "OS Version" },
+      ],
+    },
+    {
+      type: "button",
+      key: "event_name",
+      icon: <EventIcon />,
+      label: "Event",
+    },
+    {
+      type: "dropdown",
+      key: "date",
+      icon: <CalendarMonthIcon />,
+      options: [
+        { key: "date", label: "Day" },
+        { key: "month", label: "Month" },
+      ],
+    },
+
+    {
+      type: "dropdown",
+      key: "Day parting",
+      icon: <CalendarTodayIcon />,
+      options: [
+        { key: "hour_of_day", label: "Hour of day" },
+        { key: "day_of_week", label: "Day of week" },
+      ],
+    },
+
+    
+  ];
+
+
+  const fetchFilteredData = async (filterType, parentName = filterType) => {
+    try {
+      setTableLoading(true);
+      // Highlight dropdown / selected button
+      setActiveFilter(parentName);
+      setSelectedFilter(filterType);
+      setSelectedOption((prev) => ({
+        ...prev,
+        [parentName]: filterType,
+      }));
+
+      // Fetch filtered data from backend
+      const res = await api.get(`/ads-campaign/report/${id}/filter`, {
+        params: { 
+          type: filterType, 
+          fdate: filters.fdate,
+          tdate: filters.tdate,
+       },
+      });
+
+      const data = res.data.data || [];
+      const results = res.data || {};
+      setTableData(data);
+      setFilters({
+        fdate: results.start_date?.split("T")[0],
+        tdate: results.end_date?.split("T")[0] 
+      })
+
+      console.log("Fetched data:", data);
+    } catch (err) {
+      console.error("Error fetching filtered data:", err);
+    } finally {
+      setTableLoading(false); // stop loading spinner
+    }
+  };
+
+
+
+  useEffect(() => {
+    console.log("test",tableData);
+    if (tableData.length === 0){
+      new DataTable("#reportsTable").clear().draw();
+      return;
+    };
+  
+    // Get keys from first row to auto-generate columns
+    const columns = Object.keys(tableData[0]).map((key) => ({
+      title: key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+      data: key,
+    }));
+
+    // Initialize DataTable
+    const reportTable = new DataTable("#reportsTable", {
+      data: tableData,
+      columns,
+      destroy: true,
+      searching: true,
+      paging: true,
+      info: true,
+      ordering: false,
+      columnDefs: [
+        {
+          targets: "_all", // applies to all columns
+          className: "text-start" // Bootstrap class for left-align
+        }
+      ]
+    });
+
+    return () => {
+        reportTable.destroy();
+    }
+  }, [tableData]);
+
+
+  const handleSearch = (e) => {
+    e.preventDefault(); 
+
+    if (!selectedFilter) {
+      alert("Please select a filter first");
+      return;
+    }
+
+    // Call fetchFilteredData with the currently selected filter and pass dates as query params
+    fetchFilteredData(selectedFilter, selectedFilter);
+  };
+
+  const handleClearSearch = () => {
+    setFilters({ fdate: "", tdate: "" });
+  };
+
+
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-2xl font-bold">
-        Ads Campaign Report (ID: {id})
-      </h2>
+      
+      <h2 className="text-2xl font-bold">Ads Campaign Report (ID: {id})</h2>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-4 my-4">
@@ -137,24 +291,38 @@ export default function AdsCampaignReportPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-2 gap-6 mb-8">
+       
         <div className="bg-white p-4 rounded shadow-sm">
-          <h5 className="font-semibold mb-2">Conversion Breakdown</h5>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={80}
-                label
-              >
-                {pieData.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <h5 className="font-semibold mb-2">Revenue by Country</h5>
+          <table className="min-w-full border-collapse border border-gray-200">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-4 py-2 text-left">Country</th>
+                <th className="border border-gray-300 px-4 py-2 text-right">Revenue (RM)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(() => {
+                // Sort descending by revenue
+                const sortedData = [...barData].sort((a, b) => b.revenue - a.revenue);
+                const highestRevenue = sortedData.length > 0 ? sortedData[0].revenue : 0;
+
+                return sortedData.map(({ country, revenue }, index) => (
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-100"
+                  >
+                    <td className="border border-gray-300 px-4 py-2">{country}</td>
+                    <td className={`border border-gray-300 px-4 py-2 text-right ${
+                      revenue === highestRevenue ? "text-green-600 font-semibold" : ""
+                    }`}>
+                      {revenue.toFixed(2)}
+                    </td>
+                  </tr>
+                ));
+              })()}
+            </tbody>
+          </table>
         </div>
 
         <div className="bg-white p-4 rounded shadow-sm">
@@ -168,23 +336,120 @@ export default function AdsCampaignReportPage() {
               <Legend />
               <Bar dataKey="clicks" name="Clicks">
                 {barData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={getColor(entry.country)} />
+                  <Cell key={`cell-${index}`} fill={getColor(entry.country)} />
                 ))}
-               </Bar>
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
+
+        
       </div>
 
-      {/* Logs Table */}
-      {/* <div className="bg-white shadow-sm rounded p-4">
-        <h5 className="font-semibold mb-4">Detailed Logs</h5>
-        <table
-          id="adsLogsTable"
-          className="display"
-          style={{ width: "100%" }}
-        ></table>
-      </div> */}
+       <section>
+        <h4>Filter</h4>
+        <div className="d-flex flex-wrap gap-3 p-4 shadow-sm bg-white">
+          {filterComponents.map((filter) =>
+            filter.type === "button" ? (
+              <button
+                key={filter.key}
+                className={`btn d-flex align-items-center gap-2 ${
+                  selectedFilter === filter.key ? "btn-primary" : "btn-light"
+                }`}
+                onClick={() => fetchFilteredData(filter.key)}
+              >
+                {filter.icon}
+                {filter.label}
+              </button>
+            ) : (
+              <Dropdown as={ButtonGroup} key={filter.key}>
+                <Dropdown.Toggle
+                  variant={
+                    filter.options.some((o) => o.key === selectedFilter)
+                      ? "primary"
+                      : "light"
+                  }
+                  className="d-flex align-items-center gap-2"
+                >
+                  {filter.icon}
+                  {filter.options.find((o) => o.key === selectedFilter)?.label ||
+                    filter.options[0].label}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  {filter.options.map((option) => (
+                    <Dropdown.Item
+                      key={option.key}
+                      onClick={() => fetchFilteredData(option.key)}
+                    >
+                      {option.label}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            )
+          )}
+        </div>
+
+
+
+        <form onSubmit={handleSearch} className="p-4 shadow-sm bg-white mb-4">
+            <div className="flex gap-4">
+                <div>
+                    <label>From Date</label>
+                    <input
+                    type="date"
+                    value={filters.fdate}
+                    onChange={(e) => setFilters({ ...filters, fdate: e.target.value })}
+                    className="border rounded p-2 w-full"
+                    />
+                </div>
+                <div>
+                    <label>To Date</label>
+                    <input
+                    type="date"
+                    value={filters.tdate}
+                    onChange={(e) => setFilters({ ...filters, tdate: e.target.value })}
+                    className="border rounded p-2 w-full"
+                    />
+                </div>
+
+                <div className="flex gap-2 mt-4">
+                  <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+                      Search
+                  </button>
+                  <button
+                      type="button"
+                      onClick={handleClearSearch}
+                      className="bg-red-600 text-white px-4 py-2 rounded"
+                  >
+                      Clear
+                  </button>
+                </div>
+            </div>
+          </form>
+
+          {/* Report List Table */}
+          <div className="bg-white shadow-md rounded-lg p-4">            
+            <table
+              id="reportsTable"
+              className="display"
+              style={{ width: "100%" }}
+            ></table>
+          </div>
+
+          {tableLoading && (
+          <div className="fixed top-0 left-0 w-[100vw] h-[100vh] flex items-center justify-center z-50">
+            {/* Background overlay */}
+            <div className="absolute inset-0 bg-white opacity-40"></div>
+
+            {/* Spinner on top */}
+            <div className="relative z-10">
+              <CircularProgress sx={{ color: '#0f4bceff' }} />
+            </div>
+          </div>
+)}
+
+      </section>
     </div>
   );
 }

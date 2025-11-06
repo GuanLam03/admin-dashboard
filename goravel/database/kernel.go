@@ -30,6 +30,12 @@ func (kernel Kernel) Migrations() []schema.Migration {
 		&migrations.M20251009152316CreateAdsEventLogsTable{},
 		&migrations.M20251009171322UpdateAdsLogsTable{},
 		&migrations.M20251009193011CreateAdsLogDetailsTable{},
+		&migrations.M20251016142201UpdateAdsLogsTable{},
+		&migrations.M20251016142454UpdateAdsLogDetailsTable{},
+		&migrations.M20251027165623CreateAdsCampaignPostbacksTable{},
+		&migrations.M20251027165711CreateAdsCampaignPostbackLogsTable{},
+		&migrations.M20251027170307UpdateAdsLogDetailsTable{},
+		&migrations.M20251027171557UpdateAdsEventLogsTable{},
 	}
 }
 func (kernel Kernel) Seeders() []seeder.Seeder {

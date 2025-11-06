@@ -26,9 +26,25 @@ func (e *EditAdsCampaignController) ShowAdsCampaign(ctx http.Context) http.Respo
 	status := models.AdsCampaignStatusMap
 	delete(status, "removed")
 
+	// Select only id, event_name, and postback_url
+	var campaignPostbacks []struct {
+		ID          uint   `json:"id"`
+		EventName   string `json:"event_name"`
+		PostbackUrl string `json:"postback_url"`
+	}
+
+	if err := facades.Orm().Query().
+		Table("ads_campaign_postbacks").
+		Select("id", "event_name", "postback_url").
+		Where("ads_campaign_id", adsCampaign.ID).
+		Get(&campaignPostbacks); err != nil {
+		return ctx.Response().Json(500, map[string]string{"error": "Failed to retrieve Ads Campaign Postbacks"})
+	}
+
 	return ctx.Response().Json(200, map[string]any{
 		"ads_campaign": adsCampaign,
 		"status" : status,
+		"ads_campaign_postbacks": campaignPostbacks,
 	})
 }
 

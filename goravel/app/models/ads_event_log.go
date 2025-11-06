@@ -23,3 +23,12 @@ var AdsEventLogRules = map[string]string{
 	"event_name": "required|string",
 	"data":       "required",
 }
+
+var AllowedEventDataFields = []string{
+	"click_id",
+	"content_id",
+	"content_type",
+	"value",
+	"currency",
+	"price",
+}

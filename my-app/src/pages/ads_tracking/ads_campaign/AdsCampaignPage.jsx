@@ -56,6 +56,8 @@ export default function AdsCampaignPage() {
                   render: (id) =>
                       `<button class="edit-btn btn btn-primary" data-id="${id}">Edit</button>
                         <button class="report-btn btn btn-info" data-id="${id}">Report</button>
+                        <button class="log-btn btn btn-secondary" data-id="${id}">Log</button>
+
                         `,
               },
               { data: "name", title: "Name" },
@@ -80,6 +82,11 @@ export default function AdsCampaignPage() {
           if (e.target.classList.contains("report-btn")) {
               const id = e.target.getAttribute("data-id");
               navigate(`/ads-tracking/campaign/report/${id}`);
+          }
+
+          if (e.target.classList.contains("log-btn")) {
+              const id = e.target.getAttribute("data-id");
+              navigate(`/ads-tracking/campaign/log/${id}`);
           }
           
           

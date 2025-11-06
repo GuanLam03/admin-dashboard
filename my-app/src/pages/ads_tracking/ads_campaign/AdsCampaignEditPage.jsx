@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../../api/axios";
-import { formatDate } from "@fullcalendar/core/index.js";
 
+const eventOptions = [
+  { value: "PURCHASE", label: "Purchase"},
+  { value: "COMPLETE_REGISTRATION", label: "Registration"},
+  { value: "FORM_SUBMIT", label: "Form Submit"}
+]
 
 function AdsCampaignEditPage() {
   const { id } = useParams(); // get :id from URL
   const [formData, setFormData] = useState({});
+  const [postbacks, setPostbacks] = useState([]);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -23,6 +28,7 @@ function AdsCampaignEditPage() {
         const res = await api.get(`/edit-ads-campaign/${id}`);
         const result = res.data.ads_campaign;
         const statusList = res.data.status || [];
+        const campaignPostbacks = res.data.ads_campaign_postbacks || [];
 
         setFormData({
             name: result.name || "",
@@ -33,6 +39,7 @@ function AdsCampaignEditPage() {
         });
 
         setStatusOptions(statusList);
+        setPostbacks(campaignPostbacks);
 
       } catch (err) {
         console.error(err);
@@ -149,29 +156,59 @@ function AdsCampaignEditPage() {
               </td>
             </tr>
 
-           <tr>
-            <th className="text-left p-2 border">Status</th>
-            <td className="p-2 border">
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="border rounded p-2 w-full"
-                required
-              >
-                {Object.entries(statusOptions).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label.charAt(0).toUpperCase() + label.slice(1)}
-                  </option>
-                ))}
-                
-              </select>
-            </td>
-          </tr>
+            <tr>
+              <th className="text-left p-2 border">Status</th>
+              <td className="p-2 border">
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  className="border rounded p-2 w-full"
+                  required
+                >
+                  {Object.entries(statusOptions).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label.charAt(0).toUpperCase() + label.slice(1)}
+                    </option>
+                  ))}
+                  
+                </select>
+              </td>
+            </tr>
 
+            {/* Postback Events Section */}
+            <tr>
+              <th className="text-left p-2 border align-top">Postback Events</th>
+              <td className="p-2 border">
+                {postbacks?.length > 0 ? (
+                  <div className="space-y-2">
+                    {postbacks.map((pb, index) => (
+                      <div key={index} className="border rounded p-2 bg-gray-50">
+                        <div className="flex flex-col sm:flex-row sm:items-center">
+                          <span className="font-medium w-48">
+                            {eventOptions.find(e => e.value === pb.event_name)?.label || pb.event_name}
+                          </span>
+                          <span className="text-blue-700 break-all sm:ml-4">
+                            {pb.postback_url || "-"}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-gray-500 text-sm">No postbacks configured</div>
+                )}
+              </td>
+            </tr>
+
+
+              
 
           </tbody>
         </table>
+
+        
+
 
         <div className="mt-4 flex justify-end">
           <button
@@ -187,3 +224,6 @@ function AdsCampaignEditPage() {
 }
 
 export default AdsCampaignEditPage;
+
+
+

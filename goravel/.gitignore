@@ -7,3 +7,5 @@ storage/framework
 vendor
 storage
 quickstart.go
+database/seeders/ads_tracking_seeder.go
+ads_tracking_seed.sql

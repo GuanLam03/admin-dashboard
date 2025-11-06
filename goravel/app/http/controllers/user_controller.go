@@ -84,11 +84,6 @@ func (r *UserController) Index(ctx http.Context) http.Response {
 }
 
 
-func (r *UserController) Show(ctx http.Context) http.Response {
-	return ctx.Response().Success().Json(http.Json{
-		"Hello": "Goravel",
-	})
-}
 
 func (r *UserController) Edit(ctx http.Context) http.Response {
     name := ctx.Request().Input("name")

@@ -1,5 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../../../api/axios";
+
+
+const eventOptions = [
+  { value: "PURCHASE", label: "Purchase"},
+  { value: "COMPLETE_REGISTRATION", label: "Registration"},
+  { value: "FORM_SUBMIT", label: "Form Submit"}
+]
 
 export default function AdsCampaignAddPage() {
   const [formData, setFormData] = useState({
@@ -10,6 +17,25 @@ export default function AdsCampaignAddPage() {
   const [generatedLinks, setGeneratedLinks] = useState(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState({ tracking: false, postback: false });
+
+  const [postbackEnabled, setPostbackEnabled] = useState(false);
+  const [selectedEvents, setSelectedEvents] = useState([]);
+  const [postbackUrls, setPostbackUrls] = useState({});
+
+  const [parameters,setParameters] = useState([])
+
+  useEffect(() => {
+    const parameters = async () => {
+      try{
+        const res = await api.get("/add-ads-campaign/support-parameters");
+        setParameters(res.data.support_parameter || {});
+
+      }catch(err){
+        console.error("Error feching support parameters:",err)
+      }
+    }
+    parameters();
+  },[])
 
   const handleChange = (e) => {
     setFormData({
@@ -22,25 +48,31 @@ export default function AdsCampaignAddPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Call backend API to create campaign
-      console.log("FOrm: " ,formData)
-      const res = await api.post("/add-ads-campaign", formData);
+      const payload = {
+        ...formData,
+        postback_enabled: postbackEnabled,
+        postback_events: selectedEvents.map(event => ({
+          event_name: event.value,
+          url: postbackUrls[event.value] || ""
+        })),
+      };
+
+     
+
+      const res = await api.post("/add-ads-campaign", payload);
       setGeneratedLinks({
         trackingLink: res.data.tracking_link,
         postbackLink: res.data.postback_link,
-      }); 
-      // Expected backend response:
-      // {
-      //   trackingLink: "https://middleman.com/cd67890",
-      //   postbackTemplate: "https://middleman.com/postback/cd67890?log_id={logId}&value={value}&productid={productId}"
-      // }
+      });
     } catch (err) {
       console.error("Error generating campaign:", err);
+      setGeneratedLinks(null)//reset 
     }
     setLoading(false);
   };
 
-  
+
+
 
   const copyToClipboard = (type, text) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -51,96 +83,196 @@ export default function AdsCampaignAddPage() {
     });
   };
 
+
+ const toggleEvent = (index) => {
+    const eventValue = eventOptions[index];
+
+    setSelectedEvents((prev) => {
+      if (prev.includes(eventValue)) {
+        return prev.filter((v) => v !== eventValue);
+      } else {
+        return [...prev, eventValue];
+      }
+    });
+  };
+
   return (
     <>
-        <h2 className="text-xl font-bold mb-4">Ads Campaign</h2>
-        <div className="p-6 bg-white shadow-sm rounded-sm">
-        <h2 className="text-xl font-bold mb-4">Create Ad Campaign Link</h2>
+      <h2 className="text-xl font-bold mb-4">Ads Campaign</h2>
+      <div className="flex gap-4">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="p-6 bg-white shadow-sm rounded-sm w-full">
+          <h2 className="text-xl font-bold mb-4">Create Ad Campaign Link</h2>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-            <label className="block font-medium">Ad Name</label>
-            <input
+              <label className="block font-medium">Ad Name</label>
+              <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 className="w-full border p-2 rounded"
                 required
-            />
+              />
             </div>
 
             <div>
-            <label className="block font-medium">Target URL</label>
-            <input
+              <label className="block font-medium">Target URL</label>
+              <input
                 type="url"
                 name="target_url"
                 value={formData.target_url}
                 onChange={handleChange}
                 className="w-full border p-2 rounded"
                 required
-            />
+              />
             </div>
+
+
+            <div className="font-medium flex items-center justify-between">
+              <label>Postback</label>
+              <label className="inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" checked={postbackEnabled}
+                  onChange={(e) => {
+                      const isChecked = e.target.checked;
+                      setPostbackEnabled(isChecked);
+
+                      if (!isChecked) {
+                        setSelectedEvents([]);
+                      }
+                    }}
+
+                />
+                <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+
+            {
+              postbackEnabled && (
+                <div>
+                  <label className="block font-medium">Choose the event to postback:</label>
+                  <div className="flex flex-col gap-2 mt-2 ml-2">
+                    {eventOptions.map((event,index) => {
+                      return ( 
+                        <div key={index} className="flex items-center justify-between">
+                          <label className="block">{index + 1}. {event.label}</label>
+                          <input type="checkbox" onChange={() => toggleEvent(index)}></input>
+                        </div>
+                      )
+                      
+                    })}
+                  </div>
+                  
+                
+                </div>
+              )
+            }
+
+            {selectedEvents.map(event => (
+              <div key={event.value} className="mb-2">
+                <label className="block font-medium">Enter {event.label} Postback URL</label>
+                <input
+                  type="url"
+                  value={postbackUrls[event.value] || ""}
+                  onChange={(e) =>
+                    setPostbackUrls((prev) => ({
+                      ...prev,
+                      [event.value]: e.target.value,
+                    }))
+                  }
+                  className="w-full border p-2 rounded"
+                  required
+                />
+              </div>
+            ))}
+
+            
+
+
+
+
 
             <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              type="submit"
+              disabled={loading}
+              className="bg-blue-600 text-white mt-4 px-4 py-2 rounded hover:bg-blue-700"
             >
-            {loading ? "Generating..." : "Generate Link"}
+              {loading ? "Generating..." : "Generate Link"}
             </button>
-        </form>
+          </form>
 
-        {generatedLinks && (
+          {generatedLinks && (
             <div className="mt-6 p-4 border rounded bg-gray-50">
-            <h3 className="font-semibold mb-2">Generated Links:</h3>
+              <h3 className="font-semibold mb-2">Generated Links:</h3>
 
-            {/* Tracking Link */}
-            <div className="mb-3">
-              <strong>Tracking Link:</strong>
-              <div className="flex justify-between items-center gap-2 mt-1 flex-wrap">
-                <a
-                  href={generatedLinks.trackingLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-600 underline break-all"
-                >
-                  {generatedLinks.trackingLink}
-                </a>
-                <button
-                  onClick={() => copyToClipboard("tracking", generatedLinks.trackingLink)}
-                  className="px-2 py-1 text-sm text-blue-500 rounded hover:text-blue-300 transition"
-                >
-                  {!copied.tracking ? <span>Copy</span> :(
-                    <span className="text-green-600 text-sm">Copied ✓</span>
-                  )}
-                </button>
-                
+              {/* Tracking Link */}
+              <div className="mb-3">
+                <strong>Tracking Link:</strong>
+                <div className="flex justify-between items-center gap-2 mt-1 flex-wrap">
+                  <a
+                    href={generatedLinks.trackingLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 underline break-all"
+                  >
+                    {generatedLinks.trackingLink}
+                  </a>
+                  <button
+                    onClick={() => copyToClipboard("tracking", generatedLinks.trackingLink)}
+                    className="px-2 py-1 text-sm text-blue-500 rounded hover:text-blue-300 transition"
+                  >
+                    {!copied.tracking ? <span>Copy</span> : (
+                      <span className="text-green-600 text-sm">Copied ✓</span>
+                    )}
+                  </button>
+
+                </div>
+              </div>
+
+              {/* Postback Link */}
+              <div>
+                <strong>Postback Link:</strong>
+                <div className="flex justify-between items-center gap-2 mt-1 flex-wrap">
+                  <code className="bg-gray-100 p-1 rounded text-sm break-all">
+                    {generatedLinks.postbackLink}
+                  </code>
+                  <button
+                    onClick={() => copyToClipboard("postback", generatedLinks.postbackLink)}
+                    className="px-2 py-1 text-sm text-blue-500 rounded hover:text-blue-300 transition"
+                  >
+                    {!copied.postback ? <span>Copy</span> : (
+                      <span className="text-green-600 text-sm">Copied ✓</span>
+                    )}
+                  </button>
+
+                </div>
               </div>
             </div>
-
-            {/* Postback Link */}
-            <div>
-              <strong>Postback Link:</strong>
-              <div className="flex justify-between items-center gap-2 mt-1 flex-wrap">
-                <code className="bg-gray-100 p-1 rounded text-sm break-all">
-                  {generatedLinks.postbackLink}
-                </code>
-                <button
-                  onClick={() => copyToClipboard("postback", generatedLinks.postbackLink)}
-                  className="px-2 py-1 text-sm text-blue-500 rounded hover:text-blue-300 transition"
-                >
-                  {!copied.postback ? <span>Copy</span> :(
-                    <span className="text-green-600 text-sm">Copied ✓</span>
-                  )}
-                </button>
-                
-              </div>
-            </div>
-          </div>
-        )}
+          )}
         </div>
-    </>
+
+        {(postbackEnabled && selectedEvents.length > 0) && (
+          <section className="min-w-[30%] p-6 bg-white shadow-sm rounded-sm">
+              <h5>Supported Parameter</h5>
+             
+              <ul className="mt-4 grid grid-cols-2 gap-2">
+                {
+                  parameters.map( (p,index) => {
+                    return <li key={index}>{p}</li>
+                  })
+                }
+
+                
+              </ul>
+            
+              
+              
+            </section>
+          )}
+      </div>
     
+    </>
+
   );
 }
