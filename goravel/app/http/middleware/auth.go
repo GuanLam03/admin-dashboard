@@ -27,6 +27,7 @@ func Auth() http.Middleware {
 			return
 		}
 
+
 		// Attach user to context
 		// ctx.WithValue("user", user)
 		// fmt.Println("User: ",user)

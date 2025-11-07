@@ -11,10 +11,12 @@ import (
 	"github.com/mileusna/useragent"
 	"gorm.io/datatypes"
 
-	"io"
-	httpRaw "net/http"
+	"strings"
 	"net/url"
 	"regexp"
+	"goravel/app/helpers/system"
+
+	
 )
 
 type AdsTrackingController struct {
@@ -206,11 +208,11 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if err := facades.Orm().Query().Create(&eventLog); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
 			"code":        "500",
-			"status_name": "internal_server_error",
+			"status_name": "internal_server_maintenance", //variable
 		})
 	}
 	// Trigger background postback
-	go sendCampaignPostback(eventLog)
+	go prepareCampaignPostback(eventLog)
 
 	return ctx.Response().Json(http.StatusOK, map[string]string{
 		"code":        "200",
@@ -260,40 +262,81 @@ func validatePostBackAdsTrackingInput(req interface{}) (map[string]interface{}, 
 }
 
 
-func sendCampaignPostback(eventLog models.AdsEventLog) {
-	// Get campaign ID from ads_logs
-	var campaignID uint
-	if err := facades.Orm().Query().
-		Table("ads_logs").
-		Select("ads_campaign_id").
-		Where("id", eventLog.AdsLogId).
-		Get(&campaignID); 
-		err != nil {
-			facades.Log().Errorf("Failed to get campaign ID for ads_log_id=%d: %v", eventLog.AdsLogId, err)
-			return
-		}
 
-	// Find postback url 
-	var postback models.AdsCampaignPostback
-	if err := facades.Orm().Query().
-		Where("ads_campaign_id", campaignID).
-		Where("event_name", eventLog.EventName).
-		First(&postback);
-		err != nil {
-			facades.Log().Errorf("Postback query error (campaign_id=%d, event=%s): %v", campaignID, eventLog.EventName, err)
-			return
-		}
-
-	if postback.ID == 0 {
-		facades.Log().Infof("No matching postback found (campaign_id=%d, event=%s) — skipping", campaignID, eventLog.EventName)
+// called when an event log event is created
+func prepareCampaignPostback(eventLog models.AdsEventLog) {
+	// Get Campaign ID
+	campaignID, err := getCampaignID(eventLog.AdsLogId)
+	if err != nil {
+		facades.Log().Error(err)
 		return
 	}
 
-	// Parse event data
-	var data map[string]interface{}
-	_ = json.Unmarshal(eventLog.Data, &data)
+	// Get Postback Configuration
+	postback, err := getPostbackConfig(campaignID, eventLog.EventName)
+	if err != nil {
+		facades.Log().Error(err)
+		return
+	}
+	if postback.ID == 0 {
+		facades.Log().Infof("No postback found (campaign_id=%d, event=%s)", campaignID, eventLog.EventName)
+		return
+	}
 
-	// Build placeholders dynamically from allowed data fields
+	// Prepare placeholders
+	placeholders, adsLogDetail, err := buildPlaceholders(eventLog)
+	if err != nil {
+		facades.Log().Error(err)
+		return
+	}
+
+	// Build final URL (include the clicked_url param)
+	finalURL := buildFinalPostbackURL(postback, adsLogDetail, placeholders)
+
+	
+	// Record pending postback
+	if err := recordPendingPostback(eventLog, postback, finalURL); err != nil {
+		facades.Log().Error(err)
+	}
+}
+
+
+// Helper function 
+// Get campaign ID from ads_logs
+func getCampaignID(adsLogID uint) (uint, error) {
+	var campaignID uint
+	err := facades.Orm().Query().
+		Table("ads_logs").
+		Select("ads_campaign_id").
+		Where("id", adsLogID).
+		Get(&campaignID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get campaign ID for ads_log_id=%d: %v", adsLogID, err)
+	}
+	return campaignID, nil
+}
+
+// Get postback configuration
+func getPostbackConfig(campaignID uint, eventName string) (models.AdsCampaignPostback, error) {
+	var postback models.AdsCampaignPostback
+	err := facades.Orm().Query().
+		Where("ads_campaign_id", campaignID).
+		Where("event_name", eventName).
+		First(&postback)
+	if err != nil {
+		return postback, fmt.Errorf("postback query error (campaign_id=%d, event=%s): %v", campaignID, eventName, err)
+	}
+	return postback, nil
+}
+
+// Build placeholders from event data and click_id
+func buildPlaceholders(eventLog models.AdsEventLog) (map[string]string, models.AdsLogDetail, error) {
+	var data map[string]interface{}
+	if err := json.Unmarshal(eventLog.Data, &data); err != nil {
+		return nil, models.AdsLogDetail{}, fmt.Errorf("failed to unmarshal event data: %v", err)
+	}
+
+	// Build base placeholders
 	placeholders := make(map[string]string)
 	for _, key := range models.AllowedEventDataFields {
 		if val, ok := data[key]; ok {
@@ -303,61 +346,58 @@ func sendCampaignPostback(eventLog models.AdsEventLog) {
 		}
 	}
 
-	// Get click_id from ads_log_details
+	// Get AdsLogDetail (for click_id, clicked_url, etc.)
 	var adsLogDetail models.AdsLogDetail
-	if err := facades.Orm().Query().
+	err := facades.Orm().Query().
 		Table("ads_log_details AS ald").
 		Join("INNER JOIN ads_logs AS al ON ald.id = al.ads_log_detail_id").
-		Where("ald.id", eventLog.AdsLogId).
-		First(&adsLogDetail); 
-		err != nil {
-			facades.Log().Errorf("Failed to get AdsLogDetail for ads_log_id=%d: %v", eventLog.AdsLogId, err)
-			return
-		}
-
-	clickID := extractClickID(adsLogDetail.ClickedUrl)
-	// Add click_id as placeholder
-	placeholders["click_id"] = clickID
-
-	finalURL := replacePlaceholders(postback.PostbackUrl, placeholders)
-
-	// Send HTTP request (Get by default)
-	resp, err := httpRaw.Get(finalURL)
-	fmt.Println("res",resp)
-	var (
-		statusCode  *int
-		respBodyStr *string
-		errorMsg    *string
-	)
-
+		Where("al.id", eventLog.AdsLogId).
+		First(&adsLogDetail)
 	if err != nil {
-		errStr := err.Error()
-		errorMsg = &errStr
-	} else {
-		defer resp.Body.Close()
-		body, _ := io.ReadAll(resp.Body)
-		bodyStr := string(body)
-		respBodyStr = &bodyStr
-		code := resp.StatusCode
-		statusCode = &code
+		return nil, adsLogDetail, fmt.Errorf("failed to get AdsLogDetail for ads_log_id=%d: %v", eventLog.AdsLogId, err)
 	}
 
-	// Log result
+	clickID := extractClickID(adsLogDetail.ClickedUrl)
+	placeholders["click_id"] = clickID
+	placeholders["clicked_url"] = adsLogDetail.ClickedUrl
+
+	return placeholders, adsLogDetail, nil
+}
+
+// Build final URL (replace placeholders + append click params)
+func buildFinalPostbackURL(postback models.AdsCampaignPostback, adsLogDetail models.AdsLogDetail, placeholders map[string]string) string {
+	finalURL := replacePlaceholders(postback.PostbackUrl, placeholders)
+	finalURL = strings.TrimRight(finalURL, "?&")
+
+	if postback.IncludeClickParams {
+		u, err := url.Parse(adsLogDetail.ClickedUrl)
+		if err == nil && u.RawQuery != "" {
+			if strings.Contains(finalURL, "?") {
+				finalURL += "&" + u.RawQuery
+			} else {
+				finalURL += "?" + u.RawQuery
+			}
+		}
+	}
+	return finalURL
+}
+
+func recordPendingPostback(eventLog models.AdsEventLog, postback models.AdsCampaignPostback, finalURL string) error {
 	postbackLog := models.AdsCampaignPostbackLog{
 		AdsEventLogId:         &eventLog.ID,
 		AdsCampaignPostbackId: postback.ID,
 		Url:                   finalURL,
-		RequestMethod:         "Get",
-		ResponseStatus:        statusCode,
-		ResponseBody:          respBodyStr,
-		ErrorMessage:          errorMsg,
+		RequestMethod:         system.RequestMethods["get"], 
+		Status:                models.AdsCampaignPostbackLogStatusMap["pending"],
 	}
 	if err := facades.Orm().Query().Create(&postbackLog); err != nil {
-		facades.Log().Errorf("Failed to save postback log (campaign_id=%d, event=%s): %v", campaignID, eventLog.EventName, err)
+		return fmt.Errorf("failed to save pending postback (campaign_id=%d, event=%s): %v", postback.AdsCampaignId, eventLog.EventName, err)
 	}
+	return nil
 }
 
-//Replace placeholders dynamically
+
+// Replace placeholders like {click_id}, {value}
 func replacePlaceholders(urlTemplate string, values map[string]string) string {
 	re := regexp.MustCompile(`\{([a-zA-Z0-9_]+)\}`)
 	return re.ReplaceAllStringFunc(urlTemplate, func(match string) string {
@@ -369,32 +409,20 @@ func replacePlaceholders(urlTemplate string, values map[string]string) string {
 	})
 }
 
+// Extract known click ID parameter from a URL
 func extractClickID(clickedURL string) string {
 	u, err := url.Parse(clickedURL)
 	if err != nil {
 		return ""
 	}
-
 	query := u.Query()
 	candidateKeys := []string{
 		"cid", "click_id", "clickid",
 		"fbclid", "gclid", "ttclid", "msclkid", "twclid", "gbraid", "wbraid",
 	}
-
 	for _, key := range candidateKeys {
 		if val := query.Get(key); val != "" {
 			return val
-		}
-	}
-
-	return ""
-}
-
-
-func getString(data map[string]interface{}, key string) string {
-	if val, ok := data[key]; ok {
-		if s, ok := val.(string); ok {
-			return s
 		}
 	}
 	return ""

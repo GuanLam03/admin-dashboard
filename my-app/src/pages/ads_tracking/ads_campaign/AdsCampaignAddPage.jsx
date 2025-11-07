@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axios";
-
+import Tooltip from "@mui/material/Tooltip";
 
 const eventOptions = [
   { value: "PURCHASE", label: "Purchase"},
@@ -9,6 +9,8 @@ const eventOptions = [
 ]
 
 export default function AdsCampaignAddPage() {
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     target_url: ""
@@ -31,7 +33,7 @@ export default function AdsCampaignAddPage() {
         setParameters(res.data.support_parameter || {});
 
       }catch(err){
-        console.error("Error feching support parameters:",err)
+        setError(err);
       }
     }
     parameters();
@@ -53,7 +55,8 @@ export default function AdsCampaignAddPage() {
         postback_enabled: postbackEnabled,
         postback_events: selectedEvents.map(event => ({
           event_name: event.value,
-          url: postbackUrls[event.value] || ""
+          url: postbackUrls[event.value]?.url || "",
+          include_click_params: postbackUrls[event.value]?.include_click_params || false,
         })),
       };
 
@@ -64,9 +67,15 @@ export default function AdsCampaignAddPage() {
         trackingLink: res.data.tracking_link,
         postbackLink: res.data.postback_link,
       });
+      setSuccess(res.data.status_name);
     } catch (err) {
       console.error("Error generating campaign:", err);
-      setGeneratedLinks(null)//reset 
+      setGeneratedLinks(null);//reset 
+      if (err.response?.status === 422) {
+        setError( err.response.data.errors);
+      } else {
+        console.error("Error generating campaign:", err);
+      }
     }
     setLoading(false);
   };
@@ -98,6 +107,16 @@ export default function AdsCampaignAddPage() {
 
   return (
     <>
+      {error && (
+        <div className="bg-red-100 text-red-600 px-4 py-2 rounded mb-4">
+          {Object.entries(error).map(([field, messages]) => (
+            <div key={field}>
+              {Object.values(messages).join(", ")}
+            </div>
+          ))}
+        </div>
+      )}
+      {success && <div className="bg-green-100 text-green-600 px-4 py-2 rounded mb-4">{success}</div>}
       <h2 className="text-xl font-bold mb-4">Ads Campaign</h2>
       <div className="flex gap-4">
 
@@ -170,20 +189,54 @@ export default function AdsCampaignAddPage() {
             }
 
             {selectedEvents.map(event => (
-              <div key={event.value} className="mb-2">
+              <div key={event.value} className="mb-2 bg-gray-50 rounded-sm p-4">
                 <label className="block font-medium">Enter {event.label} Postback URL</label>
                 <input
                   type="url"
-                  value={postbackUrls[event.value] || ""}
+                  value={postbackUrls[event.value]?.url || ""}
                   onChange={(e) =>
                     setPostbackUrls((prev) => ({
                       ...prev,
-                      [event.value]: e.target.value,
+                      [event.value]: {
+                        ...prev[event.value],
+                        url: e.target.value,
+                      },
                     }))
                   }
                   className="w-full border p-2 rounded"
                   required
                 />
+
+
+                <div className="flex items-center mt-2 gap-2">
+                  <input
+                    id={`${event.value}_include_params`}
+                    type="checkbox"
+                    checked={postbackUrls[event.value]?.include_click_params || false}
+                    onChange={(e) =>
+                      setPostbackUrls(prev => ({
+                        ...prev,
+                        [event.value]: {
+                          ...prev[event.value],
+                          include_click_params: e.target.checked,
+                        },
+                      }))
+                    }
+                    className="mr-2"
+                  />
+
+                  <Tooltip title="Send UTM and click data (source, campaign, etc.) for this postback.">
+                    <label
+                      htmlFor={`${event.value}_include_params`}
+                      className="text-sm text-gray-700"
+                    >
+                      Include original tracking parameters
+                    </label>
+                  </Tooltip>
+                  
+                </div>
+
+                
               </div>
             ))}
 
