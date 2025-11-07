@@ -25,9 +25,23 @@ func main() {
 		}
 	}()
 
+	// Start Scheduler //06/11/2025
+	// you can manually run the task scheduling by typing "go run . artisan schedule:run" or uncomment below code it will auto run when "go run .""
+	// go func() {
+	// 	facades.Log().Info("Starting Goravel scheduler...")
+	// 	facades.Schedule().Run();
+	// }()
+
+
 	// Listen for the OS signal
 	go func() {
 		<-quit
+
+		// Shutdown scheduler //06/11/2025
+		if err := facades.Schedule().Shutdown(); err != nil {
+			facades.Log().Errorf("Schedule Shutdown error: %v", err)
+		}
+
 		if err := facades.Route().Shutdown(); err != nil {
 			facades.Log().Errorf("Route Shutdown error: %v", err)
 		}
