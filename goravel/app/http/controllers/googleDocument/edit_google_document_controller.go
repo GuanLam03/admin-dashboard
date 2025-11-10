@@ -20,7 +20,7 @@ func (c *EditGoogleDocumentController) ShowGoogleDocument(ctx http.Context) http
 	// Find document by ID
 	var doc models.GoogleDocument
 	if err := facades.Orm().Query().Find(&doc, id); err != nil || doc.ID == 0 {
-		return ctx.Response().Json(404, map[string]string{"error": "Google document not found"})
+		return ctx.Response().Json(404, map[string]string{"error": models.GoogleDocumentErrorMessage["not_found"]})
 	}
 
 	// Remove "removed" status from allowed list (like Laravel did)
@@ -41,7 +41,7 @@ func (c *EditGoogleDocumentController) EditGoogleDocument(ctx http.Context) http
 	// Find document by ID
 	var doc models.GoogleDocument
 	if err := facades.Orm().Query().Find(&doc, id); err != nil || doc.ID == 0 {
-		return ctx.Response().Json(404, map[string]string{"error": "Google document not found"})
+		return ctx.Response().Json(404, map[string]string{"error": models.GoogleDocumentErrorMessage["not_found"]})
 	}
 
 	// Collect request data
@@ -54,7 +54,7 @@ func (c *EditGoogleDocumentController) EditGoogleDocument(ctx http.Context) http
 	// Validate
 	status, errResp, err := validateGoogleDocumentInput(data)
 	if err != nil {
-		return ctx.Response().Json(500, map[string]string{"error": err.Error()})
+		return ctx.Response().Json(500, map[string]string{"error": models.GoogleDocumentErrorMessage["internal_error"]})
 	}
 	if errResp != nil {
 		return ctx.Response().Json(422, errResp)
@@ -79,7 +79,7 @@ func (c *EditGoogleDocumentController) EditGoogleDocument(ctx http.Context) http
 	doc.Status = status
 
 	if err := facades.Orm().Query().Save(&doc); err != nil {
-		return ctx.Response().Json(500, map[string]string{"error": "Failed to update Google document"})
+		return ctx.Response().Json(500, map[string]string{"error": models.GoogleDocumentErrorMessage["update_failed"]})
 	}
 
 	return ctx.Response().Json(200, map[string]any{
@@ -97,14 +97,14 @@ func (c *EditGoogleDocumentController) RemoveGoogleDocument(ctx http.Context) ht
 	// Find document by ID
 	var doc models.GoogleDocument
 	if err := facades.Orm().Query().Find(&doc, id); err != nil || doc.ID == 0 {
-		return ctx.Response().Json(404, map[string]string{"error": "Google document not found"})
+		return ctx.Response().Json(404, map[string]string{"error": models.GoogleDocumentErrorMessage["not_found"]})
 	}
 
 	// Mark as removed instead of deleting
 	doc.Status = models.GoogleDocumentStatusMap["removed"]
 
 	if err := facades.Orm().Query().Save(&doc); err != nil {
-		return ctx.Response().Json(500, map[string]string{"error": "Failed to remove Google document"})
+		return ctx.Response().Json(500, map[string]string{"error": models.GoogleDocumentErrorMessage["delete_failed"]})
 	}
 
 	return ctx.Response().Json(200, map[string]any{

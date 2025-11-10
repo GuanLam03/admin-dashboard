@@ -74,7 +74,7 @@ func (a *AdsTrackingController) Track(ctx http.Context) http.Response {
 	var campaign models.AdsCampaign
 	if err := facades.Orm().Query().Where("code", code).First(&campaign); err != nil || campaign.ID == 0 {
 		return ctx.Response().Json(http.StatusNotFound, map[string]string{
-			"error": "Campaign not found",
+			"error": models.AdsCampaignErrorMessage["not_found"],
 		})
 	}
 
@@ -159,7 +159,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if err := ctx.Request().Bind(&req); err != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
 			"code":        "400",
-			"status_name": "bad_request",
+			"status_name": models.AdsEventLogErrorMessage["validation_failed"],
 		})
 	}
 
@@ -167,7 +167,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if errors, err := validatePostBackAdsTrackingInput(req); err != nil || errors != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
 			"code":        "400",
-			"status_name": "bad_request",
+			"status_name": models.AdsEventLogErrorMessage["validation_failed"],
 		})
 	}
 
@@ -176,7 +176,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if err != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
 			"code":        "400",
-			"status_name": "bad_request",
+			"status_name": models.AdsEventLogErrorMessage["validation_failed"],
 		})
 	}
 
@@ -188,13 +188,13 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
 			"code":        "500",
-			"status_name": "internal_server_error",
+			"status_name":  models.AdsLogErrorMessage["internal_error"],
 		})
 	}
 	if !exists {
 		return ctx.Response().Json(http.StatusNotFound, map[string]string{
 			"code":        "404",
-			"status_name": "not_found",
+			"status_name": models.AdsLogErrorMessage["not_found"],
 		})
 	}
 
@@ -208,7 +208,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if err := facades.Orm().Query().Create(&eventLog); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
 			"code":        "500",
-			"status_name": "internal_server_maintenance", //variable
+			"status_name": models.AdsEventLogErrorMessage["internal_error"], //variable
 		})
 	}
 	// Trigger background postback
@@ -387,7 +387,7 @@ func recordPendingPostback(eventLog models.AdsEventLog, postback models.AdsCampa
 		AdsEventLogId:         &eventLog.ID,
 		AdsCampaignPostbackId: postback.ID,
 		Url:                   finalURL,
-		RequestMethod:         system.RequestMethods["get"], 
+		RequestMethod:         system.RequestMethods["GET"], 
 		Status:                models.AdsCampaignPostbackLogStatusMap["pending"],
 	}
 	if err := facades.Orm().Query().Create(&postbackLog); err != nil {

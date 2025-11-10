@@ -2,8 +2,8 @@ package adsCampaign
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
+	"crypto/rand"
+    "math/big"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	// "encoding/json"
@@ -40,7 +40,7 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 	var req AddAdsCampaignRequest
 	if err := ctx.Request().Bind(&req); err != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]any{
-			"error": "Invalid request body",
+			"error": models.AdsCampaignErrorMessage["invalid_request"],
 		})
 	}
 
@@ -53,7 +53,7 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 	// Validate campaign
 	errResp, err := validateAdsCampaignInput(adsCampaign)
 	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]any{"error": models.AdsCampaignErrorMessage["internal_error"]})
 	}
 	if errResp != nil {
 		return ctx.Response().Json(http.StatusUnprocessableEntity, errResp)
@@ -73,7 +73,7 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 	if len(postbackModels) > 0 {
 		errResp, err = ValidateAdsCampaignPostbackInput(postbackModels)
 		if err != nil {
-			return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": models.AdsCampaignErrorMessage["internal_error"]})
 		}
 		if errResp != nil {
 			return ctx.Response().Json(http.StatusUnprocessableEntity, errResp)
@@ -133,13 +133,13 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 }
 
 
-func validateAdsCampaignInput(data models.AdsCampaign) (map[string]interface{}, error) {
+func validateAdsCampaignInput(data models.AdsCampaign) (map[string]any, error) {
 	validator, err := facades.Validation().Make(data, models.AdsCampaignRules)
 	if err != nil {
 		return nil, fmt.Errorf("validation error: %v", err)
 	}
 	if validator.Fails() {
-		return map[string]interface{}{
+		return map[string]any{
 			"errors": validator.Errors().All(),
 		}, nil
 	}
@@ -147,14 +147,14 @@ func validateAdsCampaignInput(data models.AdsCampaign) (map[string]interface{}, 
 	return  nil, nil
 }
 
-func ValidateAdsCampaignPostbackInput(inputs []models.AdsCampaignPostback) (map[string]interface{}, error) {
+func ValidateAdsCampaignPostbackInput(inputs []models.AdsCampaignPostback) (map[string]any, error) {
 	for i, pb := range inputs {
 		validator, err := facades.Validation().Make(pb, models.AdsCampaignPostbackRules)
 		if err != nil {
 			return nil, fmt.Errorf("validation error: %v", err)
 		}
 		if validator.Fails() {
-			return map[string]interface{}{
+			return map[string]any{
 				"index":  i,
 				"errors": validator.Errors().All(),
 			}, nil
@@ -164,29 +164,33 @@ func ValidateAdsCampaignPostbackInput(inputs []models.AdsCampaignPostback) (map[
 }
 
 
+
 func generateUniqueCode() (string, error) {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	rand.Seed(time.Now().UnixNano())
+	length := 16;
+    for {
+        code := make([]byte, length)
+        for i := range code {
+            n, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+            if err != nil {
+                return "", err
+            }
+            code[i] = letters[n.Int64()]
+        }
 
-	for {
-		codeBytes := make([]byte, 8)
-		for i := range codeBytes {
-			codeBytes[i] = letters[rand.Intn(len(letters))]
-		}
-		code := string(codeBytes)
+        codeStr := string(code)
 
-		// check if exists
-		count, err := facades.Orm().Query().Table("ads_campaigns").Where("code", code).Count()
-		if err != nil {
-			return "", err
-		}
-
-		if count == 0 {
-			return code, nil
-		}
-		// else retry
-	}
+        count, err := facades.Orm().Query().Table("ads_campaigns").Where("code", codeStr).Count()
+        if err != nil {
+            return "", err
+        }
+        if count == 0 {
+            return codeStr, nil
+        }
+        // else retry
+    }
 }
+
 
 
 

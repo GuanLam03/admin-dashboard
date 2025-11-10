@@ -52,7 +52,7 @@ func (c *GmailController) HandleCallback(ctx http.Context) http.Response {
     token, err := getOAuthConfig().Exchange(context.Background(), code)
     if err != nil {
         return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-            "error": "Failed to exchange token",
+            "error": models.GmailAccountErrorMessage["auth_failed"],
         })
     }
 
@@ -62,14 +62,14 @@ func (c *GmailController) HandleCallback(ctx http.Context) http.Response {
     srv, err := gmail.New(client)
     if err != nil {
         return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-            "error": "Failed to create Gmail service",
+            "error": models.GmailAccountErrorMessage["internal_error"],
         })
     }
 
     profile, err := srv.Users.GetProfile("me").Do()
     if err != nil {
         return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-            "error": "Failed to fetch Gmail profile",
+            "error": models.GmailAccountErrorMessage["fetch_failed"],
         })
     }
 
@@ -78,7 +78,7 @@ func (c *GmailController) HandleCallback(ctx http.Context) http.Response {
     err = facades.Orm().Query().Where("email", profile.EmailAddress).First(&existing)
     if err == nil && existing.ID != 0 {
         return ctx.Response().Json(http.StatusBadRequest, map[string]string{
-            "error": "This Gmail account is already assigned to " + *existing.Team,
+            "error": models.GmailAccountErrorMessage["already_linked"],
         })
     }
     
@@ -92,7 +92,7 @@ func (c *GmailController) HandleCallback(ctx http.Context) http.Response {
     })
     if err != nil {
         return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-            "error": "Failed to save Gmail account",
+            "error": models.GmailAccountErrorMessage["create_failed"],
         })
     }
 
@@ -148,7 +148,7 @@ func (c *GmailController) ListMessages(ctx http.Context) http.Response {
 	srv, err := GetClientFromDB(email)
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError,
-			map[string]string{"error": "Failed to get Gmail client"})
+			map[string]string{"error": models.GmailAccountErrorMessage["not_found"]})
 	}
 
 	// Request 20 threads per page
@@ -166,7 +166,7 @@ func (c *GmailController) ListMessages(ctx http.Context) http.Response {
 	res, err := call.Do()
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError,
-			map[string]string{"error": err.Error()})
+			map[string]string{"error": models.GmailAccountErrorMessage["kist_failed"]})
 	}
 
 	var g errgroup.Group
@@ -192,7 +192,7 @@ func (c *GmailController) ListMessages(ctx http.Context) http.Response {
 	}
 	if err := g.Wait(); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError,
-			map[string]string{"error": fmt.Sprintf("Failed to fetch threads: %v", err)})
+			map[string]string{"error": models.GmailAccountErrorMessage["fetch_failed"]})
 	}
 
 	// build response
@@ -261,16 +261,18 @@ func (c *GmailController) ReadMessage(ctx http.Context) http.Response {
 	messageID := ctx.Request().Route("id")
 
 	if messageID == "" || email == "" {
+		facades.Log().Warningf("Missing parameters: email=%s, messageID=%s", email, messageID)
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
-			"error": "Missing required parameters (id, email)",
+			"error": models.GmailAccountErrorMessage["invalid_request"],
 		})
 	}
 
 	// Get Gmail client
 	srv, err := GetClientFromDB(email)
 	if err != nil {
+		facades.Log().Errorf("Failed to get Gmail client for %s: %v", email, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to get Gmail client",
+			"error": models.GmailAccountErrorMessage["not_found"],
 		})
 	}
 
@@ -278,16 +280,18 @@ func (c *GmailController) ReadMessage(ctx http.Context) http.Response {
 	// Trick: we don't know the threadId yet, so we fetch the message in metadata (cheap + small payload)
 	msg, err := srv.Users.Messages.Get("me", messageID).Format("metadata").Do()
 	if err != nil {
+		facades.Log().Errorf("Failed to fetch message metadata (%s): %v", messageID, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": fmt.Sprintf("Failed to fetch message %s: %v", messageID, err),
+			"error": models.GmailAccountErrorMessage["read_failed"],
 		})
 	}
 
 	// Now fetch the whole thread (only ONE full request)
 	thread, err := srv.Users.Threads.Get("me", msg.ThreadId).Format("full").Do()
 	if err != nil {
+		facades.Log().Errorf("Failed to fetch thread (%s): %v", msg.ThreadId, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": fmt.Sprintf("Failed to fetch thread %s: %v", msg.ThreadId, err),
+			"error": models.GmailAccountErrorMessage["thread_not_found"],
 		})
 	}
 
@@ -342,9 +346,6 @@ func (c *GmailController) ReadMessage(ctx http.Context) http.Response {
 		}
 	}
 
-	
-
-	// Build response
 	result := map[string]any{
 		"threadId": thread.Id,
 		"messages": messages,
@@ -438,8 +439,9 @@ func getHTMLBody(msg *gmail.Message) string {
 func (c *GmailController) ListAccounts(ctx http.Context) http.Response {
 	var accounts []models.GmailAccount
 	if err := facades.Orm().Query().Get(&accounts); err != nil {
+		facades.Log().Errorf("Failed to fetch Gmail accounts: %v", err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to fetch accounts",
+			"error": models.GmailAccountErrorMessage["fetch_failed"],
 		})
 	}
 	return ctx.Response().Json(http.StatusOK, accounts)
@@ -449,9 +451,17 @@ func (c *GmailController) ListAccounts(ctx http.Context) http.Response {
 func (c *GmailController) DeleteAccount(ctx http.Context) http.Response {
 	email := ctx.Request().Route("email")
 
+	if email == "" {
+		facades.Log().Warning("Missing email parameter in DeleteAccount request")
+		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
+			"error": models.GmailAccountErrorMessage["invalid_request"],
+		})
+	}
+
 	if _,err := facades.Orm().Query().Where("email", email).Delete(&models.GmailAccount{}); err != nil {
+		facades.Log().Errorf("Failed to delete Gmail account (%s): %v", email, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to delete account",
+			"error": models.GmailAccountErrorMessage["delete_failed"],
 		})
 	}
 	return ctx.Response().Json(http.StatusOK, map[string]string{
@@ -470,28 +480,41 @@ func (c *GmailController) ToggleStar(ctx http.Context) http.Response {
 	threadID := ctx.Request().Route("id")
 	email := ctx.Request().Query("email")
 
+	if threadID == "" || email == "" {
+		facades.Log().Warningf("Missing parameters in ToggleStar: threadID=%s, email=%s", threadID, email)
+		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
+			"error": models.GmailAccountErrorMessage["invalid_request"],
+		})
+	}
+
 	srv, err := GetClientFromDB(email)
 	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError,
-			map[string]string{"error": "Failed to get Gmail client"})
+		facades.Log().Errorf("Failed to get Gmail client for %s: %v", email, err)
+		return ctx.Response().Json(http.StatusNotFound, map[string]string{
+			"error": models.GmailAccountErrorMessage["not_found"],
+		})
 	}
 
 	// 1. Get the thread with messages
 	thread, err := srv.Users.Threads.Get("me", threadID).Format("full").Do()
 	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError,
-			map[string]string{"error": "Failed to fetch thread"})
+		facades.Log().Errorf("Failed to fetch Gmail thread %s: %v", threadID, err)
+		return ctx.Response().Json(http.StatusNotFound, map[string]string{
+			"error": models.GmailAccountErrorMessage["thread_not_found"],
+		})
 	}
 
-	fmt.Printf("Thread ID: %s\n", threadID)
-fmt.Printf("Number of messages: %d\n", len(thread.Messages))
-for i, msg := range thread.Messages {
-    fmt.Printf("Message %d ID: %s, Labels: %v\n", i, msg.Id, msg.LabelIds)
-}
+	// fmt.Printf("Thread ID: %s\n", threadID)
+	// fmt.Printf("Number of messages: %d\n", len(thread.Messages))
+	// for i, msg := range thread.Messages {
+	// 	fmt.Printf("Message %d ID: %s, Labels: %v\n", i, msg.Id, msg.LabelIds)
+	// }
 
 	if len(thread.Messages) == 0 {
-		return ctx.Response().Json(http.StatusNotFound,
-			map[string]string{"error": "No messages in thread"})
+		facades.Log().Warningf("Thread %s has no messages", threadID)
+		return ctx.Response().Json(http.StatusNotFound, map[string]string{
+			"error": models.GmailAccountErrorMessage["thread_not_found"],
+		})
 	}
 
 	// 2. Latest message = last in slice
@@ -513,8 +536,9 @@ for i, msg := range thread.Messages {
 				RemoveLabelIds: []string{"STARRED"},
 			}).Do()
 			if err != nil {
+				facades.Log().Errorf("Failed to unstar message %s in thread %s: %v", msg.Id, threadID, err)
 				return ctx.Response().Json(http.StatusInternalServerError,
-					map[string]string{"error": fmt.Sprintf("Failed to unstar message %s: %v", msg.Id, err)})
+					map[string]string{"error": models.GmailAccountErrorMessage["update_failed"]})
 			}
 		}
 	} else {
@@ -523,8 +547,9 @@ for i, msg := range thread.Messages {
 			AddLabelIds: []string{"STARRED"},
 		}).Do()
 		if err != nil {
+			facades.Log().Errorf("Failed to star message %s in thread %s: %v", latest.Id, threadID, err)
 			return ctx.Response().Json(http.StatusInternalServerError,
-				map[string]string{"error": fmt.Sprintf("Failed to star message: %v", err)})
+				map[string]string{"error": models.GmailAccountErrorMessage["update_failed"]})
 		}
 	}
 

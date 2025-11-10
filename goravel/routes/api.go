@@ -14,7 +14,6 @@ import (
 	"goravel/app/http/controllers/gmail"
 	"goravel/app/http/controllers/adsTracking"
 	"goravel/app/http/controllers/adsCampaign"
-	"goravel/app/http/controllers/adsLogs"
 )
 
 func Api() {
@@ -51,7 +50,6 @@ func Api() {
 	editAdsCampaignController := adsCampaign.NewEditAdsCampaignController()
 	adsCampaignController := adsCampaign.NewAdsCampaignController()
 	reportAdsCampaignController := adsCampaign.NewReportAdsCampaignController()
-	adsLogController := adsLogs.NewAdsLogController()
 	adsTrackingController := adsTracking.NewAdsTrackingController()
 	//setting google authenticator
 	twofaController := googleAuthenticator.NewTwoFAController()
@@ -127,8 +125,6 @@ func Api() {
 		router.Get("/add-ads-campaign/support-parameters",addAdsCampaignController.ShowSupportParameter)
 
 
-		//List ads log
-		router.Get("/ads-logs",adsLogController.ListAdsLogs)
 
 
 

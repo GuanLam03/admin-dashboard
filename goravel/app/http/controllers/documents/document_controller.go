@@ -25,14 +25,14 @@ func (c *DocumentController) Store(ctx http.Context) http.Response {
 	// fmt.Println(files);
 
 	if err != nil || len(files) == 0 {
-		return ctx.Response().Json(422, http.Json{"error": "No file uploaded"})
+		return ctx.Response().Json(422, http.Json{"error": models.DocumentErrorMessage["validation_failed"]})
 	}
 
 	
 	for _, file := range files {
 		filename := file.GetClientOriginalName()
 		if _, err := file.StoreAs("uploads", filename); err != nil {
-			return ctx.Response().Json(500, http.Json{"error": err.Error()})
+			return ctx.Response().Json(500, http.Json{"error": models.DocumentErrorMessage["internal_error"]})
 		}
 
 		savePath := filepath.Join("uploads", filename)
@@ -49,7 +49,7 @@ func (c *DocumentController) Store(ctx http.Context) http.Response {
 			}
 
 			return ctx.Response().Json(500, http.Json{
-				"error": "Failed to save to database. Upload canceled.",
+				"error": models.DocumentErrorMessage["internal_error"],
 			})
 		}
 	}
@@ -62,7 +62,7 @@ func (c *DocumentController) Store(ctx http.Context) http.Response {
 func (c *DocumentController) Index(ctx http.Context) http.Response {
 	var docs []models.Document
 	if err := facades.Orm().Query().Get(&docs); err != nil {
-		return ctx.Response().Json(500, http.Json{"error": err.Error()})
+		return ctx.Response().Json(500, http.Json{"error": models.DocumentErrorMessage["internal_error"]})
 	}
 
 	return ctx.Response().Json(200, http.Json{"documents": docs})
@@ -75,16 +75,16 @@ func (c *DocumentController) Download(ctx http.Context) http.Response {
 	var doc models.Document
 
 	if err != nil {
-		return ctx.Response().Json(422, http.Json{"error": "Invalid ID"})
+		return ctx.Response().Json(422, http.Json{"error": models.DocumentErrorMessage["validation_failed"]})
 	}
 
 	if err := facades.Orm().Query().Where("id", id).First(&doc); err != nil {
-		return ctx.Response().Json(404, http.Json{"error": "File not found in DB"})
+		return ctx.Response().Json(404, http.Json{"error": models.DocumentErrorMessage["not_found"],})
 	}
 
 	// Double-check file exists
 	if !doc.Exists() {
-		return ctx.Response().Json(404, http.Json{"error": "File missing on disk"})
+		return ctx.Response().Json(404, http.Json{"error": models.DocumentErrorMessage["not_found"],})
 	}
 
 	// Return file for download

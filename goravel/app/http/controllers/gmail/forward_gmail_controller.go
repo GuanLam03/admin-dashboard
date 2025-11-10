@@ -6,6 +6,8 @@ import (
 	"time"
 	"google.golang.org/api/gmail/v1"
     "github.com/goravel/framework/contracts/http"
+	"github.com/goravel/framework/facades"
+	"goravel/app/models"
   
 
 )
@@ -25,16 +27,19 @@ func (c *ForwardGmailController) ForwardMessage(ctx http.Context) http.Response 
 	body := ctx.Request().Input("body")   // full HTML (already prepared by frontend)
 
 	if email == "" || to == "" || body == "" {
+		facades.Log().Warningf("Missing required parameters")
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
-			"error": "Missing required parameters",
+			"error": models.GmailAccountErrorMessage["invalid_request"],
+			
 		})
 	}
 
 	// Gmail client
 	srv, err := GetClientFromDB(email)
 	if err != nil {
+		facades.Log().Errorf("Failed to get Gmail client for %s: %v", email, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to get Gmail client",
+			"error": models.GmailAccountErrorMessage["not_found"],
 		})
 	}
 
@@ -53,8 +58,10 @@ func (c *ForwardGmailController) ForwardMessage(ctx http.Context) http.Response 
 
 	_, err = srv.Users.Messages.Send("me", &message).Do()
 	if err != nil {
+		facades.Log().Errorf("Failed to forward message: %v", err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": fmt.Sprintf("Failed to forward message: %v", err),
+			"error":models.GmailAccountErrorMessage["forward_failed"],
+			
 		})
 	}
 

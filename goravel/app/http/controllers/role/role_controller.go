@@ -22,10 +22,7 @@ func NewRoleController() *RoleController {
 func (r *RoleController) Index(ctx http.Context) http.Response {
 	var roles []models.Role
 	if err := facades.Orm().Query().Find(&roles); err != nil {
-		// return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-		// 	"error": err.Error(),
-		// })
-		return ctx.Response().Json(500, http.Json{"error":  err.Error()})
+		return ctx.Response().Json(500, http.Json{"error":  models.RoleErrorMessage["internal_error"]})
 	}
 
 	
@@ -39,7 +36,7 @@ func (r *RoleController) Store(ctx http.Context) http.Response {
 
 	role := models.Role{Name: name}
 	if err := facades.Orm().Query().Create(&role); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error":  err.Error()})
+		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error":  models.RoleErrorMessage["internal_error"]})
 	}
 	return ctx.Response().Json(200, role)
 }
@@ -56,7 +53,7 @@ func (r *RoleController) AssignToUser(ctx http.Context) http.Response {
 		RoleID: cast.ToUint(roleID),
 	}); err != nil {
 		return ctx.Response().Json(500, http.Json{
-			"error": err.Error(),
+			"error": models.RoleErrorMessage["internal_error"],
 		})
 	}
 
@@ -66,22 +63,6 @@ func (r *RoleController) AssignToUser(ctx http.Context) http.Response {
 }
 
 
-// func (r *RoleController) Show(ctx http.Context) http.Response {
-//     id := ctx.Request().Route("id") // get :id from route
-
-//     var role models.Role
-//     if err := facades.Orm().Query().Where("id = ?", id).First(&role); err != nil {
-//         return ctx.Response().Json(http.StatusNotFound, http.Json{
-//             "error": "Role not found",
-//         })
-//     }
-
-//     return ctx.Response().Json(http.StatusOK, http.Json{
-//         "role": role,
-//     })
-// }
-
-//
 func (r *RoleController) Show(ctx http.Context) http.Response {
     idStr := ctx.Request().Route("id")
     roleID, err := strconv.Atoi(idStr)
@@ -94,7 +75,7 @@ func (r *RoleController) Show(ctx http.Context) http.Response {
     var role models.Role
     if err := facades.Orm().Query().Where("id = ?", roleID).First(&role); err != nil {
         return ctx.Response().Json(404, map[string]interface{}{
-            "error": "Role not found",
+            "error": models.RoleErrorMessage["not_found"],
         })
     }
 
@@ -102,14 +83,14 @@ func (r *RoleController) Show(ctx http.Context) http.Response {
     enforcerAny, err := facades.App().Make("casbin")
 	if err != nil {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error": "Casbin not initialized",
+			"error":  models.RoleErrorMessage["casbin_not_initialized"],
 		})
 	}
 
 	enforcer, ok := enforcerAny.(*casbin.Enforcer)
     if !ok {
         return ctx.Response().Json(500, map[string]interface{}{
-            "error": "Failed to cast Casbin enforcer",
+            "error": models.RoleErrorMessage["casbin_cast_failed"],
         })
     }
 
@@ -120,7 +101,7 @@ func (r *RoleController) Show(ctx http.Context) http.Response {
     for _, p := range policies {
         object := p[1] // object/path
         action := p[2] // method
-        permKey := permissions.PermissionObjectActionToKey(object, action) // helper you can create
+        permKey := permissions.PermissionObjectActionToKey(object, action) 
         if permKey != "" {
             permissionsMap = append(permissionsMap, permKey)
         }
@@ -143,7 +124,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return ctx.Response().Json(422, map[string]interface{}{
-			"error": "Invalid role ID",
+			"error":models.RoleErrorMessage["invalid_request"],
 		})
 	}
 
@@ -154,7 +135,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 
 	if err := ctx.Request().Bind(&body); err != nil {
 		return ctx.Response().Json(422, map[string]interface{}{
-			"error": "Invalid request body",
+			"error": models.RoleErrorMessage["invalid_request"],
 		})
 	}
 
@@ -162,7 +143,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 	var role models.Role
 	if err := facades.Orm().Query().Where("id", id).First(&role); err != nil {
 		return ctx.Response().Json(404, map[string]interface{}{
-			"error": "Role not found",
+			"error": models.RoleErrorMessage["not_found"],
 		})
 	}
 
@@ -170,7 +151,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 	role.Name = body.Name
 	if _,err := facades.Orm().Query().Where("id", id).Update(&role); err != nil {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error": "Failed to update role",
+			"error": models.RoleErrorMessage["update_failed"],
 		})
 	}
 
@@ -178,14 +159,14 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 	enforcerAny, err := facades.App().Make("casbin")
 	if err != nil {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error": "Casbin not initialized",
+			"error": models.RoleErrorMessage["casbin_not_initialized"],
 		})
 	}
 
 	enforcer, ok := enforcerAny.(*casbin.Enforcer)
     if !ok {
         return ctx.Response().Json(500, map[string]interface{}{
-            "error": "Failed to cast Casbin enforcer",
+            "error": models.RoleErrorMessage["casbin_cast_failed"],
         })
     }
 
