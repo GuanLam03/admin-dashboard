@@ -25,7 +25,8 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 
 	type PostbackEvent struct {
 		EventName string `json:"event_name"`
-		URL       string `json:"url"`
+		PostbackUrl       string `json:"url"`
+		IncludeClickParams bool   `json:"include_click_params"` 
 	}
 
 	type AddAdsCampaignRequest struct {
@@ -58,6 +59,29 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 		return ctx.Response().Json(http.StatusUnprocessableEntity, errResp)
 	}
 
+	// Convert PostbackEvents to model type for validation
+	var postbackModels []models.AdsCampaignPostback
+	for _, pb := range req.PostbackEvents {
+		postbackModels = append(postbackModels, models.AdsCampaignPostback{
+			EventName:          pb.EventName,
+			PostbackUrl:        pb.PostbackUrl,
+			IncludeClickParams: pb.IncludeClickParams,
+		})
+	}
+
+	// Validate postback events
+	if len(postbackModels) > 0 {
+		errResp, err = ValidateAdsCampaignPostbackInput(postbackModels)
+		if err != nil {
+			return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		}
+		if errResp != nil {
+			return ctx.Response().Json(http.StatusUnprocessableEntity, errResp)
+		}
+	}
+
+
+
 	// Generate unique code
 	code, err := generateUniqueCode()
 	if err != nil {
@@ -85,7 +109,8 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 				postback := models.AdsCampaignPostback{
 					AdsCampaignId: adsCampaign.ID,
 					EventName:     e.EventName,
-					PostbackUrl:   e.URL,
+					PostbackUrl:   e.PostbackUrl,
+					IncludeClickParams: e.IncludeClickParams,
 				}
 				if err := tx.Create(&postback); err != nil {
 					return err
@@ -120,6 +145,22 @@ func validateAdsCampaignInput(data models.AdsCampaign) (map[string]interface{}, 
 	}
 
 	return  nil, nil
+}
+
+func ValidateAdsCampaignPostbackInput(inputs []models.AdsCampaignPostback) (map[string]interface{}, error) {
+	for i, pb := range inputs {
+		validator, err := facades.Validation().Make(pb, models.AdsCampaignPostbackRules)
+		if err != nil {
+			return nil, fmt.Errorf("validation error: %v", err)
+		}
+		if validator.Fails() {
+			return map[string]interface{}{
+				"index":  i,
+				"errors": validator.Errors().All(),
+			}, nil
+		}
+	}
+	return nil, nil
 }
 
 

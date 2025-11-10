@@ -12,7 +12,8 @@ type AdsCampaignPostbackLog struct {
 	RequestBody           *string `json:"request_body"`             
 	ResponseStatus        *int    `json:"response_status"`           
 	ResponseBody          *string `json:"response_body"`             
-	ErrorMessage          *string `json:"error_message"`             
+	ErrorMessage          *string `json:"error_message"`  
+	Status 				  string  `json:"status"`         
 }
 
 var AdsPostbackLogRules = map[string]string{
@@ -23,5 +24,11 @@ var AdsPostbackLogRules = map[string]string{
 	"response_status":          "numeric",
 	"response_body":            "string",
 	"error_message":            "string",
+	"status": 					"string",
 }
 
+var AdsCampaignPostbackLogStatusMap = map[string]string{
+    "pending":   "pending",    
+    "successful": "successful",
+    "failed":    "failed",    
+}

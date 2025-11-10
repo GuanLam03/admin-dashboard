@@ -44,7 +44,7 @@ export default function AdsCampaignLogPage() {
 
                 callback({
                     draw: data.draw,
-                    // recordsTotal: res.data.recordsTotal,
+                    recordsTotal: res.data.recordsTotal,
                     recordsFiltered: res.data.recordsFiltered,
                     data: results,
                 });

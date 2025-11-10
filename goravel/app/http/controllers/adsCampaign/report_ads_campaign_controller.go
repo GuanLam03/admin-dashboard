@@ -252,7 +252,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsLogDetailsCampaign(ctx http.C
 	lengthInt, _ := strconv.Atoi(length)
 	startInt, _ := strconv.Atoi(start)
 
-	// --- Base query
+	// Base query
 	query := facades.Orm().Query().
 		Table("ads_log_details").
 		Where("ads_campaign_id", campaignID)
@@ -300,7 +300,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsLogDetailsCampaign(ctx http.C
 
 	return ctx.Response().Json(http.StatusOK, http.Json{
 		"draw":            draw,
-		"recordsTotal":    0,
+		"recordsTotal":    totalFiltered,
 		"recordsFiltered": totalFiltered,
 		"data":            adsLogDetail,
 	})
