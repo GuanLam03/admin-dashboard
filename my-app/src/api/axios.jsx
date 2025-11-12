@@ -10,6 +10,12 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  const locale = localStorage.getItem("locale-admin") || "en";
+  config.headers["Accept-Language"] = locale;
+  return config;
+});
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {

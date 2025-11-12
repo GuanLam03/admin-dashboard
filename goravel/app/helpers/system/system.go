@@ -1,6 +1,10 @@
 package system
 
 
+var Languages = map[string]string{
+	"en": "English",
+	"cn": "中文",
+}
 
 var RequestMethods = map[string]string{
 	"GET":    "GET",

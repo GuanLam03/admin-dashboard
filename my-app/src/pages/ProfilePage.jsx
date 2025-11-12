@@ -35,7 +35,7 @@ function ProfilePage() {
 
       // Update context user
       setUser({ ...user, name: res.data.user.name });
-      setSuccess("Update successfully")
+      setSuccess(res.data.message)
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");

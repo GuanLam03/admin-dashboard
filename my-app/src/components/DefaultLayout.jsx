@@ -5,8 +5,18 @@ import api from "../api/axios";
 
 export default function DefaultLayout() {
   const { setUser, user, loading, logout, setLoading } = useAuth();
+  const [sidebar, toggleSidebar] = useSidebarState();
 
- const [sidebar, toggleSidebar] = useSidebarState();
+  const [locale, setLocale] = useState(localStorage.getItem("locale-admin") || "en");
+
+  useEffect(() => {
+      localStorage.setItem("locale-admin", locale);
+  }, [locale]);
+
+  const changeLanguage = (code) => {
+    setLocale(code);
+  };
+
 
 
   useEffect(() => {
@@ -194,7 +204,7 @@ export default function DefaultLayout() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-gray-50 shadow-sm px-6 py-4 flex justify-end items-center">
+        {/* <header className="bg-gray-50 shadow-sm px-6 py-4 flex justify-end items-center">
           <div className="dropdown">
             <button className="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               {user.name}
@@ -205,7 +215,52 @@ export default function DefaultLayout() {
               </li>
             </ul>
           </div>
+        </header> */}
+        <header className="bg-gray-50 shadow-sm px-6 py-4 flex justify-end items-center gap-4">
+          {/* Language Switcher */}
+          <div className="dropdown">
+            <button
+              className="dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              {locale}
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end">
+              <li>
+                <button className="dropdown-item" onClick={() => changeLanguage("en")}>
+                  English
+                </button>
+              </li>
+              <li>
+                <button className="dropdown-item" onClick={() => changeLanguage("cn")}>
+                  中文
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* User Dropdown */}
+          <div className="dropdown">
+            <button
+              className="dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              {user.name}
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end">
+              <li>
+                <button className="dropdown-item" onClick={logout}>
+                  Logout
+                </button>
+              </li>
+            </ul>
+          </div>
         </header>
+
 
         {/* Page Content */}
         <main className="flex-1 p-6">

@@ -1,0 +1,96 @@
+{
+  "internal_error": "发生内部错误，请稍后再试。",
+  "validation_failed": "输入无效，请检查字段后重试。",
+  "invalid_request": "请求体无效，请检查您的 JSON 格式。",
+  "not_found": "未找到 :attribute。",
+
+
+  "user_not_found": "未找到用户。",
+  "user_create_failed": "创建用户账户失败。",
+  "user_update_failed": "更新用户账户失败。",
+  "user_delete_failed": "删除用户账户失败。",
+  "email_exists": "该邮箱已被注册。",
+  "invalid_credentials": "邮箱或密码错误。",
+  "unauthorized": "未授权访问，请重新登录。",
+  "current_password_incorrect": "当前密码不正确。",
+  "password_mismatch": "新密码不一致。",
+
+
+  "twofa_already_enabled": "双重验证已启用。",
+  "twofa_not_enabled": "双重验证未启用。",
+  "twofa_invalid_code": "验证码无效。",
+  "twofa_generate_failed": "生成双重验证密钥失败。",
+  "twofa_encrypt_failed": "加密双重验证密钥失败。",
+  "twofa_decrypt_failed": "解密双重验证密钥失败。",
+  "twofa_save_failed": "保存双重验证设置失败。",
+  "twofa_qr_failed": "生成二维码失败。",
+
+
+  "role_not_found": "未找到角色。",
+  "role_create_failed": "创建角色失败。",
+  "role_update_failed": "更新角色失败。",
+  "role_delete_failed": "删除角色失败。",
+  "role_assign_failed": "分配角色失败。",
+  "casbin_not_initialized": "Casbin 尚未初始化。",
+  "casbin_cast_failed": "Casbin 强制转换失败。",
+
+
+  "schedule_not_found": "未找到日程。",
+  "schedule_create_failed": "创建日程失败。",
+  "schedule_update_failed": "更新日程失败。",
+  "schedule_delete_failed": "删除日程失败。",
+  "invalid_start_at": "start_at 格式无效。请使用 YYYY-MM-DDTHH:MM。",
+  "invalid_end_at": "end_at 格式无效。请使用 YYYY-MM-DDTHH:MM。",
+  "google_insert_failed": "创建 Google 日历事件失败。",
+  "google_update_failed": "更新 Google 日历事件失败。",
+  "google_delete_failed": "删除 Google 日历事件失败。",
+
+
+  "gmail_account_internal_error": "系统发生错误，请稍后再试。",
+  "gmail_account_invalid_request": "请求无法处理，请检查输入并重试。",
+  "gmail_account_validation_failed": "部分字段无效，请检查输入并重试。",
+  "gmail_account_auth_failed": "连接 Google 失败，请重新授权 Gmail 账户。",
+  "gmail_account_token_expired": "Gmail 会话已过期，请重新连接账户。",
+  "gmail_account_permission_denied": "您没有权限访问此 Gmail 账户。",
+  "gmail_account_not_found": "未找到要访问的 Gmail 账户。",
+  "gmail_account_already_linked": "该 Gmail 账户已链接到其他部门。",
+  "gmail_account_create_failed": "无法链接 Gmail 账户，请稍后再试。",
+  "gmail_account_update_failed": "更新 Gmail 账户失败。",
+  "gmail_account_delete_failed": "删除 Gmail 账户失败。",
+  "gmail_account_fetch_failed": "无法获取 Gmail 账户信息。",
+  "gmail_account_list_failed": "无法加载 Gmail 邮件列表。",
+  "gmail_account_read_failed": "无法打开此邮件线程。",
+  "gmail_account_thread_not_found": "未找到所选邮件会话。",
+  "gmail_account_star_toggle_failed": "更新星标状态失败。",
+  "gmail_account_save_draft_failed": "保存邮件草稿失败。",
+  "gmail_account_send_failed": "发送邮件失败。",
+  "gmail_account_forward_failed": "转发邮件失败。",
+
+
+  "gmail_template_not_found": "未找到 Gmail 模板。",
+  "gmail_template_create_failed": "创建 Gmail 模板失败。",
+  "gmail_template_validation_failed": "输入无效，请检查字段后重试。",
+
+
+  "google_document_not_found": "未找到 Google 文档。",
+  "google_document_create_failed": "创建 Google 文档失败。",
+  "google_document_update_failed": "更新 Google 文档失败。",
+  "google_document_delete_failed": "删除 Google 文档失败。",
+  "invalid_link_format": "Google 文件链接格式无效。",
+  "link_not_accessible": "Google 文件链接不可访问或非公开。",
+  "invalid_status": "提供的状态无效。",
+
+
+  "document_not_found": "未找到文档。",
+  "document_create_failed": "创建文档失败。",
+
+
+  "ads_log_not_found": "未找到广告日志。",
+  "ads_log_create_failed": "创建广告日志失败。",
+  "ads_log_detail_not_found": "未找到广告日志详情。",
+  "ads_log_detail_create_failed": "创建广告日志详情失败。",
+  "ads_event_log_not_found": "未找到广告事件日志。",
+  "ads_event_log_create_failed": "创建广告事件日志失败。",
+  "ads_campaign_not_found": "未找到广告活动。",
+  "ads_campaign_create_failed": "创建广告活动失败。"
+}

@@ -14,6 +14,8 @@ import (
 	"goravel/app/http/controllers/gmail"
 	"goravel/app/http/controllers/adsTracking"
 	"goravel/app/http/controllers/adsCampaign"
+
+
 )
 
 func Api() {
@@ -163,14 +165,5 @@ func Api() {
 	facades.Route().Get("/ads-campaign/report/ads-log-details/:campaign_id",reportAdsCampaignController.ShowReportAdsLogDetailsCampaign)
 
 
-
-
-	
-
-
-
-
-
-	
 
 }

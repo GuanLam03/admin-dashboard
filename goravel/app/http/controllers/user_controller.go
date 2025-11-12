@@ -134,7 +134,7 @@ func (r *UserController) Edit(ctx http.Context) http.Response {
     }
 
     return ctx.Response().Json(200, http.Json{
-        "message": "Profile updated successfully",
+        "message": facades.Lang(ctx).Get("messageSuccessful.profile_updated"),
         "user": map[string]any{
             "id":    user.ID,
             "name":  user.Name,
