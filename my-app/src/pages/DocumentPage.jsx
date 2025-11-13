@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import DataTable from "datatables.net-dt";
 import api from "../api/axios";
+import { useTranslation } from "react-i18next";
+import dataTableLocales from "../utils/i18n/datatableLocales";
 
 function DocumentPage() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const {t,i18n} = useTranslation();
 
   // Fetch documents
   const fetchDocuments = async () => {
@@ -73,18 +76,20 @@ function DocumentPage() {
     const table = new DataTable("#documentsTable", {
       data: documents,
       destroy: true,
+      language: dataTableLocales[i18n.language],
+      
       columns: [
-        { data: "name", title: "File Name", className: "dt-left" },
-        { data: "created_at", title: "Uploaded At", className: "dt-left" },
+        { data: "name", title: t("documentManagement.fields.filename"), className: "dt-left" },
+        { data: "created_at", title: t("documentManagement.fields.createdAt"), className: "dt-left" },
         {
           data: "id",
-          title: "Action",
+          title: t("common.labels.action"),
           render: (id, type, row) => `
             <button 
               class="download-btn bg-white-600 text-blue-600 px-3 py-2 rounded text-sm border-1 hover:opacity-75" 
               data-id="${id}" 
               data-name="${row.name}">
-              Download
+              ${t("common.buttons.download")}
             </button>
           `,
         },
@@ -145,7 +150,7 @@ function DocumentPage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">Documents</h2>
+      <h2 className="text-xl font-bold mb-4">{t("documentManagement.title")}</h2>
 
       {/* Upload Form */}
       <form
@@ -153,7 +158,7 @@ function DocumentPage() {
         className="flex items-center gap-4 mb-4 justify-between bg-white p-4 rounded shadow-sm"
       >
         <div className="flex flex-col">
-          <label>Select Files :</label>
+          <label>{t("documentManagement.form.selectFiles")}:</label>
           <input
             type="file"
             multiple
@@ -166,7 +171,7 @@ function DocumentPage() {
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded"
         >
-          Upload
+          {t("common.buttons.upload")}
         </button>
       </form>
 

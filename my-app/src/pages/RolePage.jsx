@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import DataTable from "datatables.net-dt";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import dataTableLocales from "../utils/i18n/datatableLocales";
+
 
 function RolePage() {
   const [roleName, setRoleName] = useState("");
@@ -11,6 +14,8 @@ function RolePage() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const {t,i18n} = useTranslation();
 
   const fetchRoles = async () => {
     try {
@@ -56,14 +61,16 @@ function RolePage() {
   const table = new DataTable("#rolesTable", {
     data: roles,
     destroy: true,
+    language: dataTableLocales[i18n.language],
+  
     columns: [
-      { data: "name", title: "Name", className: "dt-left" },
-      { data: "created_at", title: "Created At", className: "dt-left" },
+      { data: "name", title: t("roleManagement.fields.name"), className: "dt-left" },
+      { data: "created_at", title: t("roleManagement.fields.createdAt"), className: "dt-left" },
       {
         data: "id",
-        title: "Action",
+        title: t("common.labels.action"),
         render: (id) =>
-          `<button class="edit-btn btn btn-primary" data-id="${id}">Edit</button>`,
+          `<button class="edit-btn btn btn-primary" data-id="${id}">${t("common.buttons.edit")}</button>`,
       },
     ],
   });
@@ -99,23 +106,23 @@ function RolePage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">Create Role</h2>
+      <h2 className="text-xl font-bold mb-4">{t("roleManagement.title")}</h2>
 
       <form onSubmit={handleSubmit} className="flex items-center gap-4 mb-4 justify-between bg-white p-4 rounded shadow-sm">
         
         <div className="flex flex-col">
-          <label>Role Name :</label>
+          <label>{t("roleManagement.form.roleName")}</label>
           <input
             type="text"
             value={roleName}
             onChange={(e) => setRoleName(e.target.value)}
             className="border rounded p-2"
-            placeholder="Enter role name"
+            placeholder={t("roleManagement.form.roleNamePlaceholder")}
           />
         </div>
        
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-          Create Role
+          {t("common.buttons.add")}
         </button>
       </form>
 

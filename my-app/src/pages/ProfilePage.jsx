@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api/axios";
+import { useTranslation } from "react-i18next";
 
 function ProfilePage() {
   const { user, setUser } = useAuth();
@@ -13,6 +14,8 @@ function ProfilePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const { t } = useTranslation();
+
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -20,7 +23,7 @@ function ProfilePage() {
     setSuccess("");
 
     if (newPassword && newPassword !== confirmPassword) {
-      setError("New passwords do not match");
+      setError(t("profile.passwordMismatch"));
       return;
     }
 
@@ -41,7 +44,7 @@ function ProfilePage() {
       setConfirmPassword("");
     } catch (err) {
       if (err.response) {
-        setError(err.response.data.error || "Update failed");
+        setError(err.response.data.error);
       }
     } finally {
       setSaving(false);
@@ -51,7 +54,7 @@ function ProfilePage() {
   return (
     <div className="bg-white shadow-md rounded-lg p-6 min-w-[500px] m-auto">
       <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-        Profile
+        {t("profile.title")}
       </h2>
 
       {error && (
@@ -69,7 +72,7 @@ function ProfilePage() {
       <form onSubmit={handleSave} className="space-y-4">
         {/* Name (editable) */}
         <div>
-          <label className="block text-gray-600 text-sm mb-1">Name</label>
+          <label className="block text-gray-600 text-sm mb-1">{t("profile.name")}</label>
           <input
             type="text"
             className="w-full px-4 py-2  rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -81,7 +84,7 @@ function ProfilePage() {
 
         {/* Email (read-only) */}
         <div>
-          <label className="block text-gray-600 text-sm mb-1">Email</label>
+          <label className="block text-gray-600 text-sm mb-1">{t("profile.email")}</label>
           <input
             type="email"
             value={user?.email || ""}
@@ -93,7 +96,7 @@ function ProfilePage() {
         {/* Current Password (only if changing password) */}
         <div>
           <label className="block text-gray-600 text-sm mb-1">
-            Current Password
+            {t("profile.currentPassword")}
           </label>
           <input
             type="password"
@@ -106,7 +109,7 @@ function ProfilePage() {
         {/* New Password */}
         <div>
           <label className="block text-gray-600 text-sm mb-1">
-            New Password
+            {t("profile.newPassword")}
           </label>
           <input
             type="password"
@@ -119,7 +122,7 @@ function ProfilePage() {
         {/* Confirm Password */}
         <div>
           <label className="block text-gray-600 text-sm mb-1">
-            Confirm Password
+            {t("profile.confirmPassword")}
           </label>
           <input
             type="password"
@@ -136,7 +139,7 @@ function ProfilePage() {
           disabled={saving}
           className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition disabled:opacity-50"
         >
-          {saving ? "Saving..." : "Save Changes"}
+          {saving ? t("profile.saving"): t("profile.saveChanges")}
         </button>
       </form>
     </div>

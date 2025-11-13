@@ -1,0 +1,184 @@
+{
+    "appName": "Admin Dashboard",
+
+    "sidebar": {
+        "home": "Home",
+        "profile": "Profile",
+        "userManagement": "User Management",
+        "roles": "Roles",
+        "documents": "Documents",
+        "googleDocuments": "Google Documents",
+        "schedules": "Schedules",
+        "emails": "Emails",
+        "emailsTechnical": "Technical Emails",
+        "emailsSupport": "Support Emails",
+        "emailsSettings": "Emails Settings",
+        "adsTracking": "Ads Tracking",
+        "adsCampaign": "Ads Campaign",
+        "adsLog": "Ads Log",
+        "adsReport": "Ads Report",
+        "settings": "Settings"
+    },
+
+    "home":{
+        "welcome":"Welcome, {{name}}!"
+    },
+
+    "user": {
+        "logout": "Logout"
+    },
+
+    "profile": {
+        "title": "Profile",
+        "name": "Name",
+        "email": "Email",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password",
+        "saveChanges": "Save Changes",
+        "saving": "Saving...",
+        "passwordMismatch": "New passwords do not match",
+        "updateFailed": "Update failed"
+    },
+
+    "common": {
+        "labels": {
+            "action": "Action"
+        },
+        "buttons": {
+            "add": "Add",
+            "edit": "Edit",
+            "update":"Update",
+            "download":"Download",
+            "view": "View",
+            "save": "Save",
+            "upload": "Upload",
+            "search": "Search",
+            "clearSearch": "Clear Search"
+        }
+    },
+
+    "userManagement": {
+        "fields": {
+            "role": "Role",
+            "name": "Name",
+            "email": "Email",
+            "createdAt": "Created At"
+        },
+        "title": "User Management"
+        
+    },
+    
+    "roleManagement": {
+        "fields": {
+            "name": "Name",
+            "createdAt": "Created At",
+            "updatedAt": "Updated At"
+        },
+        "title": "Create Role", 
+        "form": {
+            "roleName": "Role Name",
+            "roleNamePlaceholder": "Enter role name"
+            
+        }
+        
+    },
+
+    "documentManagement": {
+        "fields": {
+            "id": "ID",
+            "filename": "File Name",
+            "path": "Path",
+            "createdAt": "Created At",
+            "updatedAt": "Updated At"
+        },
+        "title": "Documents",
+        "form": {
+            "selectFiles": "Select Files"
+        }
+    },
+
+    "googleDocumentManagement": {
+        "fields": {
+            "id": "ID",
+            "name": "Name",
+            "originalLink": "Original Link",
+            "link": "Link",
+            "status": "Status",
+            "createdAt": "Created At",
+            "updatedAt": "Updated At"
+        },
+
+        "title": "Google Documents",
+        "form": {
+            "filters": {
+                "fromDate": "From Date",
+                "toDate": "To Date"
+            }
+        },
+        "addPage": {
+            "title": "Add Google Document",
+            "sectionTitle": "Google Document Info",
+            
+            "form": {
+                "documentNamePlaceholder": "Enter document name",
+                "documentOriginalLinkPlaceholder": "Paste Google Doc link"
+                
+            }
+        },
+        "editPage": {
+            "title": "Edit Google Document",
+            "sectionTitle": "Google Document Info"
+            
+            
+        }
+    },
+
+    "scheduleManagement": {
+        
+        "fields": {
+            "title": "Title",
+            "recurrence": "Recurrence",
+            "startAt": "Start At",
+            "endAt": "End At",
+            "status": "Status",
+            "googleEventId": "Google Event ID",
+            "createdAt": "Created At",
+            "updatedAt": "Updated At",
+            "notifyRoles": "Notify Roles"
+
+        },
+        "title": "Schedules",
+
+        "form": {
+            "filters": {
+                "fromDate": "From Date",
+                "toDate": "To Date"
+            }
+        },
+        
+        "calendar": {
+            "fullCalendarTitle": "Full Calendar Javascript",
+            "googleCalendarTitle": "Google Calendar"
+        },
+
+        "addPage": {
+            "title": "Add Schedule",
+            "sectionTitle": "Schedule Info",
+            
+            "form": {
+                "scheduleTitlePlaceholder": "Enter schedule title",
+                "scheduleNotifyRolesPlaceholder": "Select roles to notify (optional)"
+                
+            }
+        },
+
+        "editPage": {
+            "title": "Edit Schedule",
+            "sectionTitle": "Schedule Info"
+        }
+    }
+
+
+
+}

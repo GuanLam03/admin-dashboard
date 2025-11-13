@@ -8,7 +8,7 @@ import (
 	"google.golang.org/api/gmail/v1"
     "github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
-	"goravel/app/models"
+	// "goravel/app/models"
   
 
 )
@@ -31,7 +31,7 @@ func (c *ReplyGmailController) ReplyMessage(ctx http.Context) http.Response {
 	if messageID == "" || email == "" || body == "" {
 		facades.Log().Warningf("Missing required parameters")
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
-			"error": models.GmailAccountErrorMessage["invalid_request"],
+			"error": facades.Lang(ctx).Get("validation.invalid_request"),
 		})
 	}
 
@@ -40,7 +40,7 @@ func (c *ReplyGmailController) ReplyMessage(ctx http.Context) http.Response {
 	if err != nil {
 		facades.Log().Errorf("Failed to get Gmail client for %s: %v", email, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": models.GmailAccountErrorMessage["not_found"],
+			"error": facades.Lang(ctx).Get("validation.gmail_account_not_found"),
 		})
 	}
 
@@ -49,7 +49,7 @@ func (c *ReplyGmailController) ReplyMessage(ctx http.Context) http.Response {
 	if err != nil {
 		facades.Log().Errorf("Failed to fetch original message for %s: %v", messageID, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": models.GmailAccountErrorMessage["read_failed"],
+			"error": facades.Lang(ctx).Get("validation.gmail_account_read_failed"),
 
 			
 		})
@@ -110,7 +110,7 @@ func (c *ReplyGmailController) ReplyMessage(ctx http.Context) http.Response {
 	if err != nil {
 		facades.Log().Errorf("Failed to send reply for %s: %v", email, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": models.GmailAccountErrorMessage["send_failed"],
+			"error": facades.Lang(ctx).Get("validation.gmail_account_send_failed"),
 		})
 	}
 

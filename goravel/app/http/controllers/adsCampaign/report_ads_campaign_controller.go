@@ -223,7 +223,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsCampaign(ctx http.Context) ht
 
 	if errResp != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": models.AdsCampaignErrorMessage["internal_error"],
+			"error": facades.Lang(ctx).Get("validation.internal_error"),
 		})
 	}
 
@@ -274,7 +274,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsLogDetailsCampaign(ctx http.C
 	var adsLogDetail []*models.AdsLogDetail
 	if err := query.Get(&adsLogDetail); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": models.AdsCampaignErrorMessage["internal_error"],
+			"error": facades.Lang(ctx).Get("validation.internal_error"),
 		})
 	}
 
@@ -385,7 +385,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsFilterCampaign(ctx http.Conte
 	groupColumn, ok := allowedColumns[filterType]
 	if !ok {
 		return ctx.Response().Json(http.StatusBadRequest, http.Json{
-			"error": models.AdsLogDetailErrorMessage["validation_failed"],
+			"error": facades.Lang(ctx).Get("validation.validation_failed"),
 		})
 	}
 
@@ -403,7 +403,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsFilterCampaign(ctx http.Conte
 
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error":  models.AdsLogDetailErrorMessage["internal_error"],
+			"error":  facades.Lang(ctx).Get("validation.internal_error"),
 		})
 	}
 
@@ -437,7 +437,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsFilterCampaign(ctx http.Conte
 	var results []ReportResult
 	if err := query.Get(&results); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": models.AdsLogDetailErrorMessage["internal_error"],
+			"error": facades.Lang(ctx).Get("validation.internal_error"),
 		})
 	}
 

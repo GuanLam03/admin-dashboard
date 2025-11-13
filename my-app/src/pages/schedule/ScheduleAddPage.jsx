@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select"; // ✅ fancy multi-select
 import api from "../../api/axios";
+import { useTranslation } from "react-i18next";
 
 function ScheduleAddPage() {
+  const {t} = useTranslation();
   const [formData, setFormData] = useState({
     title: "",
     recurrence: "",
@@ -91,14 +93,14 @@ function ScheduleAddPage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">Add Schedule</h2>
+      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.addPage.title")}</h2>
 
       <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow-sm w-full">
-        <h4 className="text-lg font-semibold mb-4">Schedule Info</h4>
+        <h4 className="text-lg font-semibold mb-4">{t("scheduleManagement.sectionTitle")}</h4>
         <table className="w-full border-collapse">
           <tbody>
             <tr>
-              <th className="text-left p-2 border">Title</th>
+              <th className="text-left p-2 border">{t("scheduleManagement.fields.title")}</th>
               <td className="p-2 border">
                 <input
                   type="text"
@@ -106,14 +108,14 @@ function ScheduleAddPage() {
                   value={formData.title}
                   onChange={handleChange}
                   className="border rounded p-2 w-full"
-                  placeholder="Enter schedule title"
+                  placeholder={t("scheduleManagement.addPage.form.scheduleTitlePlaceholder")}
                   required
                 />
               </td>
             </tr>
 
             <tr>
-              <th className="text-left p-2 border">Recurrence</th>
+              <th className="text-left p-2 border">{t("scheduleManagement.fields.recurrence")}</th>
               <td className="p-2 border">
                 <select
                   name="recurrence"
@@ -130,7 +132,7 @@ function ScheduleAddPage() {
             </tr>
 
             <tr>
-              <th className="text-left p-2 border">Start At</th>
+              <th className="text-left p-2 border">{t("scheduleManagement.fields.startAt")}</th>
               <td className="p-2 border">
                 <input
                   type="datetime-local"
@@ -144,7 +146,7 @@ function ScheduleAddPage() {
             </tr>
 
             <tr>
-              <th className="text-left p-2 border">End At</th>
+              <th className="text-left p-2 border">{t("scheduleManagement.fields.endAt")}</th>
               <td className="p-2 border">
                 <input
                   type="datetime-local"
@@ -158,7 +160,7 @@ function ScheduleAddPage() {
             </tr>
 
             <tr>
-              <th className="text-left p-2 border">Notify Roles</th>
+              <th className="text-left p-2 border">{t("scheduleManagement.fields.notifyRoles")}</th>
               <td className="p-2 border">
                 <Select
                   isMulti
@@ -169,7 +171,7 @@ function ScheduleAddPage() {
                   }}
                   className="w-full"
                   classNamePrefix="react-select"
-                  placeholder="Select roles to notify (optional)"
+                  placeholder={t("scheduleManagement.addPage.form.scheduleNotifyRolesPlaceholder")}
                   isClearable
                 />
                 <small className="text-gray-500 block mt-1">

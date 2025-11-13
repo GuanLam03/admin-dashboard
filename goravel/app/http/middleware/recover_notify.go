@@ -35,7 +35,7 @@ func RecoverNotify() http.Middleware {
 					Send()
 
 				ctx.Response().
-					Json(500, map[string]string{"error": "Internal Server Error"}).
+					Json(500, map[string]string{"error": facades.Lang(ctx).Get("validation.internal_error")}).
 					Abort()
 			}
 		}()

@@ -7,12 +7,15 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import { useTranslation } from "react-i18next";
+import dataTableLocales from "../../utils/i18n/datatableLocales";
 
 
 
 
 
 function SchedulePage() {
+  const {t,i18n} = useTranslation();
   const [schedules, setSchedules] = useState([]);
   const [calendarUiEvents, setCalendarUiEvents] = useState([]);
   const [error, setError] = useState("");
@@ -136,18 +139,19 @@ function SchedulePage() {
     const table = new DataTable("#schedulesTable", {
       data: schedules,
       destroy: true,
+      language: dataTableLocales[i18n.language],
       columns: [
-        { data: "title", title: "Title", className: "dt-left" },
-        { data: "recurrence", title: "Recurrence", className: "dt-left" },
-        { data: "start_at", title: "Start At", className: "dt-left" },
-        { data: "end_at", title: "End At", className: "dt-left" },
-        { data: "status", title: "Status", className: "dt-left" },
-        { data: "google_event_id", title: "Google Event ID", className: "dt-left" },
+        { data: "title", title: t("scheduleManagement.fields.title"), className: "dt-left" },
+        { data: "recurrence", title: t("scheduleManagement.fields.recurrence"), className: "dt-left" },
+        { data: "start_at", title: t("scheduleManagement.fields.startAt"), className: "dt-left" },
+        { data: "end_at", title: t("scheduleManagement.fields.endAt"), className: "dt-left" },
+        { data: "status", title: t("scheduleManagement.fields.status"), className: "dt-left" },
+        { data: "google_event_id", title: t("scheduleManagement.fields.googleEventId"), className: "dt-left" },
         {
           data: "id",
-          title: "Action",
+          title: t("common.labels.action"),
           render: (id) =>
-            `<button class="edit-btn btn btn-primary" data-id="${id}">Edit</button>`,
+            `<button class="edit-btn btn btn-primary" data-id="${id}">${t("common.buttons.edit")}</button>`,
         },
       ],
     });
@@ -214,14 +218,14 @@ function SchedulePage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">Schedules</h2>
+      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.title")}</h2>
 
 
       {/* Search Filters */}
       <form onSubmit={handleSearch} className="flex flex-col justify-between gap-4 flex-wrap bg-white p-4 rounded shadow-sm mb-4">
         <div className="flex gap-4">
           <div>
-            <label>Title</label>
+            <label>{t("scheduleManagement.fields.title")}</label>
             <input
               type="text"
               name="name"
@@ -232,7 +236,7 @@ function SchedulePage() {
           </div>
 
           <div>
-            <label>Status</label>
+            <label>{t("scheduleManagement.fields.status")}</label>
             <select
               name="status"
               value={filters.status}
@@ -246,7 +250,7 @@ function SchedulePage() {
           </div>
 
           <div>
-            <label>From Date</label>
+            <label>{t("scheduleManagement.form.filters.fromDate")}</label>
             <input
               type="date"
               name="fdate"
@@ -257,7 +261,7 @@ function SchedulePage() {
           </div>
 
           <div>
-            <label>To Date</label>
+            <label>{t("scheduleManagement.form.filters.toDate")}</label>
             <input
               type="date"
               name="tdate"
@@ -271,15 +275,15 @@ function SchedulePage() {
         <div className="flex justify-between">
           <div className="flex items-end gap-2">
             <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
-              Search
+              {t("common.buttons.search")}
             </button>
             <button type="button" onClick={handleClearSearch} className="bg-red-600 text-white px-4 py-2 rounded">
-              Clear Search
+              {t("common.buttons.clearSearch")}
             </button>
           </div>
           <div>
             <button type="button" onClick={handleAddSchedule} className="bg-blue-600 text-white px-4 py-2 rounded">
-              Add Schedule
+              {t("common.buttons.add")}
             </button>
           </div>
         </div>
@@ -291,7 +295,7 @@ function SchedulePage() {
       </div>
 
 
-<h2 className="mt-5">Full Calendar Javascript</h2>
+      <h2 className="mt-5">{t("scheduleManagement.calendar.fullCalendarTitle")}</h2>
       <div className="bg-white p-4 mt-4 rounded-sm shadow-sm">
 
         <FullCalendar
@@ -308,15 +312,15 @@ function SchedulePage() {
         />
       </div>
 
-<h2 className="mt-5">Google Calendar</h2>
+      <h2 className="mt-5">{t("scheduleManagement.calendar.googleCalendarTitle")}</h2>
       <div className="bg-white p-4 mt-4 rounded-sm shadow-sm">
         
-        <iframe
-      src="https://calendar.google.com/calendar/embed?src=c8c76cfe1510e89fd1e4cc63d6dce2061d3077fc874798dd40f193b17628987f%40group.calendar.google.com&ctz=Asia/Kuala_Lumpur"
-      style={{ border: 0 }}
-      width="100%"
-      height="600"
-    />
+          <iframe
+            src="https://calendar.google.com/calendar/embed?src=c8c76cfe1510e89fd1e4cc63d6dce2061d3077fc874798dd40f193b17628987f%40group.calendar.google.com&ctz=Asia/Kuala_Lumpur"
+            style={{ border: 0 }}
+            width="100%"
+            height="600"
+          />
       </div>
 
     </div>

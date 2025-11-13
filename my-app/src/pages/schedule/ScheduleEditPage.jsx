@@ -78,14 +78,14 @@ function ScheduleEditPage() {
         <div className="bg-green-100 text-green-600 px-4 py-2 rounded mb-4">{success}</div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">Edit Schedule</h2>
+      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.editPage.title")}</h2>
 
       <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow-sm w-full">
-        <h4 className="text-lg font-semibold mb-4">Schedule Info</h4>
+        <h4 className="text-lg font-semibold mb-4">{t("scheduleManagement.editPage.sectionTitle")}</h4>
         <table className="w-full border-collapse">
           <tbody>
             <tr>
-              <th className="text-left p-2 border">Title</th>
+              <th className="text-left p-2 border">{t("scheduleManagement.fields.title")}</th>
               <td className="p-2 border">
                 <input
                   type="text"
@@ -99,7 +99,7 @@ function ScheduleEditPage() {
             </tr>
 
             <tr>
-              <th className="text-left p-2 border">Recurrence</th>
+              <th className="text-left p-2 border">{t("scheduleManagement.fields.recurrence")}</th>
               <td className="p-2 border">
                 <select
                   name="recurrence"
@@ -116,7 +116,7 @@ function ScheduleEditPage() {
             </tr>
 
             <tr>
-              <th className="text-left p-2 border">Start At</th>
+              <th className="text-left p-2 border">{t("scheduleManagement.fields.startAt")}</th>
               <td className="p-2 border">
                 <input
                   type="datetime-local"
@@ -130,7 +130,7 @@ function ScheduleEditPage() {
             </tr>
 
             <tr>
-              <th className="text-left p-2 border">End At</th>
+              <th className="text-left p-2 border">{t("scheduleManagement.fields.endAt")}</th>
               <td className="p-2 border">
                 <input
                   type="datetime-local"
@@ -144,7 +144,7 @@ function ScheduleEditPage() {
             </tr>
 
             <tr>
-              <th className="text-left p-2 border">Status</th>
+              <th className="text-left p-2 border">{t("scheduleManagement.fields.status")}</th>
               <td className="p-2 border">
                 <select
                   name="status"
@@ -163,7 +163,7 @@ function ScheduleEditPage() {
 
         <div className="mt-4 flex justify-end">
           <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-            Update Schedule
+            {t("common.buttons.update")}
           </button>
         </div>
       </form>

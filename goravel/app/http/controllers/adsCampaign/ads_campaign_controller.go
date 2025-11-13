@@ -20,7 +20,7 @@ func (a *AdsCampaignController) ListAdsCampaigns(ctx http.Context) http.Response
 
 	adsCampaigns, err := a.filter(ctx)
 	if err != nil {
-		return ctx.Response().Json(500, map[string]string{"error": models.AdsCampaignErrorMessage["internal_error"]})
+		return ctx.Response().Json(500, map[string]string{"error":facades.Lang(ctx).Get("validation.internal_error")})
 	}
 
 	var status  = models.AdsCampaignStatusMap

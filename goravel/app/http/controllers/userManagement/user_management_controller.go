@@ -31,7 +31,7 @@ func (r *UserManagementController) Index(ctx http.Context) http.Response {
 func (r *UserManagementController) ShowUserRole(ctx http.Context) http.Response {
 	var roles []models.Role
 	if err := facades.Orm().Query().Find(&roles); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": models.RoleErrorMessage["internal_error"]})
+		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": facades.Lang(ctx).Get("validation.internal_error")})
 	}
 	return ctx.Response().Json(200,http.Json{"message": roles})
 
@@ -44,14 +44,14 @@ func (r *UserManagementController) AssignRole(ctx http.Context) http.Response {
 
     if id == "" || roleID == "" {
         return ctx.Response().Json(422, map[string]interface{}{
-            "error": models.RoleErrorMessage["validation_failed"],
+            "error": facades.Lang(ctx).Get("validation.validation_failed"),
         })
     }
 
     // Get the Casbin enforcer instance (assuming it's bound in the container)
     enforcerAny, err := facades.App().Make("casbin")
 		if err != nil {
-			return ctx.Response().Json(500, models.RoleErrorMessage["casbin_not_initialized"],)
+			return ctx.Response().Json(500, facades.Lang(ctx).Get("casbin_not_initialized"),)
 			
 		}
 
@@ -61,14 +61,14 @@ func (r *UserManagementController) AssignRole(ctx http.Context) http.Response {
     if _, err := e.DeleteRolesForUser(id); err != nil {
         // log.Printf("Error deleting roles for user %s: %v", id, err)
         return ctx.Response().Json(500, map[string]interface{}{
-            "error": models.RoleErrorMessage["delete_failed"],
+            "error": facades.Lang(ctx).Get("role_delete_failed"),
         })
     }
 
     // Assign the new role
     if _, err := e.AddRoleForUser(id, roleID); err != nil {
         return ctx.Response().Json(500, map[string]interface{}{
-            "error": models.RoleErrorMessage["assign_failed"],
+            "error": facades.Lang(ctx).Get("role_assign_failed"),
             
         })
     }

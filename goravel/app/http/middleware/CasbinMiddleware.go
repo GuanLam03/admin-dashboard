@@ -12,7 +12,7 @@ func CasbinMiddleware() http.Middleware {
     return func(ctx http.Context) {
         var user models.User
         if err := facades.Auth(ctx).User(&user); err != nil {
-			ctx.Response().String(http.StatusUnauthorized, "Unauthorized").Abort()
+			ctx.Response().String(http.StatusUnauthorized, facades.Lang(ctx).Get("validation.unauthorized")).Abort()
 			return
         }
 
