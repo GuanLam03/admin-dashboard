@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/axios";
+import { useTranslation } from "react-i18next";
 
 function GoogleDocumentEditPage() {
+  const {t} = useTranslation();
   const { id } = useParams(); // get :id from URL
   const [formData, setFormData] = useState({
     name: "",
@@ -78,17 +80,17 @@ function GoogleDocumentEditPage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">Edit Google Document</h2>
+      <h2 className="text-xl font-bold mb-4">{t("googleDocumentManagement.editPage.title")}</h2>
 
       <form
         onSubmit={handleSubmit}
         className="bg-white p-4 rounded shadow-sm w-full"
       >
-        <h4 className="text-lg font-semibold mb-4">Google Document Info</h4>
+        <h4 className="text-lg font-semibold mb-4">{t("googleDocumentManagement.editPage.sectionTitle")}</h4>
         <table className="w-full border-collapse">
           <tbody>
             <tr>
-              <th className="text-left p-2 border">Name</th>
+              <th className="text-left p-2 border">{t("googleDocumentManagement.fields.name")}</th>
               <td className="p-2 border">
                 <input
                   type="text"
@@ -101,7 +103,7 @@ function GoogleDocumentEditPage() {
               </td>
             </tr>
             <tr>
-              <th className="text-left p-2 border">Original Link</th>
+              <th className="text-left p-2 border">{t("googleDocumentManagement.fields.originalLink")}</th>
               <td className="p-2 border">
                 <input
                   type="text"
@@ -114,7 +116,7 @@ function GoogleDocumentEditPage() {
               </td>
             </tr>
             <tr>
-              <th className="text-left p-2 border">Status</th>
+              <th className="text-left p-2 border">{t("googleDocumentManagement.fields.status")}</th>
               <td className="p-2 border">
                 <select
                   name="status"
@@ -136,7 +138,7 @@ function GoogleDocumentEditPage() {
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded"
           >
-            Update Document
+            {t("common.buttons.update")}
           </button>
         </div>
       </form>

@@ -25,3 +25,15 @@ type AdsLogDetail struct {
 	AdsCampaignId   uint `json:"ads_campaign_id"`
 
 }
+
+
+
+
+
+var AdsLogDetailErrorMessage = map[string]string{
+	"not_found":         "Ads log detail not found.",
+	"create_failed":     "Failed to create the ads log detail.",
+	"validation_failed": "Invalid input. Please check the fields and try again.",
+	"invalid_request":   "Invalid request body. Please check your JSON format.",
+	"internal_error":    "Something went wrong. Please try again later.",
+}

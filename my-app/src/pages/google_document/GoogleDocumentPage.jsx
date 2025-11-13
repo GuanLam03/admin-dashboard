@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import DataTable from "datatables.net-dt";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
+import { useTranslation } from "react-i18next";
+import dataTableLocales from "../../utils/i18n/datatableLocales";
 
 function GoogleDocumentPage() {
+    const {t,i18n} = useTranslation();
     const [documents, setDocuments] = useState([]);
     const [filters, setFilters] = useState({
 
@@ -42,24 +45,26 @@ function GoogleDocumentPage() {
         const table = new DataTable("#documentsTable", {
             data: documents,
             destroy: true,
+            language: dataTableLocales[i18n.language],
+            
             columns: [
                 {
                     data: "id",
-                    title: "Action",
+                    title: t("common.labels.action"),
                     render: (id) =>
-                        `<button class="edit-btn btn btn-primary" data-id="${id}">Edit</button>
-             <button class="view-btn btn btn-info" data-id="${id}">View</button>
+                        `<button class="edit-btn btn btn-primary" data-id="${id}">${t("common.buttons.edit")}</button>
+             <button class="view-btn btn btn-info" data-id="${id}">${t("common.buttons.view")}</button>
              `,
                 },
-                { data: "name", title: "Name" },
+                { data: "name", title: t("googleDocumentManagement.fields.name") },
                 {
                     data: "link",
-                    title: "Link",
+                    title: t("googleDocumentManagement.fields.link"),
                     render: (link) => `<a href="${link}" target="_blank">${link}</a>`,
                 },
-                { data: "status", title: "Status" },
-                { data: "created_at", title: "Created At" },
-                { data: "updated_at", title: "Updated At" },
+                { data: "status", title: t("googleDocumentManagement.fields.status") },
+                { data: "created_at", title: t("googleDocumentManagement.fields.createdAt") },
+                { data: "updated_at", title: t("googleDocumentManagement.fields.updatedAt") },
             ],
         });
 
@@ -108,7 +113,7 @@ function GoogleDocumentPage() {
             {error && <div className="bg-red-100 text-red-600 px-4 py-2 rounded mb-4">{error}</div>}
             {success && <div className="bg-green-100 text-green-600 px-4 py-2 rounded mb-4">{success}</div>}
 
-            <h2 className="text-xl font-bold mb-4">Google Documents</h2>
+            <h2 className="text-xl font-bold mb-4">{t("googleDocumentManagement.title")}</h2>
 
             {/* Search Filters */}
             <form onSubmit={handleSearch} className="flex flex-col justify-between gap-4 flex-wrap bg-white p-4 rounded shadow-sm mb-4">
@@ -118,11 +123,11 @@ function GoogleDocumentPage() {
                         <input type="text" value={filters.id} onChange={(e) => setFilters({ ...filters, id: e.target.value })} className="border rounded p-2 w-full" />
                     </div> */}
                     <div>
-                        <label>Name</label>
+                        <label>{t("googleDocumentManagement.fields.name")}</label>
                         <input type="text" value={filters.name} onChange={(e) => setFilters({ ...filters, name: e.target.value })} className="border rounded p-2 w-full" />
                     </div>
                     <div>
-                        <label>Status</label>
+                        <label>{t("googleDocumentManagement.fields.status")}</label>
                         <select
                             name="status"
                             value={filters.status}
@@ -136,21 +141,21 @@ function GoogleDocumentPage() {
                     </div>
 
                     <div>
-                        <label>From Date</label>
+                        <label>{t("googleDocumentManagement.form.filters.fromDate")}</label>
                         <input type="date" value={filters.fdate} onChange={(e) => setFilters({ ...filters, fdate: e.target.value })} className="border rounded p-2 w-full" />
                     </div>
                     <div>
-                        <label>To Date</label>
+                        <label>{t("googleDocumentManagement.form.filters.toDate")}</label>
                         <input type="date" value={filters.tdate} onChange={(e) => setFilters({ ...filters, tdate: e.target.value })} className="border rounded p-2 w-full" />
                     </div>
                 </div>
                 <div className="flex justify-between">
                     <div className="flex items-end gap-2">
-                        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Search</button>
-                        <button type="button" onClick={handleClearSearch} className="bg-red-600 text-white px-4 py-2 rounded">Clear Search</button>
+                        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">{t("common.buttons.search")}</button>
+                        <button type="button" onClick={handleClearSearch} className="bg-red-600 text-white px-4 py-2 rounded">{t("common.buttons.clearSearch")}</button>
                     </div>
                     <div>
-                        <button type="button" onClick={handleAddGoogleDocument} className="bg-blue-600 text-white px-4 py-2 rounded">Add Google Document</button>
+                        <button type="button" onClick={handleAddGoogleDocument} className="bg-blue-600 text-white px-4 py-2 rounded">{t("common.buttons.add")}</button>
                     </div>
                 </div>
 

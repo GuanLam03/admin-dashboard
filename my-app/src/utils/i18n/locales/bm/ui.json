@@ -1,0 +1,173 @@
+{
+    "appName": "Papan Pemuka Pentadbir",
+
+    "sidebar": {
+        "home": "Laman Utama",
+        "profile": "Profil",
+        "userManagement": "Pengurusan Pengguna",
+        "roles": "Peranan",
+        "documents": "Dokumen",
+        "googleDocuments": "Dokumen Google",
+        "schedules": "Jadual",
+        "emails": "Emel",
+        "emailsTechnical": "Emel Teknikal",
+        "emailsSupport": "Emel Sokongan",
+        "emailsSettings": "Tetapan Emel",
+        "adsTracking": "Penjejakan Iklan",
+        "adsCampaign": "Kempen Iklan",
+        "adsLog": "Log Iklan",
+        "adsReport": "Laporan Iklan",
+        "settings": "Tetapan"
+    },
+
+    "home": {
+        "welcome": "Selamat datang, {{name}}!"
+    },
+
+    "user": {
+        "logout": "Log Keluar"
+    },
+
+    "profile": {
+        "title": "Profil",
+        "name": "Nama",
+        "email": "Emel",
+        "currentPassword": "Kata Laluan Semasa",
+        "newPassword": "Kata Laluan Baharu",
+        "confirmPassword": "Sahkan Kata Laluan",
+        "saveChanges": "Simpan Perubahan",
+        "saving": "Sedang Menyimpan...",
+        "passwordMismatch": "Kata laluan baharu tidak sepadan",
+        "updateFailed": "Kemas kini gagal"
+    },
+
+    "common": {
+        "labels": {
+            "action": "Tindakan"
+        },
+        "buttons": {
+            "add": "Tambah",
+            "edit": "Edit",
+            "update": "Kemas Kini",
+            "download": "Muat Turun",
+            "view": "Lihat",
+            "save": "Simpan",
+            "upload": "Muat Naik"
+        }
+    },
+
+    "userManagement": {
+        "fields": {
+            "role": "Peranan",
+            "name": "Nama",
+            "email": "Emel",
+            "createdAt": "Dicipta Pada"
+        },
+        "title": "Pengurusan Pengguna"
+    },
+
+    "roleManagement": {
+        "fields": {
+            "name": "Nama",
+            "createdAt": "Dicipta Pada",
+            "updatedAt": "Dikemas Kini Pada"
+        },
+        "title": "Cipta Peranan",
+        "form": {
+            "roleName": "Nama Peranan",
+            "roleNamePlaceholder": "Masukkan nama peranan"
+        }
+    },
+
+    "documentManagement": {
+        "fields": {
+            "id": "ID",
+            "filename": "Nama Fail",
+            "path": "Laluan",
+            "createdAt": "Dicipta Pada",
+            "updatedAt": "Dikemas Kini Pada"
+        },
+        "title": "Dokumen",
+        "form": {
+            "selectFiles": "Pilih Fail"
+        }
+    },
+
+    "googleDocumentManagement": {
+        "fields": {
+            "id": "ID",
+            "name": "Nama",
+            "originalLink": "Pautan Asal",
+            "link": "Pautan",
+            "status": "Status",
+            "createdAt": "Dicipta Pada",
+            "updatedAt": "Dikemas Kini Pada"
+        },
+
+        "title": "Dokumen Google",
+        "form": {
+            "search": "Cari",
+            "clearSearch": "Padam Carian",
+            "filters": {
+                "fromDate": "Dari Tarikh",
+                "toDate": "Hingga Tarikh"
+            }
+        },
+        "addPage": {
+            "title": "Tambah Dokumen Google",
+            "sectionTitle": "Maklumat Dokumen Google",
+            "form": {
+                "documentNamePlaceholder": "Masukkan nama dokumen",
+                "documentOriginalLinkPlaceholder": "Tampal pautan Google Doc"
+            }
+        },
+        "editPage": {
+            "title": "Edit Dokumen Google",
+            "sectionTitle": "Maklumat Dokumen Google"
+        }
+    },
+
+    
+    "scheduleManagement": {
+        "fields": {
+            "title": "Tajuk",
+            "recurrence": "Ulangan",
+            "startAt": "Mula Pada",
+            "endAt": "Tamat Pada",
+            "status": "Status",
+            "googleEventId": "ID Acara Google",
+            "createdAt": "Dicipta Pada",
+            "updatedAt": "Dikemas Kini Pada",
+            "notifyRoles": "Maklumkan Peranan"
+        },
+        "title": "Jadual",
+
+        "form": {
+        "filters": {
+            "fromDate": "Dari Tarikh",
+            "toDate": "Hingga Tarikh"
+        }
+        },
+
+        "calendar": {
+            "fullCalendarTitle": "Kalendar Penuh (JavaScript)",
+            "googleCalendarTitle": "Kalendar Google"
+        },
+
+        "addPage": {
+            "title": "Tambah Jadual",
+            "sectionTitle": "Maklumat Jadual",
+
+            "form": {
+                "scheduleTitlePlaceholder": "Masukkan tajuk jadual",
+                "scheduleNotifyRolesPlaceholder": "Pilih peranan untuk dimaklumkan (pilihan)"
+            }
+        },
+
+        "editPage": {
+            "title": "Edit Jadual",
+            "sectionTitle": "Maklumat Jadual"
+        }
+    }
+
+}

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 	"time"
-
+	"goravel/app/helpers/system"
 "golang.org/x/oauth2"
 "encoding/json"
 	"github.com/goravel/framework/facades"
@@ -87,11 +87,11 @@ func (g *GoogleCalendarController) AddGoogleCalendar(
         Summary: title,
         Start: &calendar.EventDateTime{
             DateTime: start.Format(time.RFC3339),
-            TimeZone: "Asia/Kuala_Lumpur",
+            TimeZone: system.TimeZones["malaysia"],
         },
         End: &calendar.EventDateTime{
             DateTime: end.Format(time.RFC3339),
-            TimeZone: "Asia/Kuala_Lumpur",
+            TimeZone: system.TimeZones["malaysia"],
         },
     }
 
@@ -132,11 +132,11 @@ func (g *GoogleCalendarController) UpdateGoogleCalendarEvent(eventID string, tit
 		Summary: title,
 		Start: &calendar.EventDateTime{
 			DateTime: start.Format(time.RFC3339),
-			TimeZone: "Asia/Kuala_Lumpur",
+			TimeZone: system.TimeZones["malaysia"],
 		},
 		End: &calendar.EventDateTime{
 			DateTime: end.Format(time.RFC3339),
-			TimeZone: "Asia/Kuala_Lumpur",
+			TimeZone: system.TimeZones["malaysia"],
 		},
 	}
 

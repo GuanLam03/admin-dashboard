@@ -223,7 +223,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsCampaign(ctx http.Context) ht
 
 	if errResp != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": errResp.Error(),
+			"error": facades.Lang(ctx).Get("validation.internal_error"),
 		})
 	}
 
@@ -274,7 +274,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsLogDetailsCampaign(ctx http.C
 	var adsLogDetail []*models.AdsLogDetail
 	if err := query.Get(&adsLogDetail); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": "Failed to get ads log details: " + err.Error(),
+			"error": facades.Lang(ctx).Get("validation.internal_error"),
 		})
 	}
 
@@ -385,7 +385,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsFilterCampaign(ctx http.Conte
 	groupColumn, ok := allowedColumns[filterType]
 	if !ok {
 		return ctx.Response().Json(http.StatusBadRequest, http.Json{
-			"error": "Invalid filter type",
+			"error": facades.Lang(ctx).Get("validation.validation_failed"),
 		})
 	}
 
@@ -403,7 +403,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsFilterCampaign(ctx http.Conte
 
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": "Failed to get campaign date range: " + err.Error(),
+			"error":  facades.Lang(ctx).Get("validation.internal_error"),
 		})
 	}
 
@@ -437,7 +437,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsFilterCampaign(ctx http.Conte
 	var results []ReportResult
 	if err := query.Get(&results); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": "Failed to get report data: " + err.Error(),
+			"error": facades.Lang(ctx).Get("validation.internal_error"),
 		})
 	}
 

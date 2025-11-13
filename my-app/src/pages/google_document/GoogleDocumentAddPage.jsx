@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
+import { useTranslation } from "react-i18next";
 
 function GoogleDocumentAddPage() {
+  const {t} = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     original_link: "",
@@ -51,17 +53,17 @@ function GoogleDocumentAddPage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">Add Google Document</h2>
+      <h2 className="text-xl font-bold mb-4">{t("googleDocumentManagement.addPage.title")}</h2>
 
       <form
         onSubmit={handleSubmit}
         className="bg-white p-4 rounded shadow-sm w-full"
       >
-        <h4 className="text-lg font-semibold mb-4">Google Document Info</h4>
+        <h4 className="text-lg font-semibold mb-4">{t("googleDocumentManagement.addPage.sectionTitle")}</h4>
         <table className="w-full border-collapse">
           <tbody>
             <tr>
-              <th className="text-left p-2 border">Name</th>
+              <th className="text-left p-2 border">{t("googleDocumentManagement.fields.name")}</th>
               <td className="p-2 border">
                 <input
                   type="text"
@@ -69,13 +71,13 @@ function GoogleDocumentAddPage() {
                   value={formData.name}
                   onChange={handleChange}
                   className="border rounded p-2 w-full"
-                  placeholder="Enter document name"
+                  placeholder={t("googleDocumentManagement.addPage.form.documentNamePlaceholder")}
                   required
                 />
               </td>
             </tr>
             <tr>
-              <th className="text-left p-2 border">Link</th>
+              <th className="text-left p-2 border">{t("googleDocumentManagement.fields.link")}</th>
               <td className="p-2 border">
                 <input
                   type="text"
@@ -83,13 +85,13 @@ function GoogleDocumentAddPage() {
                   value={formData.original_link}
                   onChange={handleChange}
                   className="border rounded p-2 w-full"
-                  placeholder="Paste Google Doc link"
+                  placeholder={t("googleDocumentManagement.addPage.form.documentOriginalLinkPlaceholder")}
                   required
                 />
               </td>
             </tr>
             <tr>
-              <th className="text-left p-2 border">Status</th>
+              <th className="text-left p-2 border">{t("googleDocumentManagement.fields.status")}</th>
               <td className="p-2 border">
                 <select
                   name="status"
@@ -111,7 +113,7 @@ function GoogleDocumentAddPage() {
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded"
           >
-            Save Document
+            {t("common.buttons.save")}
           </button>
         </div>
       </form>

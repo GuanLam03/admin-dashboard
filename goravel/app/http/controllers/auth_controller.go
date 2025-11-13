@@ -10,6 +10,7 @@ import (
     "goravel/app/models"
     "github.com/goravel/framework/facades"
     "github.com/goravel/framework/contracts/http"
+    
 )
 
 type AuthController struct{}
@@ -22,7 +23,7 @@ func NewAuthController() *AuthController {
 func (a *AuthController) Register(ctx http.Context) http.Response {
     var user models.User
     if err := ctx.Request().Bind(&user); err != nil {
-        return ctx.Response().Json(400, http.Json{"error": err.Error()})
+        return ctx.Response().Json(400, http.Json{"error": models.UserErrorMessage["invalid_request"]})
     }
 
 
@@ -31,19 +32,19 @@ func (a *AuthController) Register(ctx http.Context) http.Response {
     facades.Orm().Query().Where("email = ?", user.Email).First(&existingUser)
     
     if existingUser.ID != 0 {
-     return ctx.Response().Json(400, http.Json{"error": "email already taken"})
+     return ctx.Response().Json(400, http.Json{"error": models.UserErrorMessage["email_exists"]})
     }
     
 
     // Hash the password
     hashed, err := facades.Hash().Make(user.Password)
     if err != nil {
-        return ctx.Response().Json(500, http.Json{"error": "failed to hash password"})
+        return ctx.Response().Json(500, http.Json{"error": models.UserErrorMessage["internal_error"]})
     }
     user.Password = hashed
 
     if err := facades.Orm().Query().Create(&user); err != nil {
-        return ctx.Response().Json(500, http.Json{"error": err.Error()})
+        return ctx.Response().Json(500, http.Json{"error": models.UserErrorMessage["create_failed"]})
     }
 
     return ctx.Response().Json(200, http.Json{"message": "user registered successfully"})
@@ -58,11 +59,11 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 
     var user models.User
     if err := facades.Orm().Query().Where("email", email).First(&user); err != nil {
-        return ctx.Response().Json(401, http.Json{"error": "invalid credentials"})
+        return ctx.Response().Json(401, http.Json{"error": models.UserErrorMessage["invalid_credentials"]})
     }
 
     if !facades.Hash().Check(password, user.Password) {
-        return ctx.Response().Json(401, http.Json{"error": "invalid credentials"})
+        return ctx.Response().Json(401, http.Json{"error": models.UserErrorMessage["invalid_credentials"]})
     }
 
     // If 2FA is enabled, don’t log in yet
@@ -77,7 +78,7 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
     // Normal login (no 2FA)
     token, err := facades.Auth(ctx).Login(&user)
     if err != nil {
-        return ctx.Response().Json(500, http.Json{"error": err.Error()})
+        return ctx.Response().Json(500, http.Json{"error": models.UserErrorMessage["internal_error"]})
     }
 
     cookie := "jwt_token=" + token + "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400"
@@ -121,7 +122,7 @@ func (a *AuthController) Profile(ctx http.Context) http.Response {
 
     enforcerAny, err := facades.App().Make("casbin")
     if err != nil {
-        return ctx.Response().Json(500, "Failed to get Casbin enforcer")
+        return ctx.Response().Json(500, models.UserErrorMessage["internal_error"])
         
     }
 
@@ -167,23 +168,23 @@ func (c *AuthController) VerifyTwoFA(ctx http.Context) http.Response {
 
     var user models.User
     if err := facades.Orm().Query().Find(&user, userId); err != nil {
-        return ctx.Response().Json(404, http.Json{"error": "user not found"})
+        return ctx.Response().Json(404, http.Json{"error": models.UserErrorMessage["not_found"]})
     }
 
     if !user.TwoFactorEnabled {
-        return ctx.Response().Json(400, http.Json{"error": "2FA not enabled"})
+        return ctx.Response().Json(400, http.Json{"error": models.TwofaErrorMessage["not_enabled"]})
     }
 
     decryptedSecret, err := facades.Crypt().DecryptString(user.TwoFactorSecret)
     if err != nil {
-        return ctx.Response().Json(500, http.Json{"error": "failed to decrypt 2FA secret"})
+        return ctx.Response().Json(500, http.Json{"error": models.TwofaErrorMessage["decrypt_failed"]})
     }
 
     // Validate TOTP code from Google Authenticator
     if totp.Validate(code, decryptedSecret) {
         token, err := facades.Auth(ctx).Login(&user)
         if err != nil {
-            return ctx.Response().Json(500, http.Json{"error": err.Error()})
+            return ctx.Response().Json(500, http.Json{"error": models.TwofaErrorMessage["internal_error"]})
         }
 
         cookie := "jwt_token=" + token + "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400"
@@ -192,7 +193,7 @@ func (c *AuthController) VerifyTwoFA(ctx http.Context) http.Response {
         return ctx.Response().Json(200, http.Json{"message": "login success", "token": token})
     }
 
-    return ctx.Response().Json(400, http.Json{"error": "invalid 2FA code"})
+    return ctx.Response().Json(400, http.Json{"error": models.TwofaErrorMessage["invalid_code"]})
 }
 
 

@@ -16,7 +16,7 @@ func Auth() http.Middleware {
 
 		token := ctx.Request().Cookie("jwt_token")
 		if token == "" {
-			ctx.Response().String(http.StatusUnauthorized, "login Unauthorized").Abort()
+			ctx.Response().String(http.StatusUnauthorized, facades.Lang(ctx).Get("validation.unauthorized")).Abort()
 			return
 		}
 
