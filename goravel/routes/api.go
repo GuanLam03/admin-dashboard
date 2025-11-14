@@ -61,7 +61,7 @@ func Api() {
 	facades.Route().Post("/login/twofa",authController.VerifyTwoFA)
 	facades.Route().Post("/register", authController.Register)
 
-	facades.Route().Middleware(middleware.Auth(),middleware.ActivityLogger()).Group(func(router route.Router) {
+	facades.Route().Middleware(middleware.ActivityLogger(),middleware.Auth()).Group(func(router route.Router) {
 		//profile
 		router.Get("/profile", authController.Profile)
 		router.Post("/logout", authController.Logout)
