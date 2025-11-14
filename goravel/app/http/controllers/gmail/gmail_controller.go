@@ -74,13 +74,27 @@ func (c *GmailController) HandleCallback(ctx http.Context) http.Response {
     }
 
     //  Check if this Gmail is already linked to another department
-    var existing models.GmailAccount
-    err = facades.Orm().Query().Where("email", profile.EmailAddress).First(&existing)
-    if err == nil && existing.ID != 0 {
-        return ctx.Response().Json(http.StatusBadRequest, map[string]string{
-            "error": facades.Lang(ctx).Get("validation.gmail_account_already_linked"),
-        })
-    }
+    profileEmail := profile.EmailAddress
+	_, validTeam := models.GmailAccountTeams[team] // team = value from request input
+
+	if !validTeam {
+		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
+			"error": "Invalid team",
+		})
+	}
+
+	var existing models.GmailAccount
+	err = facades.Orm().Query().
+		Where("email", profileEmail).
+		Where("team", team).
+		First(&existing)
+
+	if err == nil && existing.ID != 0 {
+		// Found a record with same email and valid team
+		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
+			"error": facades.Lang(ctx).Get("validation.gmail_account_already_linked"),
+		})
+	}
     
     // Save new account
     err = facades.Orm().Query().Create(&models.GmailAccount{
@@ -447,19 +461,19 @@ func (c *GmailController) ListAccounts(ctx http.Context) http.Response {
 	return ctx.Response().Json(http.StatusOK, accounts)
 }
 
-// DELETE /gmail/accounts/:email
+// DELETE /gmail/accounts/:id
 func (c *GmailController) DeleteAccount(ctx http.Context) http.Response {
-	email := ctx.Request().Route("email")
+	id := ctx.Request().Route("id")
 
-	if email == "" {
-		facades.Log().Warning("Missing email parameter in DeleteAccount request")
+	if id == "" {
+		facades.Log().Warning("Missing id parameter in DeleteAccount request")
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
 			"error": facades.Lang(ctx).Get("validation.invalid_request"),
 		})
 	}
 
-	if _,err := facades.Orm().Query().Where("email", email).Delete(&models.GmailAccount{}); err != nil {
-		facades.Log().Errorf("Failed to delete Gmail account (%s): %v", email, err)
+	if _,err := facades.Orm().Query().Where("id", id).Delete(&models.GmailAccount{}); err != nil {
+		facades.Log().Errorf("Failed to delete Gmail account (%d): %v", id, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
 			"error": facades.Lang(ctx).Get("validation.gmail_account_delete_failed"),
 		})

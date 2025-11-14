@@ -4,15 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
+	// "os"
 	"time"
 	"goravel/app/helpers/system"
 "golang.org/x/oauth2"
-"encoding/json"
+// "encoding/json"
 	"github.com/goravel/framework/facades"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
+		"goravel/app/models"
 )
 
 type GoogleCalendarController struct{}
@@ -23,42 +24,78 @@ func NewGoogleCalendarController() *GoogleCalendarController {
 
 
 func (g *GoogleCalendarController) getService() (*calendar.Service, string, error) {
-	credentialsFile := "storage/credentials.json"
-	b, err := os.ReadFile(credentialsFile)
+	// credentialsFile := "storage/credentials.json"
+	// b, err := os.ReadFile(credentialsFile)
+	// if err != nil {
+	// 	return nil, "", fmt.Errorf("unable to read client secret file: %w", err)
+	// }
+
+	// // Config with Calendar scope
+	// config, err := google.ConfigFromJSON(b, calendar.CalendarScope)
+	// if err != nil {
+	// 	return nil, "", fmt.Errorf("unable to parse client secret file: %w", err)
+	// }
+
+	clientID := facades.Config().Env("GOOGLE_CALENDAR_CLIENT_ID", "").(string)
+	clientSecret := facades.Config().Env("GOOGLE_CALENDAR_CLIENT_SECRET", "").(string)
+	redirectURI := facades.Config().Env("GOOGLE_CALENDAR_REDIRECT_URI", "").(string)
+	calendarID := facades.Config().Env("GOOGLE_CALENDAR_ID", "").(string)
+
+	if clientID == "" || clientSecret == "" || redirectURI == "" || calendarID == "" {
+		return nil, "", errors.New("missing Google Calendar credentials in .env")
+	}
+
+	config := &oauth2.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectURI,
+		Scopes:       []string{calendar.CalendarScope},
+		Endpoint:     google.Endpoint,
+	}
+
+	// // Read previously saved token.json
+	// tokFile := "storage/token.json"
+	// tok, err := os.ReadFile(tokFile)
+	// if err != nil {
+	// 	return nil, "", fmt.Errorf("token.json not found, please run OAuth flow first")
+	// }
+
+	// var token oauth2.Token
+	// if err := json.Unmarshal(tok, &token); err != nil {
+	// 	return nil, "", fmt.Errorf("unable to parse token.json: %w", err)
+	// }
+
+	var account models.GmailAccount
+	err := facades.Orm().Query().
+		Where("team = ?", "schedule").
+		First(&account)
 	if err != nil {
-		return nil, "", fmt.Errorf("unable to read client secret file: %w", err)
+		return nil, "", fmt.Errorf("no Google account found, please login first: %w", err)
 	}
 
-	// Config with Calendar scope
-	config, err := google.ConfigFromJSON(b, calendar.CalendarScope)
-	if err != nil {
-		return nil, "", fmt.Errorf("unable to parse client secret file: %w", err)
+	if account.AccessToken == "" {
+		return nil, "", errors.New("account has no access token, please login")
 	}
 
-	// Read previously saved token.json
-	tokFile := "storage/token.json"
-	tok, err := os.ReadFile(tokFile)
-	if err != nil {
-		return nil, "", fmt.Errorf("token.json not found, please run OAuth flow first")
+	// Build oauth2.Token
+	var expiry time.Time
+	if account.Expiry != nil {
+		expiry = *account.Expiry
 	}
 
-	var token oauth2.Token
-	if err := json.Unmarshal(tok, &token); err != nil {
-		return nil, "", fmt.Errorf("unable to parse token.json: %w", err)
+	token := &oauth2.Token{
+		AccessToken:  account.AccessToken,
+		RefreshToken: account.RefreshToken,
+		Expiry:       expiry,
 	}
 
-	client := config.Client(context.Background(), &token)
+	client := config.Client(context.Background(), token)
 	srv, err := calendar.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
 		return nil, "", fmt.Errorf("unable to create calendar service: %w", err)
 	}
 
-	// Get calendar ID from .env (or just use "")
-	calendarIDAny := facades.Config().Env("GOOGLE_CALENDAR_ID", "")
-	calendarID, ok := calendarIDAny.(string)
-	if !ok || calendarID == "" {
-		return nil, "", errors.New("invalid or missing GOOGLE_CALENDAR_ID in .env")
-	}
+
 
 	return srv, calendarID, nil
 }
