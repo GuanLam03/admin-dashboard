@@ -2,7 +2,7 @@ package routes
 
 import (
 	"goravel/app/http/controllers"
-	"goravel/app/http/controllers/adsCampaign"
+	"goravel/app/http/controllers/adsCampaign" 
 	"goravel/app/http/controllers/adsTracking"
 	"goravel/app/http/controllers/documents"
 	"goravel/app/http/controllers/gmail"

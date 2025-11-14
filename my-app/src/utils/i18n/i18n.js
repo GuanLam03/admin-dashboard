@@ -5,6 +5,9 @@ import { initReactI18next } from "react-i18next";
 import enLangUi from "./locales/en/ui.json";
 import cnLangUi from "./locales/cn/ui.json";
 import bmLangUi from "./locales/bm/ui.json";
+import enLangBackend from "./locales/en/backendMessages.json";
+import cnLangBackend from "./locales/cn/backendMessages.json";
+import bmLangBackend from "./locales/bm/backendMessages.json";
 
 
 
@@ -16,13 +19,13 @@ i18n
     // or even better, manage them via a UI: https://react.i18next.com/guides/multiple-translation-files#manage-your-translations-with-a-management-gui)
     resources: {
       en: {
-        translation: { ...enLangUi }
+        translation: { ...enLangUi, ...enLangBackend }
       },
       cn: {
-        translation: { ...cnLangUi }
+        translation: { ...cnLangUi, ...cnLangBackend }
       },
       bm: {
-        translation: { ...bmLangUi }
+        translation: { ...bmLangUi, ...bmLangBackend }
       }
     },
     lng: "en", // if you're using a language detector, do not define the lng option

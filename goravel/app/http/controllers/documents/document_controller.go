@@ -9,6 +9,7 @@ import (
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"goravel/app/models"
+	"goravel/app/messages"
 
 )
 
@@ -25,14 +26,14 @@ func (c *DocumentController) Store(ctx http.Context) http.Response {
 	// fmt.Println(files);
 
 	if err != nil || len(files) == 0 {
-		return ctx.Response().Json(422, http.Json{"error": facades.Lang(ctx).Get("validation.validation_failed")})
+		return ctx.Response().Json(422, http.Json{"error": messages.GetError("validation.validation_failed")})
 	}
 
 	
 	for _, file := range files {
 		filename := file.GetClientOriginalName()
 		if _, err := file.StoreAs("uploads", filename); err != nil {
-			return ctx.Response().Json(500, http.Json{"error": facades.Lang(ctx).Get("validation.internal_error")})
+			return ctx.Response().Json(500, http.Json{"error": messages.GetError("validation.internal_error")})
 		}
 
 		savePath := filepath.Join("uploads", filename)
@@ -49,7 +50,7 @@ func (c *DocumentController) Store(ctx http.Context) http.Response {
 			}
 
 			return ctx.Response().Json(500, http.Json{
-				"error": facades.Lang(ctx).Get("validation.internal_error"),
+				"error": messages.GetError("validation.internal_error"),
 			})
 		}
 	}
@@ -62,7 +63,7 @@ func (c *DocumentController) Store(ctx http.Context) http.Response {
 func (c *DocumentController) Index(ctx http.Context) http.Response {
 	var docs []models.Document
 	if err := facades.Orm().Query().Get(&docs); err != nil {
-		return ctx.Response().Json(500, http.Json{"error": facades.Lang(ctx).Get("validation.internal_error")})
+		return ctx.Response().Json(500, http.Json{"error": messages.GetError("validation.internal_error")})
 	}
 
 	return ctx.Response().Json(200, http.Json{"documents": docs})
@@ -75,16 +76,16 @@ func (c *DocumentController) Download(ctx http.Context) http.Response {
 	var doc models.Document
 
 	if err != nil {
-		return ctx.Response().Json(422, http.Json{"error": facades.Lang(ctx).Get("validation.validation_failed")})
+		return ctx.Response().Json(422, http.Json{"error": messages.GetError("validation.validation_failed")})
 	}
 
 	if err := facades.Orm().Query().Where("id", id).First(&doc); err != nil {
-		return ctx.Response().Json(404, http.Json{"error":facades.Lang(ctx).Get("validation.document_not_found"),})
+		return ctx.Response().Json(404, http.Json{"error":messages.GetError("validation.document_not_found"),})
 	}
 
 	// Double-check file exists
 	if !doc.Exists() {
-		return ctx.Response().Json(404, http.Json{"error": facades.Lang(ctx).Get("validation.document_not_found"),})
+		return ctx.Response().Json(404, http.Json{"error": messages.GetError("validation.document_not_found"),})
 	}
 
 	// Return file for download

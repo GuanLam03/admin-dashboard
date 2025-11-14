@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"regexp"
 	"goravel/app/helpers/system"
+	"goravel/app/messages"
 
 	
 )
@@ -74,7 +75,7 @@ func (a *AdsTrackingController) Track(ctx http.Context) http.Response {
 	var campaign models.AdsCampaign
 	if err := facades.Orm().Query().Where("code", code).First(&campaign); err != nil || campaign.ID == 0 {
 		return ctx.Response().Json(http.StatusNotFound, map[string]string{
-			"error": facades.Lang(ctx).Get("validation.ads_campaign_not_found"),
+			"error": messages.GetError("validation.ads_campaign_not_found"),
 		})
 	}
 
@@ -159,7 +160,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if err := ctx.Request().Bind(&req); err != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
 			"code":        "400",
-			"status_name": facades.Lang(ctx).Get("validation.validation_failed"),
+			"status_name": messages.GetError("validation.validation_failed"),
 		})
 	}
 
@@ -167,7 +168,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if errors, err := validatePostBackAdsTrackingInput(req); err != nil || errors != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
 			"code":        "400",
-			"status_name": facades.Lang(ctx).Get("validation.validation_failed"),
+			"status_name": messages.GetError("validation.validation_failed"),
 		})
 	}
 
@@ -176,7 +177,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if err != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
 			"code":        "400",
-			"status_name": facades.Lang(ctx).Get("validation.validation_failed"),
+			"status_name": messages.GetError("validation.validation_failed"),
 		})
 	}
 
@@ -188,13 +189,13 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
 			"code":        "500",
-			"status_name":  facades.Lang(ctx).Get("validation.internal_error"),
+			"status_name":  messages.GetError("validation.internal_error"),
 		})
 	}
 	if !exists {
 		return ctx.Response().Json(http.StatusNotFound, map[string]string{
 			"code":        "404",
-			"status_name": facades.Lang(ctx).Get("validation.ads_log_not_found"),
+			"status_name": messages.GetError("validation.ads_log_not_found"),
 		})
 	}
 
@@ -208,7 +209,7 @@ func (a *AdsTrackingController) PostBackAdsTracking(ctx http.Context) http.Respo
 	if err := facades.Orm().Query().Create(&eventLog); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
 			"code":        "500",
-			"status_name": facades.Lang(ctx).Get("validation.internal_error"), //variable
+			"status_name": messages.GetError("validation.internal_error"), //variable
 		})
 	}
 	// Trigger background postback
