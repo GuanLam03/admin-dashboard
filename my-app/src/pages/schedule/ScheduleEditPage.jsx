@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/axios";
+import { useTranslation } from "react-i18next";
 
 function ScheduleEditPage() {
+  const {t} = useTranslation();
   const { id } = useParams(); // get :id from URL
   const [formData, setFormData] = useState({
     title: "",
