@@ -7,6 +7,7 @@ import (
     "goravel/app/models"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
+	"goravel/app/messages"
 )
 
 type ScheduleController struct{}
@@ -42,10 +43,10 @@ func (r *ScheduleController) ShowSchedule(ctx http.Context) http.Response {
 
 	if err := query.Order("start_at asc").Find(&schedules); err != nil {
 		return ctx.Response().Json(500, http.Json{
-			"message": facades.Lang(ctx).Get("validation.internal_error"),
-			"error":   err.Error(),
+			"error": messages.GetError("validation.internal_error"),
 		})
 	}
+
 
 	return ctx.Response().Json(200, http.Json{
 		"message": schedules,

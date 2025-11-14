@@ -1,0 +1,96 @@
+{
+    "validation": {
+        "internal_error": "Terjadi ralat. Sila cuba lagi kemudian.",
+        "validation_failed": "Input tidak sah. Sila semak medan dan cuba lagi.",
+        "invalid_request": "Badan permintaan tidak sah. Sila semak format JSON anda.",
+        "not_found": ":attribute tidak ditemui.",
+
+        "user_not_found": "Pengguna tidak ditemui.",
+        "user_create_failed": "Gagal membuat akaun pengguna.",
+        "user_update_failed": "Gagal mengemas kini akaun pengguna.",
+        "user_delete_failed": "Gagal memadam akaun pengguna.",
+        "email_exists": "Emel ini sudah didaftarkan.",
+        "invalid_credentials": "Emel atau kata laluan tidak sah.",
+        "unauthorized": "Akses tidak dibenarkan. Sila log masuk semula.",
+        "current_password_incorrect": "Kata laluan semasa tidak betul.",
+        "password_mismatch": "Kata laluan baru tidak sepadan.",
+
+        "twofa_already_enabled": "Pengesahan dua faktor sudah diaktifkan.",
+        "twofa_not_enabled": "Pengesahan dua faktor belum diaktifkan.",
+        "twofa_invalid_code": "Kod pengesahan tidak sah.",
+        "twofa_generate_failed": "Gagal menjana kunci rahsia 2FA.",
+        "twofa_encrypt_failed": "Gagal menyulitkan rahsia 2FA.",
+        "twofa_decrypt_failed": "Gagal nyah-sulitkan rahsia 2FA.",
+        "twofa_save_failed": "Gagal menyimpan tetapan 2FA.",
+        "twofa_qr_failed": "Gagal menjana kod QR.",
+
+        "role_not_found": "Peranan tidak ditemui.",
+        "role_create_failed": "Gagal membuat peranan.",
+        "role_update_failed": "Gagal mengemas kini peranan.",
+        "role_delete_failed": "Gagal memadam peranan.",
+        "role_assign_failed": "Gagal menetapkan peranan.",
+        "casbin_not_initialized": "Casbin belum diinisialisasi.",
+        "casbin_cast_failed": "Gagal menukar penguatkuasa Casbin.",
+
+        "schedule_not_found": "Jadual tidak ditemui.",
+        "schedule_create_failed": "Gagal membuat jadual.",
+        "schedule_update_failed": "Gagal mengemas kini jadual.",
+        "schedule_delete_failed": "Gagal memadam jadual.",
+        "invalid_start_at": "Format start_at tidak sah. Gunakan YYYY-MM-DDTHH:MM",
+        "invalid_end_at": "Format end_at tidak sah. Gunakan YYYY-MM-DDTHH:MM",
+        "google_insert_failed": "Gagal membuat acara Google Calendar.",
+        "google_update_failed": "Gagal mengemas kini acara Google Calendar.",
+        "google_delete_failed": "Gagal memadam acara Google Calendar.",
+
+        "gmail_account_internal_error": "Terjadi ralat pada pihak kami. Sila cuba lagi kemudian.",
+        "gmail_account_invalid_request": "Permintaan anda tidak dapat diproses. Sila semak input dan cuba lagi.",
+        "gmail_account_validation_failed": "Beberapa medan tidak sah. Sila semak input anda dan cuba lagi.",
+        "gmail_account_auth_failed": "Gagal berhubung dengan Google. Sila beri kebenaran semula akaun Gmail anda.",
+        "gmail_account_token_expired": "Sesi Gmail anda telah tamat. Sila sambungkan semula akaun anda.",
+        "gmail_account_permission_denied": "Anda tidak mempunyai kebenaran untuk mengakses akaun Gmail ini.",
+        "gmail_account_not_found": "Akaun Gmail yang anda cuba akses tidak ditemui.",
+        "gmail_account_already_linked": "Akaun Gmail ini sudah dipautkan ke jabatan lain.",
+        "gmail_account_create_failed": "Gagal memautkan akaun Gmail anda. Sila cuba lagi.",
+        "gmail_account_update_failed": "Gagal mengemas kini akaun Gmail anda.",
+        "gmail_account_delete_failed": "Gagal memadam akaun Gmail ini.",
+        "gmail_account_fetch_failed": "Gagal mendapatkan maklumat akaun Gmail.",
+        "gmail_account_list_failed": "Gagal memuatkan mesej Gmail.",
+        "gmail_account_read_failed": "Gagal membuka thread emel ini.",
+        "gmail_account_thread_not_found": "Perbualan emel yang dipilih tidak ditemui.",
+        "gmail_account_star_toggle_failed": "Gagal mengemas kini status bintang.",
+        "gmail_account_save_draft_failed": "Gagal menyimpan draf emel.",
+        "gmail_account_send_failed": "Gagal menghantar emel.",
+        "gmail_account_forward_failed": "Gagal menghantar emel.",
+
+        "gmail_template_not_found": "Template Gmail tidak ditemui.",
+        "gmail_template_create_failed": "Gagal membuat template Gmail.",
+        "gmail_template_validation_failed": "Input tidak sah. Sila semak medan dan cuba lagi.",
+
+        "google_document_not_found": "Dokumen Google tidak ditemui.",
+        "google_document_create_failed": "Gagal membuat dokumen Google.",
+        "google_document_update_failed": "Gagal mengemas kini dokumen Google.",
+        "google_document_delete_failed": "Gagal memadam dokumen Google.",
+        "invalid_link_format": "Format pautan fail Google tidak sah.",
+        "link_not_accessible": "Pautan fail Google tidak dapat diakses atau tidak awam.",
+        "invalid_status": "Status yang diberikan tidak sah.",
+
+        "document_not_found": "Dokumen tidak ditemui.",
+        "document_create_failed": "Gagal membuat dokumen.",
+
+        "ads_log_not_found": "Log iklan tidak ditemui.",
+        "ads_log_create_failed": "Gagal membuat log iklan.",
+        "ads_log_detail_not_found": "Butiran log iklan tidak ditemui.",
+        "ads_log_detail_create_failed": "Gagal membuat butiran log iklan.",
+        "ads_event_log_not_found": "Log acara iklan tidak ditemui.",
+        "ads_event_log_create_failed": "Gagal membuat log acara iklan.",
+        "ads_campaign_not_found": "Kempen iklan tidak ditemui.",
+        "ads_campaign_create_failed": "Gagal membuat kempen iklan."
+    },
+  
+
+    "messageSuccessful": {
+        "profile_updated": "Profil berjaya dikemas kini",
+        "password_changed": "Katalaluan berjaya ditukar"
+    }
+ 
+}

@@ -1,6 +1,9 @@
 package models
 
-import "github.com/goravel/framework/database/orm"
+import (
+	"time"
+	"github.com/goravel/framework/database/orm"
+)
 
 type ActivityLog struct {
 	orm.Model
@@ -12,5 +15,8 @@ type ActivityLog struct {
 	Input       string `json:"input"`
 	LogName     string `json:"log_name"`
 	Description string `json:"description"`
+
+	StartAt     *time.Time `json:"start_at" gorm:"type:timestamp(3)"`
+	EndAt       *time.Time `json:"end_at" gorm:"type:timestamp(3)"`
 }
 

@@ -38,6 +38,7 @@ import AdsReportPage from './pages/ads_tracking/ads_report/AdsReportPage';
 import AdsCampaignReportPage from './pages/ads_tracking/ads_campaign/AdsCampaignReportPage';
 import AdsLogPage from './pages/ads_tracking/ads_log/AdsLogPage';
 import AdsCampaignLogPage from './pages/ads_tracking/ads_campaign/AdsCampaignLogPage';
+import ScheduleSettingsPage from './pages/schedule/ScheduleSettingsPage';
 
 
 
@@ -74,6 +75,8 @@ const router = createBrowserRouter([
             { path: '/schedules', element: <SchedulePage /> },
             { path: '/schedules/create', element: <ScheduleAddPage /> },
             { path: '/schedules/edit/:id', element: <ScheduleEditPage /> },
+            { path: '/schedules/settings', element: <ScheduleSettingsPage /> },
+
 
             {
                 path: "/emails",

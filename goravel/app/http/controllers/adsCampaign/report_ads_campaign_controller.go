@@ -7,7 +7,8 @@ import (
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"goravel/app/models"
-		"github.com/goravel/framework/contracts/database/orm"
+	"github.com/goravel/framework/contracts/database/orm"
+	"goravel/app/messages"
 
 )
 
@@ -223,7 +224,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsCampaign(ctx http.Context) ht
 
 	if errResp != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": facades.Lang(ctx).Get("validation.internal_error"),
+			"error":messages.GetError("validation.internal_error"),
 		})
 	}
 
@@ -274,7 +275,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsLogDetailsCampaign(ctx http.C
 	var adsLogDetail []*models.AdsLogDetail
 	if err := query.Get(&adsLogDetail); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": facades.Lang(ctx).Get("validation.internal_error"),
+			"error":messages.GetError("validation.internal_error"),
 		})
 	}
 
@@ -385,7 +386,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsFilterCampaign(ctx http.Conte
 	groupColumn, ok := allowedColumns[filterType]
 	if !ok {
 		return ctx.Response().Json(http.StatusBadRequest, http.Json{
-			"error": facades.Lang(ctx).Get("validation.validation_failed"),
+			"error":messages.GetError("validation.validation_failed"),
 		})
 	}
 
@@ -403,7 +404,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsFilterCampaign(ctx http.Conte
 
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error":  facades.Lang(ctx).Get("validation.internal_error"),
+			"error": messages.GetError("validation.internal_error"),
 		})
 	}
 
@@ -437,7 +438,7 @@ func (r *ReportAdsCampaignController) ShowReportAdsFilterCampaign(ctx http.Conte
 	var results []ReportResult
 	if err := query.Get(&results); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": facades.Lang(ctx).Get("validation.internal_error"),
+			"error":messages.GetError("validation.internal_error"),
 		})
 	}
 

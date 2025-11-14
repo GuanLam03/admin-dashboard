@@ -55,8 +55,8 @@ export default function EmailsSettingsPage() {
     link.click();
   }
 
-  async function handleLogout(email) {
-    await api.post(`/gmail/remove-accounts/${email}`);
+  async function handleLogout(id) {
+    await api.post(`/gmail/remove-accounts/${id}`);
     fetchAccounts();
   }
 
@@ -117,7 +117,7 @@ export default function EmailsSettingsPage() {
                   <td className="p-2">
                     {account ? (
                       <button
-                        onClick={() => handleLogout(account.email)}
+                        onClick={() => handleLogout(account.id)}
                         className="flex gap-2 justify-between items-center px-4 py-2 bg-gray-100 text-black font-semibold !rounded-full hover:bg-gray-200 transition"
                       >
                         <RiLogoutBoxLine size={25} className="text-blue-500" />

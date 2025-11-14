@@ -9,6 +9,7 @@ import (
 	// "encoding/json"
 	"goravel/app/models"
 	"github.com/goravel/framework/contracts/database/orm"
+	"goravel/app/messages"
 )
 
 type AddAdsCampaignController struct {
@@ -40,7 +41,7 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 	var req AddAdsCampaignRequest
 	if err := ctx.Request().Bind(&req); err != nil {
 		return ctx.Response().Json(http.StatusBadRequest, map[string]any{
-			"error": facades.Lang(ctx).Get("validation.invalid_request"),
+			"error": messages.GetError("validation.invalid_request"),
 		})
 	}
 
@@ -53,7 +54,7 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 	// Validate campaign
 	errResp, err := validateAdsCampaignInput(adsCampaign)
 	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, map[string]any{"error": facades.Lang(ctx).Get("validation.internal_error")})
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]any{"error": messages.GetError("validation.internal_error")})
 	}
 	if errResp != nil {
 		return ctx.Response().Json(http.StatusUnprocessableEntity, errResp)
@@ -73,7 +74,7 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 	if len(postbackModels) > 0 {
 		errResp, err = ValidateAdsCampaignPostbackInput(postbackModels)
 		if err != nil {
-			return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": facades.Lang(ctx).Get("validation.internal_error")})
+			return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": messages.GetError("validation.internal_error")})
 		}
 		if errResp != nil {
 			return ctx.Response().Json(http.StatusUnprocessableEntity, errResp)
@@ -86,7 +87,7 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 	code, err := generateUniqueCode()
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]any{
-			"error": facades.Lang(ctx).Get("validation.internal_error"),
+			"error": messages.GetError("validation.internal_error"),
 		})
 	}
 	adsCampaign.Code = code

@@ -7,6 +7,7 @@ import (
 	"github.com/goravel/framework/contracts/database/orm"
 	"goravel/app/models"
 	// "goravel/app/helpers"
+	"goravel/app/messages"
 
 
 )
@@ -23,7 +24,7 @@ func (e *EditAdsCampaignController) ShowAdsCampaign(ctx http.Context) http.Respo
 
 	var adsCampaign models.AdsCampaign
 	if err := facades.Orm().Query().Find(&adsCampaign, id); err != nil || adsCampaign.ID == 0 {
-		return ctx.Response().Json(404, map[string]string{"error": facades.Lang(ctx).Get("validation.ads_campaign_not_found")})
+		return ctx.Response().Json(404, map[string]string{"error": messages.GetError("validation.ads_campaign_not_found")})
 	}
 
 	status := models.AdsCampaignStatusMap
@@ -42,7 +43,7 @@ func (e *EditAdsCampaignController) ShowAdsCampaign(ctx http.Context) http.Respo
 		Select("id", "event_name", "postback_url","include_click_params").
 		Where("ads_campaign_id", adsCampaign.ID).
 		Get(&campaignPostbacks); err != nil {
-		return ctx.Response().Json(500, map[string]string{"error":facades.Lang(ctx).Get("validation.internal_error")})
+		return ctx.Response().Json(500, map[string]string{"error":messages.GetError("validation.internal_error")})
 	}
 
 	return ctx.Response().Json(200, map[string]any{
@@ -69,12 +70,12 @@ func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Respo
 
 	// Find existing campaign
 	if err := facades.Orm().Query().Find(&adsCampaign, id); err != nil || adsCampaign.ID == 0 {
-		return ctx.Response().Json(404, map[string]string{"error": facades.Lang(ctx).Get("validation.ads_campaign_not_found")})
+		return ctx.Response().Json(404, map[string]string{"error": messages.GetError("validation.ads_campaign_not_found")})
 	}
 
 	// Bind request body
 	if err := ctx.Request().Bind(&input); err != nil {
-		return ctx.Response().Json(400, map[string]any{"error": facades.Lang(ctx).Get("validation.invalid_request")})
+		return ctx.Response().Json(400, map[string]any{"error": messages.GetError("validation.invalid_request")})
 	}
 
 	// Validate campaign fields
@@ -86,7 +87,7 @@ func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Respo
 
 
 	if err != nil {
-		return ctx.Response().Json(500, map[string]string{"error": facades.Lang(ctx).Get("validation.internal_error")})
+		return ctx.Response().Json(500, map[string]string{"error": messages.GetError("validation.internal_error")})
 	}
 	if errResp != nil {
 		return ctx.Response().Json(422, errResp)
@@ -105,7 +106,7 @@ func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Respo
 	if len(postbackModels) > 0 {
 		errResp, err = ValidateAdsCampaignPostbackInput(postbackModels)
 		if err != nil {
-			return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": facades.Lang(ctx).Get("validation.internal_error")})
+			return ctx.Response().Json(http.StatusInternalServerError, map[string]string{"error": messages.GetError("validation.internal_error")})
 		}
 		if errResp != nil {
 			return ctx.Response().Json(http.StatusUnprocessableEntity, errResp)
@@ -164,7 +165,7 @@ func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Respo
 		return nil
 	}); err != nil {
 		return ctx.Response().Json(500, map[string]any{
-			"error":   facades.Lang(ctx).Get("validation.internal_error"),
+			"error":   messages.GetError("validation.internal_error"),
 			"details": err.Error(),
 		})
 	}

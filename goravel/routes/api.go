@@ -1,21 +1,21 @@
 package routes
 
 import (
-	"github.com/goravel/framework/facades"
 	"goravel/app/http/controllers"
-	"goravel/app/http/middleware"
-	"github.com/goravel/framework/contracts/route"
+	"goravel/app/http/controllers/adsCampaign" 
+	"goravel/app/http/controllers/adsTracking"
 	"goravel/app/http/controllers/documents"
+	"goravel/app/http/controllers/gmail"
+	"goravel/app/http/controllers/googleAuthenticator"
+	"goravel/app/http/controllers/googleCalendar"
 	"goravel/app/http/controllers/googleDocument"
-	"goravel/app/http/controllers/userManagement"
 	"goravel/app/http/controllers/role"
 	"goravel/app/http/controllers/schedules"
-	"goravel/app/http/controllers/googleAuthenticator"
-	"goravel/app/http/controllers/gmail"
-	"goravel/app/http/controllers/adsTracking"
-	"goravel/app/http/controllers/adsCampaign"
+	"goravel/app/http/controllers/userManagement"
+	"goravel/app/http/middleware"
 
-
+	"github.com/goravel/framework/contracts/route"
+	"github.com/goravel/framework/facades"
 )
 
 func Api() {
@@ -42,6 +42,7 @@ func Api() {
 	scheduleController := schedules.NewScheduleController()
 	addScheduleController := schedules.NewAddScheduleController()
 	editScheduleController := schedules.NewEditScheduleController()
+	googleCalendarAccountController := googleCalendar.NewGoogleCalendarAccountController()
 	// gmail
 	gmailController := gmail.NewGmailController()
 	replyGmailController := gmail.NewReplyGmailController()
@@ -60,7 +61,7 @@ func Api() {
 	facades.Route().Post("/login/twofa",authController.VerifyTwoFA)
 	facades.Route().Post("/register", authController.Register)
 
-	facades.Route().Middleware(middleware.Auth(),middleware.ActivityLogger()).Group(func(router route.Router) {
+	facades.Route().Middleware(middleware.ActivityLogger(),middleware.Auth()).Group(func(router route.Router) {
 		//profile
 		router.Get("/profile", authController.Profile)
 		router.Post("/logout", authController.Logout)
@@ -103,7 +104,7 @@ func Api() {
 		//email
 		router.Get("/gmail/auth", gmailController.RedirectToGoogle)
 		router.Get("/gmail/accounts", gmailController.ListAccounts)
-		router.Post("/gmail/remove-accounts/:email", gmailController.DeleteAccount)
+		router.Post("/gmail/remove-accounts/:id", gmailController.DeleteAccount)
 		router.Get("/gmail/accounts/teams", gmailController.GetGmailAccountTeams)
 		router.Post("/gmail/technical/messages/:id/star", gmailController.ToggleStar)
 		router.Post("/gmail/support/messages/:id/star", gmailController.ToggleStar)
@@ -163,6 +164,10 @@ func Api() {
 
 	
 	facades.Route().Get("/ads-campaign/report/ads-log-details/:campaign_id",reportAdsCampaignController.ShowReportAdsLogDetailsCampaign)
+	
+	facades.Route().Get("/google/schedule/account", googleCalendarAccountController.ShowGoogleAccount)
+	facades.Route().Get("/google/auth/schedule/url", googleCalendarAccountController.AuthURL)
+	facades.Route().Get("/oauth/google/schedule/callback", googleCalendarAccountController.Callback)
 
 
 

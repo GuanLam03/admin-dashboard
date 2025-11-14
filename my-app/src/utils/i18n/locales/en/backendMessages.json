@@ -1,0 +1,106 @@
+{
+  "validation":{
+    "internal_error": "Something went wrong. Please try again later.",
+    "validation_failed": "Invalid input. Please check the fields and try again.",
+    "invalid_request": "Invalid request body. Please check your JSON format.",
+    "not_found": ":attribute not found.",
+
+
+    "user_not_found": "User not found.",
+    "user_create_failed": "Failed to create user account.",
+    "user_update_failed": "Failed to update user account.",
+    "user_delete_failed": "Failed to delete user account.",
+    "email_exists": "This email is already registered.",
+    "invalid_credentials": "Invalid email or password.",
+    "unauthorized": "Unauthorized access. Please log in again.",
+    "current_password_incorrect": "Current password is incorrect.",
+    "password_mismatch": "New passwords do not match.",
+
+
+    "twofa_already_enabled": "Two-factor authentication is already enabled.",
+    "twofa_not_enabled": "Two-factor authentication is not enabled.",
+    "twofa_invalid_code": "Invalid verification code.",
+    "twofa_generate_failed": "Failed to generate 2FA secret key.",
+    "twofa_encrypt_failed": "Failed to encrypt 2FA secret.",
+    "twofa_decrypt_failed": "Failed to decrypt 2FA secret.",
+    "twofa_save_failed": "Failed to save 2FA settings.",
+    "twofa_qr_failed": "Failed to generate QR code.",
+
+
+    "role_not_found": "Role not found.",
+    "role_create_failed": "Failed to create role.",
+    "role_update_failed": "Failed to update role.",
+    "role_delete_failed": "Failed to delete role.",
+    "role_assign_failed": "Failed to assign role.",
+    "casbin_not_initialized": "Casbin is not initialized.",
+    "casbin_cast_failed": "Failed to cast Casbin enforcer.",
+
+
+    "schedule_not_found": "Schedule not found.",
+    "schedule_create_failed": "Failed to create schedule.",
+    "schedule_update_failed": "Failed to update schedule.",
+    "schedule_delete_failed": "Failed to delete schedule.",
+    "invalid_start_at": "Invalid start_at format. Use YYYY-MM-DDTHH:MM",
+    "invalid_end_at": "Invalid end_at format. Use YYYY-MM-DDTHH:MM",
+    "google_insert_failed": "Failed to create Google Calendar event.",
+    "google_update_failed": "Failed to update Google Calendar event.",
+    "google_delete_failed": "Failed to delete Google Calendar event.",
+
+
+    "gmail_account_internal_error": "Something went wrong on our end. Please try again later.",
+    "gmail_account_invalid_request": "Your request could not be processed. Please check your input and try again.",
+    "gmail_account_validation_failed": "Some fields are invalid. Please review your input and try again.",
+    "gmail_account_auth_failed": "Failed to connect with Google. Please reauthorize your Gmail account.",
+    "gmail_account_token_expired": "Your Gmail session has expired. Please reconnect your account.",
+    "gmail_account_permission_denied": "You don’t have permission to access this Gmail account.",
+    "gmail_account_not_found": "The Gmail account you’re trying to access was not found.",
+    "gmail_account_already_linked": "This Gmail account is already linked to another department.",
+    "gmail_account_create_failed": "Unable to link your Gmail account. Please try again.",
+    "gmail_account_update_failed": "Failed to update your Gmail account.",
+    "gmail_account_delete_failed": "Failed to remove this Gmail account.",
+    "gmail_account_fetch_failed": "Unable to fetch Gmail account information.",
+    "gmail_account_list_failed": "Unable to load Gmail messages.",
+    "gmail_account_read_failed": "Unable to open this email thread.",
+    "gmail_account_thread_not_found": "The selected email conversation could not be found.",
+    "gmail_account_star_toggle_failed": "Failed to update star status.",
+    "gmail_account_save_draft_failed": "Failed to save email draft.",
+    "gmail_account_send_failed": "Failed to send email.",
+    "gmail_account_forward_failed": "Failed to forward email.",
+
+
+    "gmail_template_not_found": "Gmail template not found.",
+    "gmail_template_create_failed": "Failed to create Gmail template.",
+    "gmail_template_validation_failed": "Invalid input. Please check the fields and try again.",
+
+  
+    "google_document_not_found": "Google document not found.",
+    "google_document_create_failed": "Failed to create Google document.",
+    "google_document_update_failed": "Failed to update Google document.",
+    "google_document_delete_failed": "Failed to remove Google document.",
+    "invalid_link_format": "Google file link format is invalid.",
+    "link_not_accessible": "Google file link is not accessible or not public.",
+    "invalid_status": "Invalid status provided.",
+
+
+    "document_not_found": "Document not found.",
+    "document_create_failed": "Failed to create document.",
+
+
+    "ads_log_not_found": "Ads log not found.",
+    "ads_log_create_failed": "Failed to create ads log.",
+    "ads_log_detail_not_found": "Ads log detail not found.",
+    "ads_log_detail_create_failed": "Failed to create ads log detail.",
+    "ads_event_log_not_found": "Ads event log not found.",
+    "ads_event_log_create_failed": "Failed to create ads event log.",
+    "ads_campaign_not_found": "Ads campaign not found.",
+    "ads_campaign_create_failed": "Failed to create ads campaign."
+  },
+  
+
+
+  "messageSuccessful":{
+    "profile_updated": "Profile updated successfully",
+    "password_changed": "Password changed successfully"
+  }
+  
+}

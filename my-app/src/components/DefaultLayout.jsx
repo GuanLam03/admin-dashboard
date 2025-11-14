@@ -98,12 +98,59 @@ export default function DefaultLayout() {
               </NavLink>
             </li>
 
-            <li>
+            {/* <li>
               <NavLink to="/schedules" className={({ isActive }) =>
                 `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
                 {t("sidebar.schedules")}
               </NavLink>
+            </li> */}
+
+
+
+             <li>
+              <div>
+                <button
+                  className="w-full flex justify-between items-center text-blue-600 hover:bg-blue-100 rounded px-4 py-2"
+                  onClick={() => toggleSidebar("schedules")}
+                >
+                  <span>{t("sidebar.schedules")}</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-200 ${sidebar.schedules ? "rotate-90" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                {sidebar.schedules && (
+                  <ol className="ml-4 mt-2">
+                      <li>
+                        <NavLink to="/schedules" end className={({ isActive }) =>
+                          `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
+                          {t("sidebar.schedules")}
+                        </NavLink>
+                      </li>
+                    
+
+                      <li>
+                        <NavLink to="/schedules/settings" className={({ isActive }) =>
+                          `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
+                          {t("sidebar.schedulesSettings")}
+                        </NavLink>
+                      </li>
+
+  
+                    
+                  
+                  </ol>
+                )}
+              </div>
             </li>
+
+
+
 
             {/*  Emails Section */}
             {(hasPermission("gmail.technical.read") || hasPermission("gmail.support.read")) && (
