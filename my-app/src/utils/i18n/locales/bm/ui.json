@@ -179,7 +179,8 @@
         "chooseATemplate": "Pilih Templat",
         "close": "Tutup",
         "reply": "Balas",
-        "forward": "Teruskan",
+        "forward": "Hantar Maju",
+        "loadMore": "Muat Lagi",
 
         "settingsPage": {
             "emailAccounts": "Akaun Emel",

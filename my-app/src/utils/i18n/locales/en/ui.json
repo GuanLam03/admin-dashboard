@@ -186,6 +186,7 @@
         "close": "Close",
         "reply": "Reply",
         "forward": "Forward",
+        "loadMore": "Load More",
 
         "settingsPage": {
             "emailAccounts": "Email Accounts",

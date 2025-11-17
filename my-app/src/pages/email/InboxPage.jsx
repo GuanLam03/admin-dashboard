@@ -3,6 +3,7 @@ import api from "../../api/axios";
 import { MdInbox } from "react-icons/md";
 import { FaRegStar } from "react-icons/fa";
 import { FaStar } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 
 const tabs = [
@@ -15,6 +16,7 @@ const tabs = [
 
 
 export default function InboxPage({ folder, emailAddress }) {
+  const {t} = useTranslation();
   const [emails, setEmails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -173,7 +175,7 @@ export default function InboxPage({ folder, emailAddress }) {
           disabled={loadingMore}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
         >
-          {loadingMore ? "Loading..." : "Load More"}
+          {loadingMore ? "Loading..." : t("emailManagement.loadMore")}
         </button>
       )}
     </div>

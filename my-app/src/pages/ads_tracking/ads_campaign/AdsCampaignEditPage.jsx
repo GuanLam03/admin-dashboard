@@ -25,6 +25,7 @@ function AdsCampaignEditPage() {
   useEffect(() => {
     const fetchCampaign = async () => {
       try {
+        setError("");
         const res = await api.get(`/edit-ads-campaign/${id}`);
         const result = res.data.ads_campaign;
         const campaignPostbacks = res.data.ads_campaign_postbacks || [];

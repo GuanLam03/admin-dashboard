@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axios";
 import Tooltip from "@mui/material/Tooltip";
+import { useTranslation } from "react-i18next";
 
 const eventOptions = [
   { value: "PURCHASE", label: "Purchase"},
@@ -9,6 +10,7 @@ const eventOptions = [
 ]
 
 export default function AdsCampaignAddPage() {
+  const {t} = useTranslation();
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
@@ -29,6 +31,7 @@ export default function AdsCampaignAddPage() {
   useEffect(() => {
     const parameters = async () => {
       try{
+        
         const res = await api.get("/add-ads-campaign/support-parameters");
         setParameters(res.data.support_parameter || {});
 
@@ -49,6 +52,9 @@ export default function AdsCampaignAddPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setSuccess("");
+    setError("");
+    
     try {
       const payload = {
         ...formData,

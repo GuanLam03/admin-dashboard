@@ -179,6 +179,7 @@
         "close": "关闭",
         "reply": "回复",
         "forward": "转发",
+        "loadMore": "加载更多",
 
         "settingsPage": {
             "emailAccounts": "电子邮件账户",
