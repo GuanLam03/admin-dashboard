@@ -1,5 +1,9 @@
 {
-    "appName": "Papan Pemuka Pentadbir",
+    "appName": "Papan Pemuka Admin",
+    "logout": "Log Keluar",
+    "gmail": "Gmail",
+    "fromDate": "Tarikh Mula",
+    "toDate": "Tarikh Akhir",
 
     "sidebar": {
         "home": "Laman Utama",
@@ -34,11 +38,11 @@
         "name": "Nama",
         "email": "Emel",
         "currentPassword": "Kata Laluan Semasa",
-        "newPassword": "Kata Laluan Baharu",
+        "newPassword": "Kata Laluan Baru",
         "confirmPassword": "Sahkan Kata Laluan",
         "saveChanges": "Simpan Perubahan",
-        "saving": "Sedang Menyimpan...",
-        "passwordMismatch": "Kata laluan baharu tidak sepadan",
+        "saving": "Menyimpan...",
+        "passwordMismatch": "Kata laluan baru tidak sepadan",
         "updateFailed": "Kemas kini gagal"
     },
 
@@ -53,7 +57,12 @@
             "download": "Muat Turun",
             "view": "Lihat",
             "save": "Simpan",
-            "upload": "Muat Naik"
+            "upload": "Muat Naik",
+            "search": "Cari",
+            "clearSearch": "Padam Carian",
+            "report": "Laporan",
+            "log": "Log",
+            "cancel": "Batal"
         }
     },
 
@@ -64,7 +73,7 @@
             "email": "Emel",
             "createdAt": "Dicipta Pada"
         },
-        "title": "Pengurusan Pengguna"
+        "userManagement": "Pengurusan Pengguna"
     },
 
     "roleManagement": {
@@ -73,7 +82,7 @@
             "createdAt": "Dicipta Pada",
             "updatedAt": "Dikemas Kini Pada"
         },
-        "title": "Cipta Peranan",
+        "createRole": "Cipta Peranan",
         "form": {
             "roleName": "Nama Peranan",
             "roleNamePlaceholder": "Masukkan nama peranan"
@@ -88,7 +97,7 @@
             "createdAt": "Dicipta Pada",
             "updatedAt": "Dikemas Kini Pada"
         },
-        "title": "Dokumen",
+        "documents": "Dokumen",
         "form": {
             "selectFiles": "Pilih Fail"
         }
@@ -105,70 +114,170 @@
             "updatedAt": "Dikemas Kini Pada"
         },
 
-        "title": "Dokumen Google",
-        "form": {
-            "search": "Cari",
-            "clearSearch": "Padam Carian",
-            "filters": {
-                "fromDate": "Dari Tarikh",
-                "toDate": "Hingga Tarikh"
-            }
-        },
+        "googleDocuments": "Dokumen Google",
+
         "addPage": {
-            "title": "Tambah Dokumen Google",
-            "sectionTitle": "Maklumat Dokumen Google",
+            "addGoogleDocument": "Tambah Dokumen Google",
+            "googleDocumentInfo": "Maklumat Dokumen Google",
+
             "form": {
                 "documentNamePlaceholder": "Masukkan nama dokumen",
                 "documentOriginalLinkPlaceholder": "Tampal pautan Google Doc"
             }
         },
+
         "editPage": {
-            "title": "Edit Dokumen Google",
-            "sectionTitle": "Maklumat Dokumen Google"
+            "editGoogleDocument": "Edit Dokumen Google",
+            "googleDocumentInfo": "Maklumat Dokumen Google"
         }
     },
 
-    
     "scheduleManagement": {
         "fields": {
             "title": "Tajuk",
-            "recurrence": "Ulangan",
+            "recurrence": "Kekerapan",
             "startAt": "Mula Pada",
             "endAt": "Tamat Pada",
             "status": "Status",
             "googleEventId": "ID Acara Google",
             "createdAt": "Dicipta Pada",
             "updatedAt": "Dikemas Kini Pada",
-            "notifyRoles": "Maklumkan Peranan"
+            "notifyRoles": "Peranan untuk Diberitahu"
         },
-        "title": "Jadual",
 
-        "form": {
-        "filters": {
-            "fromDate": "Dari Tarikh",
-            "toDate": "Hingga Tarikh"
-        }
-        },
+        "schedules": "Jadual",
 
         "calendar": {
-            "fullCalendarTitle": "Kalendar Penuh (JavaScript)",
-            "googleCalendarTitle": "Kalendar Google"
+            "fullCalendarTitle": "Full Calendar Javascript",
+            "googleCalendarTitle": "Google Calendar"
         },
 
         "addPage": {
-            "title": "Tambah Jadual",
-            "sectionTitle": "Maklumat Jadual",
+            "addSchedule": "Tambah Jadual",
+            "scheduleInfo": "Maklumat Jadual",
 
             "form": {
                 "scheduleTitlePlaceholder": "Masukkan tajuk jadual",
-                "scheduleNotifyRolesPlaceholder": "Pilih peranan untuk dimaklumkan (pilihan)"
+                "scheduleNotifyRolesPlaceholder": "Pilih peranan untuk diberitahu (pilihan)"
             }
         },
 
         "editPage": {
-            "title": "Edit Jadual",
-            "sectionTitle": "Maklumat Jadual"
+            "editSchedule": "Edit Jadual",
+            "scheduleinfo": "Maklumat Jadual"
+        },
+
+        "settingsPage": {
+            "gmailAccountForGoogleCalendar": "Akaun Gmail untuk Google Calendar",
+            "connect": "Sambung",
+            "notConnected": "Tidak bersambung"
+        }
+    },
+
+    "emailManagement": {
+        "emails": "Emel",
+        "chooseATemplate": "Pilih Templat",
+        "close": "Tutup",
+        "reply": "Balas",
+        "forward": "Teruskan",
+
+        "settingsPage": {
+            "emailAccounts": "Akaun Emel",
+            "gmailAccountForGoogleCalendar": "Akaun Gmail untuk Google Calendar",
+            "connect": "Sambung",
+            "notConnected": "Belum disambungkan",
+            "teams": "Pasukan",
+            "email": "Emel",
+
+            "templates": "Templat",
+            "noTemplatesYet": "Tiada templat lagi"
+        }
+    },
+
+
+    "adsCampaign": {
+        "field": {
+            "id": "ID",
+            "name": "Nama",
+            "targetUrl": "URL Sasaran",
+            "code": "Kod",
+            "trackingLink": "Pautan Penjejakan",
+            "postbackLink": "Pautan Postback",
+            "status": "Status",
+            "createdAt": "Dicipta Pada",
+            "updatedAt": "Dikemas Kini Pada"
+        },
+
+        "adsCampaign": "Kempen Iklan",
+
+        "createAdCampaignLink": "Cipta Pautan Kempen Iklan",
+        "postback": "Postback",
+        "chooseTheEventToPostback": "Pilih acara untuk postback",
+        "enterPostbackUrl": "Masukkan URL Postback {{event}}",
+        "includeOrginalTrackingPatameters": "Sertakan parameter penjejakan asal",
+        "sendUtmAndClickDataDescription": "Hantar data UTM dan klik (sumber, kempen, dll.) untuk postback ini",
+        "generatedLinks": "Pautan Dijana",
+        "copy": "Salin",
+        "copied": "Disalin",
+        "supportedParameter": "Parameter Disokong",
+
+        "editAdsCampaign": "Edit Kempen Iklan",
+        "adsCampaignInfo": "Maklumat Kempen Iklan",
+        "postbackEvents": "Acara Postback",
+        "selectEvent": "Pilih Acara",
+        "enterPostbackUrlPlaceHolder": "Masukkan URL Postback",
+        "noPostbacksConfigured": "Tiada postback dikonfigurasikan",
+
+        "adsCampaignReport": {
+            "adsCampaignReport": "Laporan Kempen Iklan",
+            "totalClicks": "Jumlah Klik",
+            "conversions": "Penukaran",
+            "conversionRate": "Kadar Penukaran",
+            "revenue": "Hasil",
+            "revenueByCountry": "Hasil Mengikut Negara",
+            "country": "Negara",
+            "clicksByCountry": "Klik Mengikut Negara",
+            "clicks": "Klik",
+            "filter": "Tapis"
+        }
+    },
+
+    "adsLogDetail": {
+        "field": {
+            "id": "ID",
+            "ip": "IP",
+            "country": "Negara",
+            "region": "Wilayah",
+            "city": "Bandar",
+            "userAgent": "Ejen Pengguna",
+            "deviceType": "Jenis Peranti",
+            "deviceName": "Nama Peranti",
+            "osName": "Nama OS",
+            "osVersion": "Versi OS",
+            "browserName": "Nama Pelayar",
+            "browserVersion": "Versi Pelayar",
+            "referrer": "Rujukan",
+            "clickedUrl": "URL Diklik",
+            "createdAt": "Dicipta Pada",
+            "updatedAt": "Dikemas Kini Pada"
+        },
+
+        "detailedLogs": "Log Terperinci",
+        "event": "Acara",
+        "day": "Hari",
+        "month": "Bulan",
+        "hourOfDay": "Jam",
+        "dayOfWeek": "Hari Minggu"
+    },
+
+    "adsEventLog": {
+        "field": {
+            "id": "ID",
+            "adsLogId": "ID Log Iklan",
+            "eventName": "Nama Acara",
+            "data": "Data",
+            "createdAt": "Dicipta Pada",
+            "updatedAt": "Dikemas Kini Pada"
         }
     }
-
 }

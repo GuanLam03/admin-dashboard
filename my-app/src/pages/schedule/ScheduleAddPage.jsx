@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Select from "react-select"; // ✅ fancy multi-select
+import Select from "react-select"; 
 import api from "../../api/axios";
 import { useTranslation } from "react-i18next";
 
@@ -66,7 +66,7 @@ function ScheduleAddPage() {
       // navigate("/schedules"); // optional redirect
     } catch (err) {
       console.error(err);
-      setError(err?.response?.data?.error || "Failed to add schedule. Please try again.");
+      setError(t(err?.response?.data?.error) || "Failed to add schedule. Please try again.");
     }
   };
 
@@ -93,10 +93,10 @@ function ScheduleAddPage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.addPage.title")}</h2>
+      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.addPage.scheduleInfo")}</h2>
 
       <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow-sm w-full">
-        <h4 className="text-lg font-semibold mb-4">{t("scheduleManagement.sectionTitle")}</h4>
+        <h4 className="text-lg font-semibold mb-4">{t("scheduleManagement.addPage.scheduleInfo")}</h4>
         <table className="w-full border-collapse">
           <tbody>
             <tr>

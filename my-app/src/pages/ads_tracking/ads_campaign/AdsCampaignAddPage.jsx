@@ -117,15 +117,15 @@ export default function AdsCampaignAddPage() {
         </div>
       )}
       {success && <div className="bg-green-100 text-green-600 px-4 py-2 rounded mb-4">{success}</div>}
-      <h2 className="text-xl font-bold mb-4">Ads Campaign</h2>
+      <h2 className="text-xl font-bold mb-4">{t("adsCampaign.adsCampaign")}</h2>
       <div className="flex gap-4">
 
         <div className="p-6 bg-white shadow-sm rounded-sm w-full">
-          <h2 className="text-xl font-bold mb-4">Create Ad Campaign Link</h2>
+          <h2 className="text-xl font-bold mb-4">{t("adsCampaign.createAdCampaignLink")}</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block font-medium">Ad Name</label>
+              <label className="block font-medium">{t("adsCampaign.field.name")}</label>
               <input
                 type="text"
                 name="name"
@@ -137,7 +137,7 @@ export default function AdsCampaignAddPage() {
             </div>
 
             <div>
-              <label className="block font-medium">Target URL</label>
+              <label className="block font-medium">{t("adsCampaign.field.targetUrl")}</label>
               <input
                 type="url"
                 name="target_url"
@@ -150,7 +150,7 @@ export default function AdsCampaignAddPage() {
 
 
             <div className="font-medium flex items-center justify-between">
-              <label>Postback</label>
+              <label>{t("adsCampaign.postback")}</label>
               <label className="inline-flex items-center cursor-pointer">
                 <input type="checkbox" className="sr-only peer" checked={postbackEnabled}
                   onChange={(e) => {
@@ -170,7 +170,7 @@ export default function AdsCampaignAddPage() {
             {
               postbackEnabled && (
                 <div>
-                  <label className="block font-medium">Choose the event to postback:</label>
+                  <label className="block font-medium">{t("adsCampaign.chooseTheEventToPostback")}:</label>
                   <div className="flex flex-col gap-2 mt-2 ml-2">
                     {eventOptions.map((event,index) => {
                       return ( 
@@ -190,7 +190,8 @@ export default function AdsCampaignAddPage() {
 
             {selectedEvents.map(event => (
               <div key={event.value} className="mb-2 bg-gray-50 rounded-sm p-4">
-                <label className="block font-medium">Enter {event.label} Postback URL</label>
+                <label className="block font-medium">{t("adsCampaign.enterPostbackUrl" , { event: event?.label})}</label>
+               
                 <input
                   type="url"
                   value={postbackUrls[event.value]?.url || ""}
@@ -225,12 +226,12 @@ export default function AdsCampaignAddPage() {
                     className="mr-2"
                   />
 
-                  <Tooltip title="Send UTM and click data (source, campaign, etc.) for this postback.">
+                  <Tooltip title={t("adsCampaign.sendUtmAndClickDataDescription")}>
                     <label
                       htmlFor={`${event.value}_include_params`}
                       className="text-sm text-gray-700"
                     >
-                      Include original tracking parameters
+                      {t("adsCampaign.includeOrginalTrackingPatameters")}
                     </label>
                   </Tooltip>
                   
@@ -257,11 +258,11 @@ export default function AdsCampaignAddPage() {
 
           {generatedLinks && (
             <div className="mt-6 p-4 border rounded bg-gray-50">
-              <h3 className="font-semibold mb-2">Generated Links:</h3>
+              <h3 className="font-semibold mb-2">{t("adsCampaign.generatedLinks")}:</h3>
 
               {/* Tracking Link */}
               <div className="mb-3">
-                <strong>Tracking Link:</strong>
+                <strong>{t("adsCampaign.field.trackingLink")}:</strong>
                 <div className="flex justify-between items-center gap-2 mt-1 flex-wrap">
                   <a
                     href={generatedLinks.trackingLink}
@@ -275,8 +276,8 @@ export default function AdsCampaignAddPage() {
                     onClick={() => copyToClipboard("tracking", generatedLinks.trackingLink)}
                     className="px-2 py-1 text-sm text-blue-500 rounded hover:text-blue-300 transition"
                   >
-                    {!copied.tracking ? <span>Copy</span> : (
-                      <span className="text-green-600 text-sm">Copied ✓</span>
+                    {!copied.tracking ? <span>{t("adsCampaign.copy")}</span> : (
+                      <span className="text-green-600 text-sm">{t("adsCampaign.copied")} ✓</span>
                     )}
                   </button>
 
@@ -285,7 +286,7 @@ export default function AdsCampaignAddPage() {
 
               {/* Postback Link */}
               <div>
-                <strong>Postback Link:</strong>
+                <strong>{t("adsCampaign.field.postbackLink")}:</strong>
                 <div className="flex justify-between items-center gap-2 mt-1 flex-wrap">
                   <code className="bg-gray-100 p-1 rounded text-sm break-all">
                     {generatedLinks.postbackLink}
@@ -294,8 +295,8 @@ export default function AdsCampaignAddPage() {
                     onClick={() => copyToClipboard("postback", generatedLinks.postbackLink)}
                     className="px-2 py-1 text-sm text-blue-500 rounded hover:text-blue-300 transition"
                   >
-                    {!copied.postback ? <span>Copy</span> : (
-                      <span className="text-green-600 text-sm">Copied ✓</span>
+                    {!copied.postback ? <span>{t("adsCampaign.copy")}</span> : (
+                      <span className="text-green-600 text-sm">{t("adsCampaign.copied")} ✓</span>
                     )}
                   </button>
 
@@ -307,7 +308,7 @@ export default function AdsCampaignAddPage() {
 
         {(postbackEnabled && selectedEvents.length > 0) && (
           <section className="min-w-[30%] p-6 bg-white shadow-sm rounded-sm">
-              <h5>Supported Parameter</h5>
+              <h5>{t("adsCampaign.supportedParameter")}</h5>
              
               <ul className="mt-4 grid grid-cols-2 gap-2">
                 {

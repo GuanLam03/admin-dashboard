@@ -23,8 +23,11 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { Dropdown, ButtonGroup } from "react-bootstrap";
 import CircularProgress from '@mui/material/CircularProgress';
+import { useTranslation } from "react-i18next";
+import dataTableLocales from "../../../utils/i18n/datatableLocales";
 
 export default function AdsCampaignReportPage() {
+  const {t,i18n} = useTranslation();
   const { id } = useParams();
   const [tableLoading, setTableLoading] = useState(false);
   const [stats, setStats] = useState({
@@ -114,23 +117,23 @@ export default function AdsCampaignReportPage() {
       key: "country",
       icon: <LanguageIcon />,
       options: [
-        { key: "country", label: "Country" },
-        { key: "city", label: "City" },
+        { key: "country", label: t("adsLogDetail.field.country") },
+        { key: "city", label: t("adsLogDetail.field.city") },
       ],
     },
     {
       type: "button",
       key: "ip",
       icon: <VisibilityIcon />,
-      label: "IP",
+      label: t("adsLogDetail.field.ip"),
     },
     {
       type: "dropdown",
       key: "device",
       icon: <DevicesIcon />,
       options: [
-        { key: "device_type", label: "Device Type" },
-        { key: "device_name", label: "Device Name" },
+        { key: "device_type", label: t("adsLogDetail.field.deviceType") },
+        { key: "device_name", label: t("adsLogDetail.field.deviceName") },
       ],
     },
     {
@@ -138,23 +141,23 @@ export default function AdsCampaignReportPage() {
       key: "os",
       icon: <AndroidIcon />,
       options: [
-        { key: "os_name", label: "OS Name" },
-        { key: "os_version", label: "OS Version" },
+        { key: "os_name", label: t("adsLogDetail.field.osName") },
+        { key: "os_version", label: t("adsLogDetail.field.osVersion") },
       ],
     },
     {
       type: "button",
       key: "event_name",
       icon: <EventIcon />,
-      label: "Event",
+      label: t("adsLogDetail.event"),
     },
     {
       type: "dropdown",
       key: "date",
       icon: <CalendarMonthIcon />,
       options: [
-        { key: "date", label: "Day" },
-        { key: "month", label: "Month" },
+        { key: "date", label: t("adsLogDetail.day") },
+        { key: "month", label: t("adsLogDetail.month") },
       ],
     },
 
@@ -163,8 +166,8 @@ export default function AdsCampaignReportPage() {
       key: "Day parting",
       icon: <CalendarTodayIcon />,
       options: [
-        { key: "hour_of_day", label: "Hour of day" },
-        { key: "day_of_week", label: "Day of week" },
+        { key: "hour_of_day", label: t("adsLogDetail.hourOfDay") },
+        { key: "day_of_week", label: t("adsLogDetail.dayOfWeek") },
       ],
     },
 
@@ -228,6 +231,7 @@ export default function AdsCampaignReportPage() {
       data: tableData,
       columns,
       destroy: true,
+      language: dataTableLocales[i18n.language],
       searching: true,
       paging: true,
       info: true,
@@ -237,7 +241,8 @@ export default function AdsCampaignReportPage() {
           targets: "_all", // applies to all columns
           className: "text-start" // Bootstrap class for left-align
         }
-      ]
+      ],
+      
     });
 
     return () => {
@@ -266,25 +271,25 @@ export default function AdsCampaignReportPage() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      
-      <h2 className="text-2xl font-bold">Ads Campaign Report (ID: {id})</h2>
+        
+      <h2 className="text-2xl font-bold">{t("adsCampaign.adsCampaignReport.adsCampaignReport")} (ID: {id})</h2>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-4 my-4">
         <div className="bg-white p-4 rounded shadow-sm">
-          <h5 className="text-gray-600 text-sm">Total Clicks</h5>
+          <h5 className="text-gray-600 text-sm">{t("adsCampaign.adsCampaignReport.totalClicks")}</h5>
           <p className="text-2xl font-bold">{stats.totalClicks}</p>
         </div>
         <div className="bg-white p-4 rounded shadow-sm">
-          <h5 className="text-gray-600 text-sm">Conversions</h5>
+          <h5 className="text-gray-600 text-sm">{t("adsCampaign.adsCampaignReport.conversions")}</h5>
           <p className="text-2xl font-bold">{stats.totalConversions}</p>
         </div>
         <div className="bg-white p-4 rounded shadow-sm">
-          <h5 className="text-gray-600 text-sm">Conversion Rate</h5>
+          <h5 className="text-gray-600 text-sm">{t("adsCampaign.adsCampaignReport.conversionRate")}</h5>
           <p className="text-2xl font-bold">{stats.conversionRate}%</p>
         </div>
         <div className="bg-white p-4 rounded shadow-sm">
-          <h5 className="text-gray-600 text-sm">Revenue</h5>
+          <h5 className="text-gray-600 text-sm">{t("adsCampaign.adsCampaignReport.revenue")}</h5>
           <p className="text-2xl font-bold">RM{stats.totalRevenue.toFixed(2)}</p>
         </div>
       </div>
@@ -293,12 +298,12 @@ export default function AdsCampaignReportPage() {
       <div className="grid grid-cols-2 gap-6 mb-8">
        
         <div className="bg-white p-4 rounded shadow-sm">
-          <h5 className="font-semibold mb-2">Revenue by Country</h5>
+          <h5 className="font-semibold mb-2">{t("adsCampaign.adsCampaignReport.revenueByCountry")}</h5>
           <table className="min-w-full border-collapse border border-gray-200">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border border-gray-300 px-4 py-2 text-left">Country</th>
-                <th className="border border-gray-300 px-4 py-2 text-right">Revenue (RM)</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">{t("adsCampaign.adsCampaignReport.country")}</th>
+                <th className="border border-gray-300 px-4 py-2 text-right">{t("adsCampaign.adsCampaignReport.revenue")} (RM)</th>
               </tr>
             </thead>
             <tbody>
@@ -326,7 +331,7 @@ export default function AdsCampaignReportPage() {
         </div>
 
         <div className="bg-white p-4 rounded shadow-sm">
-          <h5 className="font-semibold mb-2">Clicks by Country</h5>
+          <h5 className="font-semibold mb-2">{t("adsCampaign.adsCampaignReport.clicksByCountry")}</h5>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={barData}>
               <CartesianGrid strokeDasharray="5 5" />
@@ -347,7 +352,7 @@ export default function AdsCampaignReportPage() {
       </div>
 
        <section>
-        <h4>Filter</h4>
+        <h4>{t("adsCampaign.adsCampaignReport.filter")}</h4>
         <div className="d-flex flex-wrap gap-3 p-4 shadow-sm bg-white">
           {filterComponents.map((filter) =>
             filter.type === "button" ? (
@@ -395,7 +400,7 @@ export default function AdsCampaignReportPage() {
         <form onSubmit={handleSearch} className="p-4 shadow-sm bg-white mb-4">
             <div className="flex gap-4">
                 <div>
-                    <label>From Date</label>
+                    <label>{t("fromDate")}</label>
                     <input
                     type="date"
                     value={filters.fdate}
@@ -404,7 +409,7 @@ export default function AdsCampaignReportPage() {
                     />
                 </div>
                 <div>
-                    <label>To Date</label>
+                    <label> {t("toDate")}</label>
                     <input
                     type="date"
                     value={filters.tdate}
@@ -415,14 +420,14 @@ export default function AdsCampaignReportPage() {
 
                 <div className="flex gap-2 mt-4">
                   <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
-                      Search
+                       {t("common.buttons.search")}
                   </button>
                   <button
                       type="button"
                       onClick={handleClearSearch}
                       className="bg-red-600 text-white px-4 py-2 rounded"
                   >
-                      Clear
+                      {t("common.buttons.clearSearch")}
                   </button>
                 </div>
             </div>

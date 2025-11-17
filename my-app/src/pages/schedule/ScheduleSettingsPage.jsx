@@ -3,8 +3,10 @@ import { FcGoogle } from "react-icons/fc";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../api/axios";
+import { useTranslation } from "react-i18next";
 
 export default function ScheduleSettingsPage() {
+  const {t} = useTranslation();
   const { user } = useAuth();
   const [account, setAccount] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -57,17 +59,17 @@ export default function ScheduleSettingsPage() {
     <div className="space-y-10">
       {/* Accounts Section */}
       <div className="bg-white p-4 rounded-lg shadow-sm">
-        <h2 className="text-xl font-bold mb-4">Email Accounts</h2>
+        <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.settingsPage.gmailAccountForGoogleCalendar")}</h2>
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b">
-              <th className="text-left p-2">Email</th>
-              <th className="text-left p-2">Action</th>
+              <th className="text-left p-2">{t("gmail")}</th>
+              <th className="text-left p-2">{t("common.labels.action")}</th>
             </tr>
           </thead>
           <tbody>
             <tr className="border-b">
-              <td className="p-2">{account ? account.email : "Not connected"}</td>
+              <td className="p-2">{account ? account.email : t("scheduleManagement.settingsPage.notConnected")}</td>
               <td className="p-2">
                 {account ? (
                   <button
@@ -75,7 +77,7 @@ export default function ScheduleSettingsPage() {
                     className="flex gap-2 items-center px-4 py-2 bg-gray-100 text-black font-semibold !rounded-full hover:bg-gray-200 transition"
                   >
                     <RiLogoutBoxLine size={22} className="text-blue-500" />
-                    Logout
+                    {t("logout")}
                   </button>
                 ) : (
                   <button
@@ -83,7 +85,7 @@ export default function ScheduleSettingsPage() {
                     className="flex gap-2 items-center px-4 py-2 bg-gray-100 text-black font-semibold !rounded-full hover:bg-gray-200 transition"
                   >
                     <FcGoogle size={22} />
-                    <span>Connect</span>
+                    <span>{t("scheduleManagement.settingsPage.connect")}</span>
                   </button>
                 )}
               </td>

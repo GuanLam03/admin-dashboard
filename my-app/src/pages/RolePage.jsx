@@ -106,7 +106,7 @@ function RolePage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">{t("roleManagement.title")}</h2>
+      <h2 className="text-xl font-bold mb-4">{t("roleManagement.createRole")}</h2>
 
       <form onSubmit={handleSubmit} className="flex items-center gap-4 mb-4 justify-between bg-white p-4 rounded shadow-sm">
         

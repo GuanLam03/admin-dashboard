@@ -3,9 +3,11 @@ import api from "../../../api/axios";
 import { useNavigate } from "react-router-dom";
 import DataTable from "datatables.net-dt";
 import { options } from "@fullcalendar/core/preact.js";
+import { useTranslation } from "react-i18next";
+import dataTableLocales from "../../../utils/i18n/datatableLocales";
 
 export default function AdsCampaignPage() {
-
+  const {t,i18n} = useTranslation();
   const [adsCampaign, setAdsCamapaign] = useState([]);
   const [filters, setFilters] = useState({
 
@@ -49,27 +51,28 @@ export default function AdsCampaignPage() {
       const table = new DataTable("#adsCampaignTable", {
           data: adsCampaign,
           destroy: true,
+          language: dataTableLocales[i18n.language],
           columns: [
               {
                   data: "id",
                   title: "Action",
                   render: (id) =>
-                      `<button class="edit-btn btn btn-primary" data-id="${id}">Edit</button>
-                        <button class="report-btn btn btn-info" data-id="${id}">Report</button>
-                        <button class="log-btn btn btn-secondary" data-id="${id}">Log</button>
+                      `<button class="edit-btn btn btn-primary" data-id="${id}">${t("common.buttons.edit")}</button>
+                        <button class="report-btn btn btn-info" data-id="${id}">${t("common.buttons.report")}</button>
+                        <button class="log-btn btn btn-secondary" data-id="${id}">${t("common.buttons.log")}</button>
 
                         `,
               },
-              { data: "name", title: "Name" },
+              { data: "name", title: t("adsCampaign.field.name") },
     
-              { data: "target_url", title: "Target Url" },
-              { data: "tracking_link", title: "Tracking Link (Marketing)" },
-              { data: "postback_link", title: "Postback Link (Client)" },
-              { data: "status", title: "Status" },
+              { data: "target_url", title: t("adsCampaign.field.targetUrl") },
+              { data: "tracking_link", title: t("adsCampaign.field.trackingLink") },
+              { data: "postback_link", title: t("adsCampaign.field.postbackLink") },
+              { data: "status", title: t("adsCampaign.field.status") },
 
 
-              { data: "created_at", title: "Created At" },
-              { data: "updated_at", title: "Updated At" },
+              { data: "created_at", title: t("adsCampaign.field.createdAt") },
+              { data: "updated_at", title: t("adsCampaign.field.updatedAt") },
           ],
       });
 
@@ -126,21 +129,21 @@ export default function AdsCampaignPage() {
         {error && <div className="bg-red-100 text-red-600 px-4 py-2 rounded mb-4">{error}</div>}
         {success && <div className="bg-green-100 text-green-600 px-4 py-2 rounded mb-4">{success}</div>}
 
-        <h2 className="text-xl font-bold mb-4">Ads Campaign</h2>
+        <h2 className="text-xl font-bold mb-4">{t("adsCampaign.adsCampaign")}</h2>
 
         {/* Search Filters */}
         <form onSubmit={handleSearch} className="flex flex-col justify-between gap-4 flex-wrap bg-white p-4 rounded shadow-sm mb-4">
             <div className="flex gap-4">
                 <div>
-                    <label>Name</label>
+                    <label>{t("adsCampaign.field.name")}</label>
                     <input type="text" value={filters.name} onChange={(e) => setFilters({ ...filters, name: e.target.value })} className="border rounded p-2 w-full" />
                 </div>
                 <div>
-                    <label>Target Url</label>
+                    <label>{t("adsCampaign.field.targetUrl")}</label>
                     <input type="text" value={filters.target_url} onChange={(e) => setFilters({ ...filters, target_url: e.target.value })} className="border rounded p-2 w-full" />
                 </div>
                 <div>
-                    <label>Status</label>
+                    <label>{t("adsCampaign.field.status")}</label>
                     {/* <input type="text" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })} className="border rounded p-2 w-full" /> */}
                     <select
                         name="status"
@@ -160,21 +163,21 @@ export default function AdsCampaignPage() {
                 </div>
 
                 <div>
-                    <label>From Date</label>
+                    <label>{t("fromDate")}</label>
                     <input type="date" value={filters.fdate} onChange={(e) => setFilters({ ...filters, fdate: e.target.value })} className="border rounded p-2 w-full" />
                 </div>
                 <div>
-                    <label>To Date</label>
+                    <label>{t("toDate")}</label>
                     <input type="date" value={filters.tdate} onChange={(e) => setFilters({ ...filters, tdate: e.target.value })} className="border rounded p-2 w-full" />
                 </div>
             </div>
             <div className="flex justify-between">
                 <div className="flex items-end gap-2">
-                    <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Search</button>
-                    <button type="button" onClick={handleClearSearch} className="bg-red-600 text-white px-4 py-2 rounded">Clear Search</button>
+                    <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">{t("common.buttons.search")}</button>
+                    <button type="button" onClick={handleClearSearch} className="bg-red-600 text-white px-4 py-2 rounded">{t("common.buttons.clearSearch")}</button>
                 </div>
                 <div>
-                    <button type="button" onClick={handleAddAdsCampaign} className="bg-blue-600 text-white px-4 py-2 rounded">Add Ads Campaign</button>
+                    <button type="button" onClick={handleAddAdsCampaign} className="bg-blue-600 text-white px-4 py-2 rounded">{t("common.buttons.add")}</button>
                 </div>
             </div>
 

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../../../api/axios";
 import Tooltip from "@mui/material/Tooltip";
 import CloseIcon from '@mui/icons-material/Close';
+import { useTranslation } from "react-i18next";
 
 const eventOptions = [
   { value: "PURCHASE", label: "Purchase" },
@@ -11,6 +12,7 @@ const eventOptions = [
 ];
 
 function AdsCampaignEditPage() {
+  const {t} = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
@@ -77,15 +79,15 @@ function AdsCampaignEditPage() {
       {error && <div className="bg-red-100 text-red-600 px-4 py-2 rounded mb-4">{error}</div>}
       {success && <div className="bg-green-100 text-green-600 px-4 py-2 rounded mb-4">{success}</div>}
 
-      <h2 className="text-xl font-bold mb-4">Edit Ads Campaign</h2>
+      <h2 className="text-xl font-bold mb-4">{t("adsCampaign.editAdsCampaign")}</h2>
 
       <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow-sm w-full">
-        <h4 className="text-lg font-semibold mb-4">Ads Campaign Info</h4>
+        <h4 className="text-lg font-semibold mb-4">{t("adsCampaign.adsCampaignInfo")}</h4>
 
         <table className="w-full border-collapse">
           <tbody>
             <tr>
-              <th className="text-left p-2 border">Name</th>
+              <th className="text-left p-2 border">{t("adsCampaign.field.name")}</th>
               <td className="p-2 border">
                 <input
                   type="text"
@@ -98,7 +100,7 @@ function AdsCampaignEditPage() {
               </td>
             </tr>
             <tr>
-              <th className="text-left p-2 border">Target URL</th>
+              <th className="text-left p-2 border">{t("adsCampaign.field.targetUrl")}</th>
               <td className="p-2 border">
                 <input
                   type="text"
@@ -111,7 +113,7 @@ function AdsCampaignEditPage() {
               </td>
             </tr>
             <tr>
-              <th className="text-left p-2 border">Tracking Link</th>
+              <th className="text-left p-2 border">{t("adsCampaign.field.trackingLink")}</th>
               <td className="p-2 border">
                 <input
                   type="text"
@@ -122,7 +124,7 @@ function AdsCampaignEditPage() {
               </td>
             </tr>
             <tr>
-              <th className="text-left p-2 border">Postback Link</th>
+              <th className="text-left p-2 border">{t("adsCampaign.field.postbackLink")}</th>
               <td className="p-2 border">
                 <input
                   type="text"
@@ -133,7 +135,7 @@ function AdsCampaignEditPage() {
               </td>
             </tr>
             <tr>
-              <th className="text-left p-2 border">Status</th>
+              <th className="text-left p-2 border">{t("adsCampaign.field.status")}</th>
               <td className="p-2 border">
                 <select
                   name="status"
@@ -154,7 +156,7 @@ function AdsCampaignEditPage() {
             {/* Editable Postback Events */}
             {/* Postback Events Section */}
             <tr>
-              <th className="text-left p-2 border align-top">Postback Events</th>
+              <th className="text-left p-2 border align-top">{t("adsCampaign.postbackEvents")}</th>
               <td className="p-2 border">
                 {postbacks.length > 0 ? (
                   <div className="space-y-3">
@@ -182,7 +184,7 @@ function AdsCampaignEditPage() {
                               className="border rounded p-2 w-full sm:w-48"
                               required
                             >
-                              <option value="">-- Select Event --</option>
+                              <option value="">-- {t("adsCampaign.selectEvent")} --</option>
                               {availableEvents.map((opt) => (
                                 <option key={opt.value} value={opt.value}>
                                   {opt.label}
@@ -193,7 +195,7 @@ function AdsCampaignEditPage() {
                             <input
                               type="text"
                               name="postback_url"
-                              placeholder="Enter Postback URL"
+                              placeholder={t("adsCampaign.enterPostbackUrlPlaceHolder")}
                               value={pb.postback_url || ""}
                               onChange={(e) => {
                                 const updated = [...postbacks];
@@ -216,11 +218,11 @@ function AdsCampaignEditPage() {
                                 
                               />
                   
-                               <Tooltip title="Send UTM and click data (source, campaign, etc.) for this postback.">
+                               <Tooltip title={t("adsCampaign.sendUtmAndClickDataDescription")}>
                                   <label
                                     className="text-sm text-gray-700"
                                   >
-                                    Include original tracking parameters
+                                    {t("adsCampaign.includeOrginalTrackingPatameters")}
                                   </label>
                                 </Tooltip>
                             </div>
@@ -242,7 +244,7 @@ function AdsCampaignEditPage() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-gray-500 text-sm">No postbacks configured</div>
+                  <div className="text-gray-500 text-sm">{t("adsCampaign.noPostbacksConfigured")}</div>
                 )}
 
                 {/* Add new postback button */}
@@ -262,7 +264,7 @@ function AdsCampaignEditPage() {
                     }
                     className="mt-3 bg-green-600 text-white px-3 py-1 rounded"
                   >
-                    + Add Postback Event
+                    {t("common.buttons.add")}
                   </button>
                 )}
               </td>
@@ -276,7 +278,7 @@ function AdsCampaignEditPage() {
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded"
           >
-            Update Ads Campaign
+           {t("common.buttons.update")}
           </button>
         </div>
       </form>

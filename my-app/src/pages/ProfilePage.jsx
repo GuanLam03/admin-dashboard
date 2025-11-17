@@ -44,7 +44,7 @@ function ProfilePage() {
       setConfirmPassword("");
     } catch (err) {
       if (err.response) {
-        setError(err.response.data.error);
+        setError(t(err.response.data.error));
       }
     } finally {
       setSaving(false);

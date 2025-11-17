@@ -125,7 +125,7 @@ function SchedulePage() {
       );
 
 
-    } catch (err) { console.error("Error fetching schedules:", err); setError("Error fetching schedules: " + err.message); }
+    } catch (err) { console.error("Error fetching schedules:", err); setError(t(err.response.data.error)); }
   };
 
 
@@ -218,7 +218,7 @@ function SchedulePage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.title")}</h2>
+      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.schedules")}</h2>
 
 
       {/* Search Filters */}
@@ -250,7 +250,7 @@ function SchedulePage() {
           </div>
 
           <div>
-            <label>{t("scheduleManagement.form.filters.fromDate")}</label>
+            <label>{t("fromDate")}</label>
             <input
               type="date"
               name="fdate"
@@ -261,7 +261,7 @@ function SchedulePage() {
           </div>
 
           <div>
-            <label>{t("scheduleManagement.form.filters.toDate")}</label>
+            <label>{t("toDate")}</label>
             <input
               type="date"
               name="tdate"
