@@ -1,15 +1,12 @@
 package adsCampaign
 
 import (
-	
+	"github.com/goravel/framework/contracts/database/orm"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
-	"github.com/goravel/framework/contracts/database/orm"
 	"goravel/app/models"
 	// "goravel/app/helpers"
 	"goravel/app/messages"
-
-
 )
 
 type EditAdsCampaignController struct {
@@ -32,38 +29,37 @@ func (e *EditAdsCampaignController) ShowAdsCampaign(ctx http.Context) http.Respo
 
 	// Select only id, event_name, and postback_url
 	var campaignPostbacks []struct {
-		ID          uint   `json:"id"`
-		EventName   string `json:"event_name"`
-		PostbackUrl string `json:"postback_url"`
+		ID                 uint   `json:"id"`
+		EventName          string `json:"event_name"`
+		PostbackUrl        string `json:"postback_url"`
 		IncludeClickParams bool   `json:"include_click_params"`
 	}
 
 	if err := facades.Orm().Query().
 		Table("ads_campaign_postbacks").
-		Select("id", "event_name", "postback_url","include_click_params").
+		Select("id", "event_name", "postback_url", "include_click_params").
 		Where("ads_campaign_id", adsCampaign.ID).
 		Get(&campaignPostbacks); err != nil {
-		return ctx.Response().Json(500, map[string]string{"error":messages.GetError("validation.internal_error")})
+		return ctx.Response().Json(500, map[string]string{"error": messages.GetError("validation.internal_error")})
 	}
 
 	return ctx.Response().Json(200, map[string]any{
-		"ads_campaign": adsCampaign,
-		"status" : status,
+		"ads_campaign":           adsCampaign,
+		"status":                 status,
 		"ads_campaign_postbacks": campaignPostbacks,
 	})
 }
-
 
 func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Response {
 	id := ctx.Request().Route("id")
 
 	var (
 		adsCampaign models.AdsCampaign
-		input struct {
+		input       struct {
 			Name           string                       `json:"name"`
 			TargetUrl      string                       `json:"target_url"`
 			Status         string                       `json:"status"`
-			PostbackEvents []models.AdsCampaignPostback  `json:"postback_events"`
+			PostbackEvents []models.AdsCampaignPostback `json:"postback_events"`
 		}
 		existingIDs []any
 	)
@@ -84,7 +80,6 @@ func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Respo
 		TargetUrl: input.TargetUrl,
 		Status:    input.Status,
 	})
-
 
 	if err != nil {
 		return ctx.Response().Json(500, map[string]string{"error": messages.GetError("validation.internal_error")})
@@ -113,8 +108,7 @@ func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Respo
 		}
 	}
 
-
-	if err := facades.Orm().Transaction(func(tx  orm.Query) error {
+	if err := facades.Orm().Transaction(func(tx orm.Query) error {
 
 		// Update campaign fields
 		adsCampaign.Name = input.Name
@@ -156,9 +150,9 @@ func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Respo
 		// Delete old postbacks not in request
 		query := tx.Where("ads_campaign_id", adsCampaign.ID)
 		if len(existingIDs) > 0 {
-			query = query.WhereNotIn("id", existingIDs)  // goravel orm whereNotIn needs []any
+			query = query.WhereNotIn("id", existingIDs) // goravel orm whereNotIn needs []any
 		}
-		if _,err := query.Delete(&models.AdsCampaignPostback{}); err != nil {
+		if _, err := query.Delete(&models.AdsCampaignPostback{}); err != nil {
 			return err
 		}
 
@@ -170,7 +164,6 @@ func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Respo
 		})
 	}
 
-	
 	// helpers.Activity().
 	// 	CausedBy(ctx).
 	// 	InLog("Ads Campaign").
@@ -178,10 +171,9 @@ func (c *EditAdsCampaignController) EditAdsCampaign(ctx http.Context) http.Respo
 	// 	OnRoute(ctx.Request().Method() + " " + ctx.Request().Path()).
 	// 	WithInput(ctx.Request().All()).
 	// 	Log("Edit ads campaign")
-	
+
 	return ctx.Response().Json(200, map[string]any{
-		"message": "Ads Campaign updated successfully",
+		"message": messages.GetSuccess("ads_campaign_updated"),
 		"data":    adsCampaign,
 	})
 }
-

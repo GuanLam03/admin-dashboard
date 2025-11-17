@@ -32,7 +32,7 @@ type ScheduleRequest struct {
 func (r *AddScheduleController) AddSchedule(ctx http.Context) http.Response {
 	var req ScheduleRequest
 	if err := ctx.Request().Bind(&req); err != nil {
-		return ctx.Response().Json(400, http.Json{"error":messages.GetError("validation.invalid_request")})
+		return ctx.Response().Json(400, http.Json{"error": messages.GetError("validation.invalid_request")})
 	}
 
 	validator, err := facades.Validation().Make(ctx.Request().All(), models.ScheduleRules)
@@ -95,7 +95,6 @@ func (r *AddScheduleController) AddSchedule(ctx http.Context) http.Response {
 		}
 	}
 
-
 	//STEP 2: Google Calendar
 	googleCal := gcal.NewGoogleCalendarController()
 	eventID, err := googleCal.AddGoogleCalendar(req.Title, startAt, endAt, req.Recurrence, emails)
@@ -120,11 +119,10 @@ func (r *AddScheduleController) AddSchedule(ctx http.Context) http.Response {
 	}
 
 	return ctx.Response().Json(201, http.Json{
-		"message": "Schedule created successfully",
+		"message": messages.GetSuccess("schedule_created"),
 		"data":    schedule,
 	})
 }
-
 
 func toAny[T any](arr []T) []any {
 	out := make([]any, len(arr))

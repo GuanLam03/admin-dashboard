@@ -1,10 +1,10 @@
 package gmail
 
 import (
-	"goravel/app/models"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"goravel/app/messages"
+	"goravel/app/models"
 )
 
 type TemplateController struct{}
@@ -12,8 +12,6 @@ type TemplateController struct{}
 func NewTemplateController() *TemplateController {
 	return &TemplateController{}
 }
-
-
 
 // GET /gmail/templates
 func (c *TemplateController) ShowTemplates(ctx http.Context) http.Response {
@@ -35,10 +33,9 @@ func (c *TemplateController) ShowTemplates(ctx http.Context) http.Response {
 	return ctx.Response().Json(http.StatusOK, templates)
 }
 
-
 // POST /gmail/templates
 func (c *TemplateController) AddTemplate(ctx http.Context) http.Response {
-	
+
 	var template models.GmailTemplate
 	if err := ctx.Request().Bind(&template); err != nil {
 		facades.Log().Warningf("Invalid template input: %v", err)
@@ -93,13 +90,13 @@ func (c *TemplateController) EditTemplate(ctx http.Context) http.Response {
 func (c *TemplateController) RemoveTemplate(ctx http.Context) http.Response {
 	id := ctx.Request().Route("id")
 
-	if _,err := facades.Orm().Query().Where("id", id).Delete(&models.GmailTemplate{}); err != nil {
+	if _, err := facades.Orm().Query().Where("id", id).Delete(&models.GmailTemplate{}); err != nil {
 		facades.Log().Errorf("Failed to delete Gmail template (id=%s): %v", id, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]any{
-			"error":messages.GetError("validation.internal_error"),
+			"error": messages.GetError("validation.internal_error"),
 		})
 	}
 	return ctx.Response().Json(http.StatusOK, map[string]string{
-		"message": "Template deleted successfully",
+		"message": messages.GetSuccess("gmail_template_deleted"),
 	})
 }

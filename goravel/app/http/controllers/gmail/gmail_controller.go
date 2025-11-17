@@ -1,22 +1,21 @@
 package gmail
 
 import (
-	"fmt"
-	"encoding/base64"
-	"sync"
-	"strings"
-	"time"
-	"golang.org/x/sync/errgroup"
 	"context"
+	"encoding/base64"
+	"fmt"
+	"github.com/goravel/framework/contracts/http"
+	"github.com/goravel/framework/facades"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
-	"github.com/goravel/framework/facades"
-    "github.com/goravel/framework/contracts/http"
-    "goravel/app/models"
 	"goravel/app/messages"
-
+	"goravel/app/models"
+	"strings"
+	"sync"
+	"time"
 )
 
 type GmailController struct{}
@@ -40,42 +39,42 @@ func getOAuthConfig() *oauth2.Config {
 }
 
 func (c *GmailController) RedirectToGoogle(ctx http.Context) http.Response {
-    team := ctx.Request().Query("team") // technical / support / etc.
+	team := ctx.Request().Query("team") // technical / support / etc.
 
-    url := getOAuthConfig().AuthCodeURL(team, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
-    return ctx.Response().Json(http.StatusOK, url)
+	url := getOAuthConfig().AuthCodeURL(team, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	return ctx.Response().Json(http.StatusOK, url)
 }
 
 func (c *GmailController) HandleCallback(ctx http.Context) http.Response {
-    code := ctx.Request().Query("code")
-    team := ctx.Request().Query("state") // <-- from AuthCodeURL
+	code := ctx.Request().Query("code")
+	team := ctx.Request().Query("state") // <-- from AuthCodeURL
 
-    token, err := getOAuthConfig().Exchange(context.Background(), code)
-    if err != nil {
-        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-            "error": messages.GetError("validation.gmail_account_auth_failed"),
-        })
-    }
+	token, err := getOAuthConfig().Exchange(context.Background(), code)
+	if err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+			"error": messages.GetError("validation.gmail_account_auth_failed"),
+		})
+	}
 
-    config := getOAuthConfig()
-    client := config.Client(context.Background(), token)
+	config := getOAuthConfig()
+	client := config.Client(context.Background(), token)
 
-    srv, err := gmail.New(client)
-    if err != nil {
-        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-            "error": messages.GetError("validation.internal_error"),
-        })
-    }
+	srv, err := gmail.New(client)
+	if err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+			"error": messages.GetError("validation.internal_error"),
+		})
+	}
 
-    profile, err := srv.Users.GetProfile("me").Do()
-    if err != nil {
-        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-            "error": messages.GetError("validation.gmail_account_fetch_failed"),
-        })
-    }
+	profile, err := srv.Users.GetProfile("me").Do()
+	if err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+			"error": messages.GetError("validation.gmail_account_fetch_failed"),
+		})
+	}
 
-    //  Check if this Gmail is already linked to another department
-    profileEmail := profile.EmailAddress
+	//  Check if this Gmail is already linked to another department
+	profileEmail := profile.EmailAddress
 	_, validTeam := models.GmailAccountTeams[team] // team = value from request input
 
 	if !validTeam {
@@ -96,29 +95,27 @@ func (c *GmailController) HandleCallback(ctx http.Context) http.Response {
 			"error": messages.GetError("validation.gmail_account_already_linked"),
 		})
 	}
-    
-    // Save new account
-    err = facades.Orm().Query().Create(&models.GmailAccount{
-        Email:        profile.EmailAddress,
-        Team:         &team,
-        AccessToken:  token.AccessToken,
-        RefreshToken: token.RefreshToken,
-        Expiry:       &token.Expiry,
-    })
-    if err != nil {
-        return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-            "error": messages.GetError("validation.gmail_account_create_failed"),
-        })
-    }
 
-    return ctx.Response().Json(http.StatusOK, map[string]interface{}{
-        "message": "Mailbox connected successfully!",
-        "account": profile.EmailAddress,
-        "team":   team,
-    })
+	// Save new account
+	err = facades.Orm().Query().Create(&models.GmailAccount{
+		Email:        profile.EmailAddress,
+		Team:         &team,
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+		Expiry:       &token.Expiry,
+	})
+	if err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
+			"error": messages.GetError("validation.gmail_account_create_failed"),
+		})
+	}
+
+	return ctx.Response().Json(http.StatusOK, map[string]interface{}{
+		"message": messages.GetSuccess("gmail_account_connected"),
+		"account": profile.EmailAddress,
+		"team":    team,
+	})
 }
-
-
 
 func GetClientFromDB(accountEmail string) (*gmail.Service, error) {
 	var account models.GmailAccount
@@ -153,17 +150,15 @@ func GetClientFromDB(accountEmail string) (*gmail.Service, error) {
 	return gmail.NewService(context.Background(), option.WithHTTPClient(client))
 }
 
-
-
 func (c *GmailController) ListMessages(ctx http.Context) http.Response {
 	email := ctx.Request().Query("email")
 	pageToken := ctx.Request().Query("pageToken")
-	labelFilter  := ctx.Request().Query("label") // inbox, starred
+	labelFilter := ctx.Request().Query("label") // inbox, starred
 
 	srv, err := GetClientFromDB(email)
 	if err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError,
-			map[string]string{"error":messages.GetError("validation.gmail_account_not_found")})
+			map[string]string{"error": messages.GetError("validation.gmail_account_not_found")})
 	}
 
 	// Request 20 threads per page
@@ -218,20 +213,19 @@ func (c *GmailController) ListMessages(ctx http.Context) http.Response {
 
 		// parse headers
 		var from, subject, date string
-		from = getHeader(latestMessage.Payload.Headers,"From")
+		from = getHeader(latestMessage.Payload.Headers, "From")
 		if strings.Contains(from, "<") {
 			from = strings.TrimSpace(strings.Split(from, "<")[0])
 		}
-		subject = getHeader(firstMessage.Payload.Headers,"Subject")
-		date = getHeader(latestMessage.Payload.Headers,"Date")
-
+		subject = getHeader(firstMessage.Payload.Headers, "Subject")
+		date = getHeader(latestMessage.Payload.Headers, "Date")
 
 		// unread and starred check
 		isUnread := false
 		isStarred := false
 		isPromotions := false // Track if the message belongs to CATEGORY_PROMOTIONS
 		for _, m := range thread.Messages {
-			fmt.Println("Label: ",m.LabelIds);
+			fmt.Println("Label: ", m.LabelIds)
 			for _, lbl := range m.LabelIds {
 				if lbl == "UNREAD" {
 					isUnread = true
@@ -252,15 +246,15 @@ func (c *GmailController) ListMessages(ctx http.Context) http.Response {
 
 		// response row
 		messages = append(messages, map[string]any{
-			"id":           latestMessage.Id,
-			"threadId":     threadId,
-			"from":         from,
-			"subject":      subject,
-			"snippet":      latestMessage.Snippet,
-			"date":         date,
-			"replyCount":   replyCountMap[threadId],
-			"isUnread":     isUnread,
-			"isStarred":    isStarred,
+			"id":         latestMessage.Id,
+			"threadId":   threadId,
+			"from":       from,
+			"subject":    subject,
+			"snippet":    latestMessage.Snippet,
+			"date":       date,
+			"replyCount": replyCountMap[threadId],
+			"isUnread":   isUnread,
+			"isStarred":  isStarred,
 		})
 	}
 
@@ -269,7 +263,6 @@ func (c *GmailController) ListMessages(ctx http.Context) http.Response {
 		"nextPageToken": res.NextPageToken,
 	})
 }
-
 
 func (c *GmailController) ReadMessage(ctx http.Context) http.Response {
 	email := ctx.Request().Query("email") // /gmail/message?id=xxxx&email=hgledgetech@gmail.com
@@ -338,7 +331,6 @@ func (c *GmailController) ReadMessage(ctx http.Context) http.Response {
 			formattedDate = parsedDate.Local().Format("Jan 02, 2006, 3:04 PM")
 		}
 
-
 		messages = append(messages, map[string]any{
 			"id":      m.Id,
 			"from":    from,
@@ -349,7 +341,7 @@ func (c *GmailController) ReadMessage(ctx http.Context) http.Response {
 			"labels":  m.LabelIds, // <-- contains "UNREAD"
 		})
 
-		fmt.Println("m: ",m.Id);
+		fmt.Println("m: ", m.Id)
 		// If this message was unread → mark it as read
 		if contains(m.LabelIds, "UNREAD") {
 			_, err := srv.Users.Messages.Modify("me", m.Id, &gmail.ModifyMessageRequest{
@@ -378,7 +370,6 @@ func contains(list []string, item string) bool {
 	}
 	return false
 }
-
 
 // helper to extract a specific header
 func getHeader(headers []*gmail.MessagePartHeader, key string) string {
@@ -424,8 +415,6 @@ func extractMessageBody(payload *gmail.MessagePart) string {
 	return plain
 }
 
-
-
 func getHTMLBody(msg *gmail.Message) string {
 	if msg.Payload.MimeType == "text/html" && msg.Payload.Body != nil && msg.Payload.Body.Data != "" {
 		data, err := base64.URLEncoding.DecodeString(msg.Payload.Body.Data)
@@ -445,10 +434,6 @@ func getHTMLBody(msg *gmail.Message) string {
 
 	return "<i>(no original content found)</i>"
 }
-
-
-
-
 
 // GET /gmail/accounts
 func (c *GmailController) ListAccounts(ctx http.Context) http.Response {
@@ -473,23 +458,20 @@ func (c *GmailController) DeleteAccount(ctx http.Context) http.Response {
 		})
 	}
 
-	if _,err := facades.Orm().Query().Where("id", id).Delete(&models.GmailAccount{}); err != nil {
+	if _, err := facades.Orm().Query().Where("id", id).Delete(&models.GmailAccount{}); err != nil {
 		facades.Log().Errorf("Failed to delete Gmail account (%d): %v", id, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
 			"error": messages.GetError("validation.gmail_account_delete_failed"),
 		})
 	}
 	return ctx.Response().Json(http.StatusOK, map[string]string{
-		"message": "Account removed",
+		"message": messages.GetSuccess("gmail_account_removed"),
 	})
 }
 
-
-func (c *GmailController) GetGmailAccountTeams(ctx http.Context) http.Response{
-	return ctx.Response().Json(http.StatusOK, models.GmailAccountTeams); 
+func (c *GmailController) GetGmailAccountTeams(ctx http.Context) http.Response {
+	return ctx.Response().Json(http.StatusOK, models.GmailAccountTeams)
 }
-
-
 
 func (c *GmailController) ToggleStar(ctx http.Context) http.Response {
 	threadID := ctx.Request().Route("id")

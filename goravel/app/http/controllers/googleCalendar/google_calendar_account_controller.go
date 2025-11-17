@@ -1,17 +1,18 @@
 package googleCalendar
 
 import (
-	"fmt"
-	"encoding/json"
 	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/goravel/framework/contracts/http"
+	"github.com/goravel/framework/facades"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"github.com/goravel/framework/facades"
-    "github.com/goravel/framework/contracts/http"
 	"google.golang.org/api/calendar/v3"
+	"goravel/app/messages"
 	"goravel/app/models"
-
 )
+
 type GoogleCalendarAccountController struct{}
 
 func NewGoogleCalendarAccountController() *GoogleCalendarAccountController {
@@ -21,14 +22,14 @@ func NewGoogleCalendarAccountController() *GoogleCalendarAccountController {
 // GET /google/schedule/account
 func (r *GoogleCalendarAccountController) ShowGoogleAccount(ctx http.Context) http.Response {
 	var account models.GmailAccount
-	
+
 	err := facades.Orm().Query().
 		Table("gmail_accounts").
 		Where("team", "schedule").
 		First(&account)
 
 	// If record not found
-	if err != nil || account.ID == 0{
+	if err != nil || account.ID == 0 {
 		return ctx.Response().Json(404, http.Json{
 			"error": "Gmail Not found",
 		})
@@ -39,8 +40,7 @@ func (r *GoogleCalendarAccountController) ShowGoogleAccount(ctx http.Context) ht
 	})
 }
 
-
-func (r *GoogleCalendarAccountController) AuthURL(ctx http.Context) (http.Response) {
+func (r *GoogleCalendarAccountController) AuthURL(ctx http.Context) http.Response {
 	clientID := facades.Config().Env("GOOGLE_CALENDAR_CLIENT_ID", "").(string)
 	clientSecret := facades.Config().Env("GOOGLE_CALENDAR_CLIENT_SECRET", "").(string)
 	redirectURI := facades.Config().Env("GOOGLE_CALENDAR_REDIRECT_URI", "").(string)
@@ -69,8 +69,6 @@ func (r *GoogleCalendarAccountController) AuthURL(ctx http.Context) (http.Respon
 	})
 }
 
-
-
 func (r *GoogleCalendarAccountController) Callback(ctx http.Context) http.Response {
 	code := ctx.Request().Query("code")
 	facades.Log().Info("Google OAuth callback received", map[string]any{
@@ -93,7 +91,7 @@ func (r *GoogleCalendarAccountController) Callback(ctx http.Context) http.Respon
 	redirectURI, _ := redirectURIAny.(string)
 
 	facades.Log().Info("Loaded Google credentials from .env", map[string]any{
-		"clientID": clientID,
+		"clientID":    clientID,
 		"redirectURI": redirectURI,
 	})
 
@@ -167,16 +165,14 @@ func (r *GoogleCalendarAccountController) Callback(ctx http.Context) http.Respon
 	facades.Orm().Query().Table("gmail_accounts").Where("team", "schedule").First(&existing)
 	if existing != nil {
 		facades.Orm().Query().Table("gmail_accounts").Where("team", "schedule").Update(data)
-		
+
 	} else {
 		facades.Orm().Query().Table("gmail_accounts").Create(data)
-		
+
 	}
 
 	return ctx.Response().Json(200, http.Json{
-		"message": "Google account connected",
+		"message": messages.GetSuccess("google_account_connected"),
 		"email":   email,
 	})
 }
-
-

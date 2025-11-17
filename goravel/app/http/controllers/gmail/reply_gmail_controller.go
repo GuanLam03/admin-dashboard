@@ -1,17 +1,15 @@
 package gmail
 
 import (
-	"fmt"
 	"encoding/base64"
+	"fmt"
+	"github.com/goravel/framework/contracts/http"
+	"github.com/goravel/framework/facades"
+	"google.golang.org/api/gmail/v1"
 	"strings"
 	"time"
-	"google.golang.org/api/gmail/v1"
-    "github.com/goravel/framework/contracts/http"
-	"github.com/goravel/framework/facades"
 	// "goravel/app/models"
 	"goravel/app/messages"
-  
-
 )
 
 type ReplyGmailController struct{}
@@ -20,13 +18,11 @@ func NewReplyGmailController() *ReplyGmailController {
 	return &ReplyGmailController{}
 }
 
-
-
 // ReplyMessage handles replying to an email
 func (c *ReplyGmailController) ReplyMessage(ctx http.Context) http.Response {
 	messageID := ctx.Request().Route("id")
-	email := ctx.Request().Input("email")  
-	body := ctx.Request().Input("body")  
+	email := ctx.Request().Input("email")
+	body := ctx.Request().Input("body")
 
 	// Validate inputs
 	if messageID == "" || email == "" || body == "" {
@@ -51,8 +47,6 @@ func (c *ReplyGmailController) ReplyMessage(ctx http.Context) http.Response {
 		facades.Log().Errorf("Failed to fetch original message for %s: %v", messageID, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
 			"error": messages.GetError("validation.gmail_account_read_failed"),
-
-			
 		})
 	}
 
@@ -117,6 +111,6 @@ func (c *ReplyGmailController) ReplyMessage(ctx http.Context) http.Response {
 
 	// Return success response
 	return ctx.Response().Json(http.StatusOK, map[string]string{
-		"message": "Reply sent successfully",
+		"message": messages.GetSuccess("gmail_reply_sent"),
 	})
 }

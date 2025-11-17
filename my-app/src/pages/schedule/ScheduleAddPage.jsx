@@ -175,7 +175,7 @@ function ScheduleAddPage() {
                   isClearable
                 />
                 <small className="text-gray-500 block mt-1">
-                  You can select multiple roles, or leave it blank to notify no one.
+                  {t("scheduleManagement.addPage.form.scheduleNotifyRolesHint")}.
                 </small>
               </td>
             </tr>
@@ -187,7 +187,7 @@ function ScheduleAddPage() {
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded"
           >
-            Save Schedule
+            {t("common.buttons.add")}
           </button>
         </div>
       </form>
