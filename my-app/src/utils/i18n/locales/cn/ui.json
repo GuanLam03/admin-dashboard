@@ -157,7 +157,8 @@
 
             "form": {
                 "scheduleTitlePlaceholder": "输入日程标题",
-                "scheduleNotifyRolesPlaceholder": "选择通知角色（可选）"
+                "scheduleNotifyRolesPlaceholder": "选择通知角色（可选",
+                "scheduleNotifyRolesHint": "你可以选择多个角色，或留空表示不通知任何人"
             }
         },
 

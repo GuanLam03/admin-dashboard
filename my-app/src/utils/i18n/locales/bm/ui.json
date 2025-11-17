@@ -158,7 +158,8 @@
 
             "form": {
                 "scheduleTitlePlaceholder": "Masukkan tajuk jadual",
-                "scheduleNotifyRolesPlaceholder": "Pilih peranan untuk diberitahu (pilihan)"
+                "scheduleNotifyRolesPlaceholder": "Pilih peranan untuk diberitahu (pilihan)",
+                "scheduleNotifyRolesHint": "Anda boleh memilih berbilang peranan, atau biarkan kosong jika tiada pemberitahuan diperlukan"
             }
         },
 

@@ -163,8 +163,8 @@
             
             "form": {
                 "scheduleTitlePlaceholder": "Enter schedule title",
-                "scheduleNotifyRolesPlaceholder": "Select roles to notify (optional)"
-                
+                "scheduleNotifyRolesPlaceholder": "Select roles to notify (optional)",
+                "scheduleNotifyRolesHint": "You can select multiple roles, or leave it blank to notify no one"
             }
         },
 
