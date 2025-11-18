@@ -22,7 +22,7 @@ func NewRoleController() *RoleController {
 func (r *RoleController) Index(ctx http.Context) http.Response {
 	var roles []models.Role
 	if err := facades.Orm().Query().Find(&roles); err != nil {
-		return ctx.Response().Json(500, http.Json{"error": messages.GetError("validation.internal_error")})
+		return ctx.Response().Json(500, http.Json{"error": messages.GetError("internal_error")})
 	}
 
 	return ctx.Response().Json(200, http.Json{"message": roles})
@@ -35,7 +35,7 @@ func (r *RoleController) Store(ctx http.Context) http.Response {
 
 	role := models.Role{Name: name}
 	if err := facades.Orm().Query().Create(&role); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": messages.GetError("validation.internal_error")})
+		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": messages.GetError("internal_error")})
 	}
 	return ctx.Response().Json(200, role)
 }
@@ -52,7 +52,7 @@ func (r *RoleController) AssignToUser(ctx http.Context) http.Response {
 		RoleID: cast.ToUint(roleID),
 	}); err != nil {
 		return ctx.Response().Json(500, http.Json{
-			"error": messages.GetError("validation.internal_error"),
+			"error": messages.GetError("internal_error"),
 		})
 	}
 
@@ -66,14 +66,14 @@ func (r *RoleController) Show(ctx http.Context) http.Response {
 	roleID, err := strconv.Atoi(idStr)
 	if err != nil {
 		return ctx.Response().Json(422, map[string]interface{}{
-			"error": messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 		})
 	}
 
 	var role models.Role
 	if err := facades.Orm().Query().Where("id = ?", roleID).First(&role); err != nil {
 		return ctx.Response().Json(404, map[string]interface{}{
-			"error": messages.GetError("validation.role_not_found"),
+			"error": messages.GetError("role_not_found"),
 		})
 	}
 
@@ -81,14 +81,14 @@ func (r *RoleController) Show(ctx http.Context) http.Response {
 	enforcerAny, err := facades.App().Make("casbin")
 	if err != nil {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error": messages.GetError("validation.casbin_not_initialized"),
+			"error": messages.GetError("casbin_not_initialized"),
 		})
 	}
 
 	enforcer, ok := enforcerAny.(*casbin.Enforcer)
 	if !ok {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error": messages.GetError("validation.casbin_cast_failed"),
+			"error": messages.GetError("casbin_cast_failed"),
 		})
 	}
 
@@ -120,7 +120,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return ctx.Response().Json(422, map[string]interface{}{
-			"error": messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 		})
 	}
 
@@ -131,7 +131,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 
 	if err := ctx.Request().Bind(&body); err != nil {
 		return ctx.Response().Json(422, map[string]interface{}{
-			"error": messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 		})
 	}
 
@@ -139,7 +139,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 	var role models.Role
 	if err := facades.Orm().Query().Where("id", id).First(&role); err != nil {
 		return ctx.Response().Json(404, map[string]interface{}{
-			"error": messages.GetError("validation.role_not_found"),
+			"error": messages.GetError("role_not_found"),
 		})
 	}
 
@@ -147,7 +147,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 	role.Name = body.Name
 	if _, err := facades.Orm().Query().Where("id", id).Update(&role); err != nil {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error": messages.GetError("validation.role_update_failed"),
+			"error": messages.GetError("role_update_failed"),
 		})
 	}
 
@@ -155,14 +155,14 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 	enforcerAny, err := facades.App().Make("casbin")
 	if err != nil {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error": messages.GetError("validation.casbin_not_initialized"),
+			"error": messages.GetError("casbin_not_initialized"),
 		})
 	}
 
 	enforcer, ok := enforcerAny.(*casbin.Enforcer)
 	if !ok {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error": messages.GetError("validation.casbin_cast_failed"),
+			"error": messages.GetError("casbin_cast_failed"),
 		})
 	}
 

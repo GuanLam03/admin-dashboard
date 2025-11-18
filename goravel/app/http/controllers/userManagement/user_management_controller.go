@@ -1,11 +1,12 @@
 package userManagement
 
 import (
+	"goravel/app/messages"
+	"goravel/app/models"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
-	"goravel/app/messages"
-	"goravel/app/models"
 )
 
 type UserManagementController struct {
@@ -31,7 +32,7 @@ func (r *UserManagementController) Index(ctx http.Context) http.Response {
 func (r *UserManagementController) ShowUserRole(ctx http.Context) http.Response {
 	var roles []models.Role
 	if err := facades.Orm().Query().Find(&roles); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": messages.GetError("validation.internal_error")})
+		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": messages.GetError("internal_error")})
 	}
 	return ctx.Response().Json(200, http.Json{"message": roles})
 
@@ -43,7 +44,7 @@ func (r *UserManagementController) AssignRole(ctx http.Context) http.Response {
 
 	if id == "" || roleID == "" {
 		return ctx.Response().Json(422, map[string]interface{}{
-			"error": messages.GetError("validation.validation_failed"),
+			"error": messages.GetError("validation_failed"),
 		})
 	}
 

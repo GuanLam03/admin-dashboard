@@ -26,7 +26,7 @@ func (c *TemplateController) ShowTemplates(ctx http.Context) http.Response {
 	if err := query.Find(&templates); err != nil {
 		facades.Log().Errorf("Failed to fetch Gmail templates: %v", err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]any{
-			"error": messages.GetError("validation.internal_error"),
+			"error": messages.GetError("internal_error"),
 		})
 	}
 
@@ -40,14 +40,14 @@ func (c *TemplateController) AddTemplate(ctx http.Context) http.Response {
 	if err := ctx.Request().Bind(&template); err != nil {
 		facades.Log().Warningf("Invalid template input: %v", err)
 		return ctx.Response().Json(http.StatusBadRequest, map[string]any{
-			"error": messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 		})
 	}
 
 	if err := facades.Orm().Query().Create(&template); err != nil {
 		facades.Log().Errorf("Failed to create Gmail template: %v", err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]any{
-			"error": messages.GetError("validation.gmail_template_create_failed"),
+			"error": messages.GetError("gmail_template_create_failed"),
 		})
 	}
 	return ctx.Response().Json(http.StatusOK, template)
@@ -61,7 +61,7 @@ func (c *TemplateController) EditTemplate(ctx http.Context) http.Response {
 	if err := facades.Orm().Query().Where("id", id).First(&existingTemplate); err != nil {
 		facades.Log().Warningf("Gmail template not found (id=%s): %v", id, err)
 		return ctx.Response().Json(http.StatusNotFound, map[string]any{
-			"error": messages.GetError("validation.gmail_template_not_found"),
+			"error": messages.GetError("gmail_template_not_found"),
 		})
 	}
 
@@ -69,7 +69,7 @@ func (c *TemplateController) EditTemplate(ctx http.Context) http.Response {
 	if err := ctx.Request().Bind(&template); err != nil {
 		facades.Log().Warningf("Invalid update body: %v", err)
 		return ctx.Response().Json(http.StatusBadRequest, map[string]any{
-			"error": messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 		})
 	}
 
@@ -80,7 +80,7 @@ func (c *TemplateController) EditTemplate(ctx http.Context) http.Response {
 	if err := facades.Orm().Query().Save(&existingTemplate); err != nil {
 		facades.Log().Errorf("Failed to update Gmail template (id=%s): %v", id, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]any{
-			"error": messages.GetError("validation.internal_error"),
+			"error": messages.GetError("internal_error"),
 		})
 	}
 	return ctx.Response().Json(http.StatusOK, existingTemplate)
@@ -93,7 +93,7 @@ func (c *TemplateController) RemoveTemplate(ctx http.Context) http.Response {
 	if _, err := facades.Orm().Query().Where("id", id).Delete(&models.GmailTemplate{}); err != nil {
 		facades.Log().Errorf("Failed to delete Gmail template (id=%s): %v", id, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]any{
-			"error": messages.GetError("validation.internal_error"),
+			"error": messages.GetError("internal_error"),
 		})
 	}
 	return ctx.Response().Json(http.StatusOK, map[string]string{

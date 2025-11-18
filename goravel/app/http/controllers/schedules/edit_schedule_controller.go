@@ -22,14 +22,14 @@ func (c *EditScheduleController) ShowSchedule(ctx http.Context) http.Response {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return ctx.Response().Json(400, http.Json{
-			"error": messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 		})
 	}
 
 	var schedule models.Schedule
 	if err := facades.Orm().Query().Where("id", id).First(&schedule); err != nil {
 		return ctx.Response().Json(404, http.Json{
-			"error": messages.GetError("validation.schedule_not_found"),
+			"error": messages.GetError("schedule_not_found"),
 		})
 	}
 
@@ -47,7 +47,7 @@ func (c *EditScheduleController) EditSchedule(ctx http.Context) http.Response {
 
 	if err != nil {
 		return ctx.Response().Json(400, http.Json{
-			"error": messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 		})
 	}
 
@@ -61,13 +61,13 @@ func (c *EditScheduleController) EditSchedule(ctx http.Context) http.Response {
 
 	if err := ctx.Request().Bind(&input); err != nil {
 		return ctx.Response().Json(400, http.Json{
-			"error": messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 		})
 	}
 
 	if err := facades.Orm().Query().Where("id", id).First(&schedule); err != nil {
 		return ctx.Response().Json(404, http.Json{
-			"error": messages.GetError("validation.schedule_not_found"),
+			"error": messages.GetError("schedule_not_found"),
 		})
 	}
 
@@ -78,14 +78,14 @@ func (c *EditScheduleController) EditSchedule(ctx http.Context) http.Response {
 	startAt, err := time.ParseInLocation("2006-01-02T15:04", input.StartAt, loc)
 	if err != nil {
 		return ctx.Response().Json(400, http.Json{
-			"error": messages.GetError("validation.invalid_start_at"),
+			"error": messages.GetError("invalid_start_at"),
 		})
 	}
 
 	endAt, err := time.ParseInLocation("2006-01-02T15:04", input.EndAt, loc)
 	if err != nil {
 		return ctx.Response().Json(400, http.Json{
-			"error": messages.GetError("validation.invalud_end_at"),
+			"error": messages.GetError("invalid_end_at"),
 		})
 	}
 
@@ -102,21 +102,21 @@ func (c *EditScheduleController) EditSchedule(ctx http.Context) http.Response {
 			// create new Google Calendar event
 			eventID, err := googleCal.AddGoogleCalendar(schedule.Title, startAt, endAt, schedule.Recurrence, []string{})
 			if err != nil {
-				return ctx.Response().Json(500, map[string]string{"error": messages.GetError("validation.google_insert_failed")})
+				return ctx.Response().Json(500, map[string]string{"error": messages.GetError("google_insert_failed")})
 			}
 			schedule.GoogleEventID = &eventID
 		} else {
 			// update existing event
 			err := googleCal.UpdateGoogleCalendarEvent(*schedule.GoogleEventID, schedule.Title, schedule.StartAt, schedule.EndAt, schedule.Recurrence)
 			if err != nil {
-				return ctx.Response().Json(500, map[string]string{"error": messages.GetError("validation.google_update_failed")})
+				return ctx.Response().Json(500, map[string]string{"error": messages.GetError("google_update_failed")})
 			}
 		}
 	} else if input.Status == "inactive" {
 		if schedule.GoogleEventID != nil {
 			err = googleCal.DeleteGoogleCalendarEvent(*schedule.GoogleEventID) // delete from Google Calendar
 			if err != nil {
-				return ctx.Response().Json(500, map[string]string{"error": messages.GetError("validation.google_delete_failed")})
+				return ctx.Response().Json(500, map[string]string{"error": messages.GetError("google_delete_failed")})
 			}
 			schedule.GoogleEventID = nil
 		}
@@ -124,7 +124,7 @@ func (c *EditScheduleController) EditSchedule(ctx http.Context) http.Response {
 		if schedule.GoogleEventID != nil {
 			err = googleCal.DeleteGoogleCalendarEvent(*schedule.GoogleEventID) // permanent remove from Google Calendar
 			if err != nil {
-				return ctx.Response().Json(500, map[string]string{"error": messages.GetError("validation.internal_error")})
+				return ctx.Response().Json(500, map[string]string{"error": messages.GetError("internal_error")})
 			}
 			schedule.GoogleEventID = nil
 		}
@@ -134,7 +134,7 @@ func (c *EditScheduleController) EditSchedule(ctx http.Context) http.Response {
 
 	if err := facades.Orm().Query().Save(&schedule); err != nil {
 		return ctx.Response().Json(500, http.Json{
-			"error": messages.GetError("validation.schedule_update_failed"),
+			"error": messages.GetError("schedule_update_failed"),
 		})
 	}
 

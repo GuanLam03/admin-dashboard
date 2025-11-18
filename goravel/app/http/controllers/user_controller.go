@@ -26,7 +26,7 @@ func (r *UserController) Index(ctx http.Context) http.Response {
 	// Fetch all users
 	if err := facades.Orm().Query().Find(&users); err != nil {
 		return ctx.Response().Json(500, map[string]any{
-			"error": messages.GetError("validation.internal_error"),
+			"error": messages.GetError("internal_error"),
 		})
 	}
 
@@ -38,7 +38,7 @@ func (r *UserController) Index(ctx http.Context) http.Response {
 	var rules []CasbinRule
 	if err := facades.Orm().Query().Table("casbin_rule").Where("ptype = ?", "g").Find(&rules); err != nil {
 		return ctx.Response().Json(500, map[string]any{
-			"error": messages.GetError("validation.internal_error"),
+			"error": messages.GetError("internal_error"),
 		})
 	}
 
@@ -50,7 +50,7 @@ func (r *UserController) Index(ctx http.Context) http.Response {
 	var roles []Role
 	if err := facades.Orm().Query().Table("roles").Find(&roles); err != nil {
 		return ctx.Response().Json(500, map[string]any{
-			"error": messages.GetError("validation.internal_error"),
+			"error": messages.GetError("internal_error"),
 		})
 	}
 	roleMap := make(map[string]string)
@@ -101,7 +101,7 @@ func (r *UserController) Edit(ctx http.Context) http.Response {
 	// Get logged-in user
 	var user models.User
 	if err := facades.Auth(ctx).User(&user); err != nil {
-		return ctx.Response().Json(401, http.Json{"error": messages.GetError("validation.unauthorized")})
+		return ctx.Response().Json(401, http.Json{"error": messages.GetError("unauthorized")})
 	}
 
 	// Update name
@@ -111,25 +111,25 @@ func (r *UserController) Edit(ctx http.Context) http.Response {
 	if newPassword != "" {
 		// 1. Check current password
 		if !facades.Hash().Check(currentPassword, user.Password) {
-			return ctx.Response().Json(400, http.Json{"error": messages.GetError("validation.current_password_incorrect")})
+			return ctx.Response().Json(400, http.Json{"error": messages.GetError("current_password_incorrect")})
 		}
 
 		// 2. Match confirm
 		if newPassword != confirmPassword {
-			return ctx.Response().Json(400, http.Json{"error": messages.GetError("validation.password_mismatch")})
+			return ctx.Response().Json(400, http.Json{"error": messages.GetError("password_mismatch")})
 		}
 
 		// 3. Hash and save new password
 		hashed, err := facades.Hash().Make(newPassword)
 		if err != nil {
-			return ctx.Response().Json(500, http.Json{"error": messages.GetError("validation.internal_error")})
+			return ctx.Response().Json(500, http.Json{"error": messages.GetError("internal_error")})
 		}
 		user.Password = hashed
 	}
 
 	// Save changes
 	if err := facades.Orm().Query().Save(&user); err != nil {
-		return ctx.Response().Json(500, http.Json{"error": messages.GetError("validation.internal_error")})
+		return ctx.Response().Json(500, http.Json{"error": messages.GetError("internal_error")})
 	}
 
 	return ctx.Response().Json(200, http.Json{

@@ -32,12 +32,12 @@ type ScheduleRequest struct {
 func (r *AddScheduleController) AddSchedule(ctx http.Context) http.Response {
 	var req ScheduleRequest
 	if err := ctx.Request().Bind(&req); err != nil {
-		return ctx.Response().Json(400, http.Json{"error": messages.GetError("validation.invalid_request")})
+		return ctx.Response().Json(400, http.Json{"error": messages.GetError("invalid_request")})
 	}
 
 	validator, err := facades.Validation().Make(ctx.Request().All(), models.ScheduleRules)
 	if err != nil {
-		return ctx.Response().Json(500, http.Json{"error": messages.GetError("validation.internal_error")})
+		return ctx.Response().Json(500, http.Json{"error": messages.GetError("internal_error")})
 	}
 	if validator.Fails() {
 		return ctx.Response().Json(422, http.Json{"errors": validator.Errors().All()})
@@ -49,11 +49,11 @@ func (r *AddScheduleController) AddSchedule(ctx http.Context) http.Response {
 
 	startAt, err := time.ParseInLocation("2006-01-02T15:04", req.StartAt, loc)
 	if err != nil {
-		return ctx.Response().Json(400, http.Json{"error": messages.GetError("validation.invalid_start_at")})
+		return ctx.Response().Json(400, http.Json{"error": messages.GetError("invalid_start_at")})
 	}
 	endAt, err := time.ParseInLocation("2006-01-02T15:04", req.EndAt, loc)
 	if err != nil {
-		return ctx.Response().Json(400, http.Json{"error": messages.GetError("validation.invalid_end_at")})
+		return ctx.Response().Json(400, http.Json{"error": messages.GetError("invalid_end_at")})
 	}
 
 	// STEP 1: Collect emails by role
@@ -100,7 +100,7 @@ func (r *AddScheduleController) AddSchedule(ctx http.Context) http.Response {
 	eventID, err := googleCal.AddGoogleCalendar(req.Title, startAt, endAt, req.Recurrence, emails)
 	if err != nil {
 		facades.Log().Errorf("Failed to insert Google Calendar event: %v", err)
-		return ctx.Response().Json(500, http.Json{"error": messages.GetError("validation.google_insert_failed")})
+		return ctx.Response().Json(500, http.Json{"error": messages.GetError("google_insert_failed")})
 	}
 
 	// STEP 3: Save in DB
@@ -115,7 +115,7 @@ func (r *AddScheduleController) AddSchedule(ctx http.Context) http.Response {
 
 	if err := facades.Orm().Query().Create(&schedule); err != nil {
 		_ = googleCal.DeleteGoogleCalendarEvent(eventID) // rollback
-		return ctx.Response().Json(500, http.Json{"error": messages.GetError("validation.schedule_create_failed")})
+		return ctx.Response().Json(500, http.Json{"error": messages.GetError("schedule_create_failed")})
 	}
 
 	return ctx.Response().Json(201, http.Json{

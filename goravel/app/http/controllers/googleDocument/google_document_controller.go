@@ -22,7 +22,7 @@ func (c *GoogleDocumentController) ListGoogleDocuments(ctx http.Context) http.Re
 	// Apply filters if query exists, otherwise just get all
 	documents, err := c.filter(ctx)
 	if err != nil {
-		return ctx.Response().Json(500, map[string]string{"error": messages.GetError("validation.internal_error"),})
+		return ctx.Response().Json(500, map[string]string{"error": messages.GetError("internal_error"),})
 	}
 
 	return ctx.Response().Json(200, map[string]any{
@@ -75,7 +75,7 @@ func (c *GoogleDocumentController) ShowGoogleDocument(ctx http.Context) http.Res
 
 	var doc models.GoogleDocument
 	if err := facades.Orm().Query().Find(&doc, id); err != nil || doc.ID == 0 {
-		return ctx.Response().Json(404, map[string]string{"error": messages.GetError("validation.google_document_not_found"),})
+		return ctx.Response().Json(404, map[string]string{"error": messages.GetError("google_document_not_found"),})
 	}
 
 	return ctx.Response().Json(200, map[string]any{
