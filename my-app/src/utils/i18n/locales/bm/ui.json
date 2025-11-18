@@ -281,5 +281,29 @@
             "createdAt": "Dicipta Pada",
             "updatedAt": "Dikemas Kini Pada"
         }
+    },
+
+    "settings": {
+        "settings": "Tetapan",
+        "twoFactorAuthentication": "Pengesahan Dua Faktor",
+        "on": "Hidup",
+        "off": "Mati",
+        "comingSoon": "Akan Datang...",
+        "twoFactor": {
+            "setupTitle": "Tetapan Pengesahan Dua Faktor",
+            "setupDescription": "Imbas kod QR dengan Google Authenticator dan masukkan kod 6 digit untuk mengaktifkan 2FA.",
+            "qrCodeAlt": "Kod QR 2FA",
+            "enterCodePlaceholder": "Masukkan kod 6 digit",
+            "verifyAndEnable": "Sahkan & Aktifkan",
+            "failedToLoadQrCode": "Gagal memuat kod QR",
+            "verificationFailed": "Pengesahan gagal",
+            "disableTitle": "Nyahaktifkan Pengesahan Dua Faktor",
+            "disableDescription": "Masukkan kod 6 digit dari aplikasi authenticator untuk mengesahkan.",
+            "codePlaceholder": "123456",
+            "disableButton": "Nyahaktifkan 2FA",
+            "failedToDisable": "Gagal nyahaktifkan 2FA"
+            
+        }
     }
+
 }

@@ -286,6 +286,28 @@
             "createdAt": "Created At",
             "updatedAt": "Updated At"
         }
+    },
+
+    "settings": {
+        "settings": "Settings",
+        "twoFactorAuthentication": "Two-Factor Authentication",
+        "on": "On",
+        "off": "Off",
+        "comingSoon": "Coming Soon ...",
+        "twoFactor": {
+            "setupTitle": "Two-Factor Authentication Setup",
+            "setupDescription": "Scan the QR code with Google Authenticator and enter the 6-digit code to enable 2FA.",
+            "qrCodeAlt": "2FA QR Code",
+            "enterCodePlaceholder": "Enter 6-digit code",
+            "verifyAndEnable": "Verify & Enable",
+            "failedToLoadQrCode": "Failed to load QR code",
+            "verificationFailed": "Verification failed",
+            "disableTitle": "Disable Two-Factor Authentication",
+            "disableDescription": "Enter the 6-digit code from your authenticator app to confirm.",
+            "codePlaceholder": "123456",
+            "disableButton": "Disable 2FA",
+            "failedToDisable": "Failed to disable 2FA"
+        }
     }
 
 

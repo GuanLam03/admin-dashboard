@@ -19,15 +19,15 @@ export default function TwoFactorDisablePage() {
       setUser({ ...user, two_factor_enabled: false });
       navigate("/settings");
     } catch (err) {
-      setError(err.response?.data?.error ? t(err.response.data.error) : "Failed to disable 2FA");
+      setError(err.response?.data?.error ? t(err.response.data.error) : t("settings.twoFactor.failedToDisable"));
     }
   };
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white shadow rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-4">Disable Two-Factor Authentication</h2>
+      <h2 className="text-xl font-bold mb-4">{t("settings.twoFactor.disableTitle")}</h2>
       <p className="text-gray-600 mb-4">
-        Enter the 6-digit code from your authenticator app to confirm.
+        {t("settings.twoFactor.disableDescription")}
       </p>
 
       {error && (
@@ -39,7 +39,7 @@ export default function TwoFactorDisablePage() {
           type="text"
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
-          placeholder="123456"
+          placeholder={t("settings.twoFactor.codePlaceholder")}
           className="w-full px-3 py-2 border rounded"
           required
         />
@@ -48,7 +48,7 @@ export default function TwoFactorDisablePage() {
                 type="submit"
                 className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600"
                 >
-                Disable 2FA
+                {t("settings.twoFactor.disableButton")}
                 </button>
                 
                 <button
@@ -56,7 +56,7 @@ export default function TwoFactorDisablePage() {
                 onClick={() => navigate("/settings")}
                 className="w-full py-2 border rounded"
                 >
-                Cancel
+                {t("common.buttons.cancel")}
             </button>
         </div>
         
