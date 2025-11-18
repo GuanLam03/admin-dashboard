@@ -125,12 +125,18 @@ function SchedulePage() {
       );
 
 
-    } catch (err) { console.error("Error fetching schedules:", err); setError(t(err.response.data.error)); }
+    } catch (err) { 
+      console.error("Error fetching schedules:", err); 
+      setError(err.response?.data?.error ? t(err.response.data.error) : ""); 
+    }
   };
 
 
+  // Note: fetchSchedules uses 'filters' but it's not in deps
+  // This is intentional - initial load only. Filters are applied via handleSearch
   useEffect(() => {
     fetchSchedules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

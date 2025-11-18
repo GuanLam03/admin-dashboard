@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function TwoFactorSettingsPage() {
+  const {t} = useTranslation();
   const [qrCode, setQrCode] = useState("");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
@@ -42,7 +44,7 @@ export default function TwoFactorSettingsPage() {
       setUser({ ...user, two_factor_enabled: true });
       navigate("/settings"); //  return to settings page
     } catch (err) {
-      setError(err.response?.data?.error || "Verification failed");
+      setError(err.response?.data?.error ? t(err.response.data.error) : "Verification failed");
     }
   };
 

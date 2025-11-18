@@ -63,7 +63,7 @@ function ScheduleEditPage() {
     //   }, 1000);
     } catch (err) {
       console.error(err);
-      setError(t(err.response?.data?.error) || "Failed to update schedule. Please try again.");
+      setError(err.response?.data?.error ? t(err.response.data.error) : "Failed to update schedule. Please try again.");
     }
   };
 

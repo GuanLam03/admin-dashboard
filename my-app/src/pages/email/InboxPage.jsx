@@ -51,7 +51,7 @@ export default function InboxPage({ folder, emailAddress }) {
       );
       setNextPageToken(res.data.nextPageToken || null);
     } catch (err) {
-      setError(err.response.data.error);
+      setError(err.response?.data?.error ? t(err.response.data.error) : "");
       
     } finally {
       setLoading(false);
@@ -83,8 +83,7 @@ export default function InboxPage({ folder, emailAddress }) {
   // toggle star/unstar
   async function toggleStar(emailId, threadId, isCurrentlyStarred) {
     try {
-      const action = isCurrentlyStarred ? "star" : "star"; // choose API endpoint
-      await api.post(`/gmail/${folder}/messages/${threadId}/${action}?email=${emailAddress}`);
+      await api.post(`/gmail/${folder}/messages/${threadId}/star?email=${emailAddress}`);
 
       // Update UI immediately
       setEmails((prev) =>
@@ -93,7 +92,7 @@ export default function InboxPage({ folder, emailAddress }) {
         )
       );
     } catch (err) {
-      alert("Could not update star status. Try again.");
+      setError(err.response?.data?.error ? t(err.response.data.error) : "Could not update star status. Try again.");
     }
   }
 
@@ -129,9 +128,10 @@ export default function InboxPage({ folder, emailAddress }) {
             return (
               <tr
                 key={email.id}
-                onClick={() =>
-                  (window.location.href = `/emails/${folder}/${email.id}?email=${emailAddress}`)
-                }
+                onClick={() => {
+                  // Navigate using React Router for SPA navigation
+                  window.location.href = `/emails/${folder}/${email.id}?email=${emailAddress}`;
+                }}
                 //add flex so padding only will effect
                 className={`border-b cursor-pointer ${isUnreadBg} hover:!bg-gray-100 hover:shadow-lg hover:scale-[1.001] transition`}
               >

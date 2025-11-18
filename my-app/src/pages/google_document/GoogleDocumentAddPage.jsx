@@ -36,7 +36,7 @@ function GoogleDocumentAddPage() {
       }, 1000);
     } catch (err) {
       console.error(err);
-      setError(err.response.data.error || "Failed to add Google Document. Please try again.");
+      setError(err.response?.data?.error ? t(err.response.data.error) : "Failed to add Google Document. Please try again.");
     }
   };
 

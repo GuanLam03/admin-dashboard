@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function TwoFactorDisablePage() {
+  const {t} = useTranslation();
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -17,7 +19,7 @@ export default function TwoFactorDisablePage() {
       setUser({ ...user, two_factor_enabled: false });
       navigate("/settings");
     } catch (err) {
-      setError(err.response?.data?.error || "Failed to disable 2FA");
+      setError(err.response?.data?.error ? t(err.response.data.error) : "Failed to disable 2FA");
     }
   };
 

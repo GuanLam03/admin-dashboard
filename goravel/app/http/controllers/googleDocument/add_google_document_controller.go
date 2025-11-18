@@ -40,7 +40,7 @@ func (r *AddGoogleDocumentController) AddGoogleDocument(ctx http.Context) http.R
 	link, err := simplifyGoogleLink(ctx, data["original_link"].(string))
 	if err != nil {
 		return ctx.Response().Json(422, map[string]any{
-			"error": messages.GetError("invalid_link_format"),
+			"error": err.Error(),
 		})
 	}
 
