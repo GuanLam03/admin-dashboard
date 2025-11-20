@@ -3,11 +3,13 @@ import { useParams, useSearchParams } from "react-router-dom";
 import api from "../../api/axios";
 import ShortcutIcon from '@mui/icons-material/Shortcut';
 import MessageActionBox from "./MessageActionBox";
+import { useTranslation } from "react-i18next";
 
 
 
 
 export default function MessageViewPage() {
+  const {t} = useTranslation();
   const { folder, id } = useParams();
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email"); // query param
@@ -77,14 +79,14 @@ export default function MessageViewPage() {
                     onClick={handleReplyClick}
                   >
                     <ShortcutIcon className="scale-x-[-1]"/>
-                    <span className="ml-2">Reply</span>
+                    <span className="ml-2">{t("emailManagement.reply")}</span>
                   </div>
                   <div
                     className="flex justify-between items-center border border-gray-400 rounded-full px-4 py-2 w-[150px] text-gray-600 font-semibold hover:bg-gray-100 cursor-pointer"
                     onClick={handleForwardClick}
                   >
                     <ShortcutIcon />
-                    <span className="ml-2">Forward</span>
+                    <span className="ml-2">{t("emailManagement.forward")}</span>
                   </div>
                 </div>
               )}
@@ -93,7 +95,7 @@ export default function MessageViewPage() {
               {showReply && (
                 <div className="flex flex-col space-y-4">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-semibold">Reply</h3>
+                    <h3 className="text-xl font-semibold">{t("emailManagement.reply")}</h3>
                   </div>
                   <MessageActionBox
                     mailbox={folder}
@@ -113,7 +115,7 @@ export default function MessageViewPage() {
               {showForward && (
                 <div className="flex flex-col space-y-4">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-semibold">Forward</h3>
+                    <h3 className="text-xl font-semibold">{t("emailManagement.forward")}</h3>
                   </div>
                   <MessageActionBox
                     mailbox={folder}

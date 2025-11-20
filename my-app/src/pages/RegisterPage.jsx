@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { useTranslation } from "react-i18next";
 
 export default function RegisterPage() {
+  const {t} = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +28,7 @@ export default function RegisterPage() {
         navigate("/login");
       })
       .catch((err) => {
-        setError(err.response?.data?.error || "Registration failed");
+        setError(err.response?.data?.error ? t(err.response.data.error) : "Registration failed");
       });
   };
 

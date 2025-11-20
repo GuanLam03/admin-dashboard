@@ -1,16 +1,15 @@
 package role
 
 import (
-	"strconv"
 	"fmt"
-	"github.com/spf13/cast"
+	"github.com/casbin/casbin/v2"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
+	"github.com/spf13/cast"
+	"goravel/app/messages"
 	"goravel/app/models"
 	"goravel/app/permissions"
-	"github.com/casbin/casbin/v2"
-	"goravel/app/messages"
-
+	"strconv"
 )
 
 type RoleController struct{}
@@ -23,12 +22,11 @@ func NewRoleController() *RoleController {
 func (r *RoleController) Index(ctx http.Context) http.Response {
 	var roles []models.Role
 	if err := facades.Orm().Query().Find(&roles); err != nil {
-		return ctx.Response().Json(500, http.Json{"error":  messages.GetError("validation.internal_error")})
+		return ctx.Response().Json(500, http.Json{"error": messages.GetError("internal_error")})
 	}
 
-	
-	return ctx.Response().Json(200,http.Json{"message": roles})
-	
+	return ctx.Response().Json(200, http.Json{"message": roles})
+
 }
 
 // POST /roles
@@ -37,7 +35,7 @@ func (r *RoleController) Store(ctx http.Context) http.Response {
 
 	role := models.Role{Name: name}
 	if err := facades.Orm().Query().Create(&role); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error":  messages.GetError("validation.internal_error")})
+		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": messages.GetError("internal_error")})
 	}
 	return ctx.Response().Json(200, role)
 }
@@ -54,78 +52,75 @@ func (r *RoleController) AssignToUser(ctx http.Context) http.Response {
 		RoleID: cast.ToUint(roleID),
 	}); err != nil {
 		return ctx.Response().Json(500, http.Json{
-			"error":messages.GetError("validation.internal_error"),
+			"error": messages.GetError("internal_error"),
 		})
 	}
 
 	return ctx.Response().Json(201, http.Json{
-		"message": "Role assigned successfully",
+		"message": messages.GetSuccess("role_assigned"),
 	})
 }
 
-
 func (r *RoleController) Show(ctx http.Context) http.Response {
-    idStr := ctx.Request().Route("id")
-    roleID, err := strconv.Atoi(idStr)
-    if err != nil {
-        return ctx.Response().Json(422, map[string]interface{}{
-            "error": messages.GetError("validation.invalid_request"),
-        })
-    }
+	idStr := ctx.Request().Route("id")
+	roleID, err := strconv.Atoi(idStr)
+	if err != nil {
+		return ctx.Response().Json(422, map[string]interface{}{
+			"error": messages.GetError("invalid_request"),
+		})
+	}
 
-    var role models.Role
-    if err := facades.Orm().Query().Where("id = ?", roleID).First(&role); err != nil {
-        return ctx.Response().Json(404, map[string]interface{}{
-            "error": messages.GetError("validation.role_not_found"),
-        })
-    }
+	var role models.Role
+	if err := facades.Orm().Query().Where("id = ?", roleID).First(&role); err != nil {
+		return ctx.Response().Json(404, map[string]interface{}{
+			"error": messages.GetError("role_not_found"),
+		})
+	}
 
-    // Get Casbin policies for this role
-    enforcerAny, err := facades.App().Make("casbin")
+	// Get Casbin policies for this role
+	enforcerAny, err := facades.App().Make("casbin")
 	if err != nil {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error":  messages.GetError("validation.casbin_not_initialized"),
+			"error": messages.GetError("casbin_not_initialized"),
 		})
 	}
 
 	enforcer, ok := enforcerAny.(*casbin.Enforcer)
-    if !ok {
-        return ctx.Response().Json(500, map[string]interface{}{
-            "error": messages.GetError("validation.casbin_cast_failed"),
-        })
-    }
+	if !ok {
+		return ctx.Response().Json(500, map[string]interface{}{
+			"error": messages.GetError("casbin_cast_failed"),
+		})
+	}
 
-    policies,_ := enforcer.GetFilteredPolicy(0, strconv.Itoa(int(roleID)))
+	policies, _ := enforcer.GetFilteredPolicy(0, strconv.Itoa(int(roleID)))
 
-    // Convert policies to permission keys (optional, map back to your PermissionMap)
-    permissionsMap := []string{}
-    for _, p := range policies {
-        object := p[1] // object/path
-        action := p[2] // method
-        permKey := permissions.PermissionObjectActionToKey(object, action) 
-        if permKey != "" {
-            permissionsMap = append(permissionsMap, permKey)
-        }
-    }
+	// Convert policies to permission keys (optional, map back to your PermissionMap)
+	permissionsMap := []string{}
+	for _, p := range policies {
+		object := p[1] // object/path
+		action := p[2] // method
+		permKey := permissions.PermissionObjectActionToKey(object, action)
+		if permKey != "" {
+			permissionsMap = append(permissionsMap, permKey)
+		}
+	}
 
-    return ctx.Response().Json(200, map[string]interface{}{
-        "role":        role,
-        "permissions": permissionsMap,
-    })
+	return ctx.Response().Json(200, map[string]interface{}{
+		"role":        role,
+		"permissions": permissionsMap,
+	})
 }
-
-
 
 // Update role permissions by ID
 func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
-	obj := ctx.Request().Path()      // URL
-    act := ctx.Request().Method()    // HTTP method
-	fmt.Println("Hello: ",obj,act)
+	obj := ctx.Request().Path()   // URL
+	act := ctx.Request().Method() // HTTP method
+	fmt.Println("Hello: ", obj, act)
 	idStr := ctx.Request().Route("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return ctx.Response().Json(422, map[string]interface{}{
-			"error":messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 		})
 	}
 
@@ -136,7 +131,7 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 
 	if err := ctx.Request().Bind(&body); err != nil {
 		return ctx.Response().Json(422, map[string]interface{}{
-			"error": messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 		})
 	}
 
@@ -144,15 +139,15 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 	var role models.Role
 	if err := facades.Orm().Query().Where("id", id).First(&role); err != nil {
 		return ctx.Response().Json(404, map[string]interface{}{
-			"error": messages.GetError("validation.role_not_found"),
+			"error": messages.GetError("role_not_found"),
 		})
 	}
 
 	// Update role name
 	role.Name = body.Name
-	if _,err := facades.Orm().Query().Where("id", id).Update(&role); err != nil {
+	if _, err := facades.Orm().Query().Where("id", id).Update(&role); err != nil {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error":messages.GetError("validation.role_update_failed"),
+			"error": messages.GetError("role_update_failed"),
 		})
 	}
 
@@ -160,16 +155,16 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 	enforcerAny, err := facades.App().Make("casbin")
 	if err != nil {
 		return ctx.Response().Json(500, map[string]interface{}{
-			"error": messages.GetError("validation.casbin_not_initialized"),
+			"error": messages.GetError("casbin_not_initialized"),
 		})
 	}
 
 	enforcer, ok := enforcerAny.(*casbin.Enforcer)
-    if !ok {
-        return ctx.Response().Json(500, map[string]interface{}{
-            "error": messages.GetError("validation.casbin_cast_failed"),
-        })
-    }
+	if !ok {
+		return ctx.Response().Json(500, map[string]interface{}{
+			"error": messages.GetError("casbin_cast_failed"),
+		})
+	}
 
 	roleID := int(role.ID)
 	// Remove all existing policies for this role
@@ -182,12 +177,9 @@ func (r *RoleController) UpdatePermissions(ctx http.Context) http.Response {
 			_, _ = enforcer.AddPolicy(strconv.Itoa(roleID), object, action)
 		}
 	}
-	
 
 	return ctx.Response().Json(200, map[string]interface{}{
-		"message": "Role and permissions updated",
+		"message": messages.GetSuccess("role_permissions_updated"),
 		"role":    role,
 	})
 }
-
-

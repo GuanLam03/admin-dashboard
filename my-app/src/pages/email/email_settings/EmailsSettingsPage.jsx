@@ -7,8 +7,10 @@ import { MdExpandMore } from "react-icons/md";
 import { MdExpandLess } from "react-icons/md";
 import CloseIcon from '@mui/icons-material/Close';
 import Editor from "../../../tools/Editor";
+import { useTranslation } from "react-i18next";
 
 export default function EmailsSettingsPage() {
+  const {t} = useTranslation();
   const [accounts, setAccounts] = useState([]);
   const [teams, setTeams] = useState({});
   const [templates, setTemplates] = useState({});
@@ -95,13 +97,13 @@ export default function EmailsSettingsPage() {
     <div className="space-y-10">
       {/* Accounts Section */}
       <div className="bg-white p-4 rounded-lg shadow-sm">
-        <h2 className="text-xl font-bold mb-4">Email Accounts</h2>
+        <h2 className="text-xl font-bold mb-4">{t("emailManagement.settingsPage.emailAccounts")}</h2>
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b ">
-              <th className="text-left p-2">Teams</th>
-              <th className="text-left p-2">Email</th>
-              <th className="text-left p-2">Action</th>
+              <th className="text-left p-2">{t("emailManagement.settingsPage.teams")}</th>
+              <th className="text-left p-2">{t("emailManagement.settingsPage.email")}</th>
+              <th className="text-left p-2">{t("common.labels.action")}</th>
             </tr>
           </thead>
           <tbody>
@@ -112,7 +114,7 @@ export default function EmailsSettingsPage() {
                 <tr key={key} className="border-b">
                   <td className="p-2">{display}</td>
                   <td className="p-2">
-                    {account ? account.email : "Not connected"}
+                    {account ? account.email : t("emailManagement.settingsPage.notConnected")}
                   </td>
                   <td className="p-2">
                     {account ? (
@@ -121,7 +123,7 @@ export default function EmailsSettingsPage() {
                         className="flex gap-2 justify-between items-center px-4 py-2 bg-gray-100 text-black font-semibold !rounded-full hover:bg-gray-200 transition"
                       >
                         <RiLogoutBoxLine size={25} className="text-blue-500" />
-                        Logout
+                        {t("logout")}
                       </button>
                     ) : (
                       <button
@@ -129,7 +131,7 @@ export default function EmailsSettingsPage() {
                         className="flex gap-2 items-center justify-between px-4 py-2 bg-gray-100 text-black font-semibold !rounded-full hover:bg-gray-200 transition"
                       >
                         <FcGoogle size={25} />
-                        <span>Connect</span>
+                        <span>{t("emailManagement.settingsPage.connect")}</span>
                       </button>
                     )}
                   </td>
@@ -142,7 +144,7 @@ export default function EmailsSettingsPage() {
 
       {/* Templates Section */}
       <div className="bg-white p-4 rounded-lg shadow-sm">
-        <h2 className="text-xl font-bold mb-4">Templates</h2>
+        <h2 className="text-xl font-bold mb-4">{t("emailManagement.settingsPage.templates")}</h2>
         {Object.entries(teams).map(([teamKey, display]) => (
           <div key={teamKey} className="mb-6 border rounded-lg">
             {/* Team Header */}
@@ -158,7 +160,7 @@ export default function EmailsSettingsPage() {
                   }}
                   className="flex items-center gap-1 px-3 py-1 text-sm bg-blue-600 text-white !rounded-full hover:bg-blue-700"
                 >
-                  <HiPlus /> Add
+                  <HiPlus /> {t("common.buttons.add")}
                 </button>
                 <span>{expanded[teamKey] ?  <MdExpandMore />: <MdExpandLess />}</span>
               </div>
@@ -168,7 +170,7 @@ export default function EmailsSettingsPage() {
             {expanded[teamKey] && (
               <div className="p-3 space-y-2">
                 {(templates[teamKey] || []).length === 0 && (
-                  <p className="text-gray-500 text-sm">No templates yet</p>
+                  <p className="text-gray-500 text-sm">{t("emailManagement.settingsPage.noTemplatesYet")}</p>
                 )}
                 {(templates[teamKey] || []).map((t) => (
                   <div
@@ -253,13 +255,13 @@ export default function EmailsSettingsPage() {
                 className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
                 onClick={() => setShowModal(false)}
               >
-                Cancel
+                {t("common.buttons.cancel")}
               </button>
               <button
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 onClick={handleSaveTemplate}
               >
-                Save
+                {t("common.buttons.save")}
               </button>
             </div>
           </div>

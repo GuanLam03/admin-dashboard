@@ -30,7 +30,7 @@ func (c *ForwardGmailController) ForwardMessage(ctx http.Context) http.Response 
 	if email == "" || to == "" || body == "" {
 		facades.Log().Warningf("Missing required parameters")
 		return ctx.Response().Json(http.StatusBadRequest, map[string]string{
-			"error": messages.GetError("validation.invalid_request"),
+			"error": messages.GetError("invalid_request"),
 			
 		})
 	}
@@ -40,7 +40,7 @@ func (c *ForwardGmailController) ForwardMessage(ctx http.Context) http.Response 
 	if err != nil {
 		facades.Log().Errorf("Failed to get Gmail client for %s: %v", email, err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error": messages.GetError("validation.gmail_account_not_found"),
+			"error": messages.GetError("gmail_account_not_found"),
 		})
 	}
 
@@ -61,7 +61,7 @@ func (c *ForwardGmailController) ForwardMessage(ctx http.Context) http.Response 
 	if err != nil {
 		facades.Log().Errorf("Failed to forward message: %v", err)
 		return ctx.Response().Json(http.StatusInternalServerError, map[string]string{
-			"error":messages.GetError("validation.gmail_account_forward_failed"),
+			"error":messages.GetError("gmail_account_forward_failed"),
 			
 		})
 	}

@@ -4,6 +4,7 @@ import { HiOutlineTemplate } from "react-icons/hi";
 import { Tooltip } from "bootstrap"; 
 import CloseIcon from '@mui/icons-material/Close';
 import Editor from "../../tools/Editor";
+import { useTranslation } from "react-i18next";
 
 
 // const templates = [
@@ -15,6 +16,7 @@ import Editor from "../../tools/Editor";
 
 
 export default function MessageActionBox({ mailbox, messageId, email, onSent, type, originalMessage }) {
+  const {t} = useTranslation();
   const [body, setBody] = useState(""); 
   const [to, setTo] = useState(""); 
   const [sending, setSending] = useState(false);
@@ -207,7 +209,7 @@ export default function MessageActionBox({ mailbox, messageId, email, onSent, ty
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg shadow-lg w-96 p-4">
           <div className="flex justify-between items-center mb-2">
-            <h3 className="text-lg font-semibold">Choose a Template</h3>
+            <h3 className="text-lg font-semibold">{t("emailManagement.chooseATemplate")}</h3>
             <button onClick={() => setShowTemplateModal(false)}><CloseIcon /></button>
           </div>
           
@@ -230,7 +232,7 @@ export default function MessageActionBox({ mailbox, messageId, email, onSent, ty
             className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
             onClick={() => setShowTemplateModal(false)}
           >
-            Close
+            {t("emailManagement.close")}
           </button>
         </div>
       </div>

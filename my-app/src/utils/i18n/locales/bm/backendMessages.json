@@ -90,7 +90,27 @@
 
     "messageSuccessful": {
         "profile_updated": "Profil berjaya dikemas kini",
-        "password_changed": "Katalaluan berjaya ditukar"
+        "password_changed": "Katalaluan berjaya ditukar",
+        "user_registered": "Pengguna berjaya didaftarkan",
+        "twofa_required": "2FA diperlukan",
+        "login_success": "Log masuk berjaya",
+        "logged_out": "Telah log keluar",
+        "schedule_created": "Jadual berjaya dicipta",
+        "schedule_updated": "Jadual berjaya dikemas kini",
+        "schedule_removed": "Jadual telah dipadam",
+        "files_uploaded": "Fail berjaya dimuat naik",
+        "role_assigned": "Peranan berjaya diberikan",
+        "role_permissions_updated": "Peranan dan kebenaran dikemas kini",
+        "google_document_updated": "Dokumen Google berjaya dikemas kini",
+        "google_document_removed": "Dokumen Google telah dibuang",
+        "ads_campaign_updated": "Kempen iklan berjaya dikemas kini",
+        "gmail_template_deleted": "Templat berjaya dipadam",
+        "gmail_reply_sent": "Balasan berjaya dihantar",
+        "gmail_account_connected": "Peti mel berjaya disambungkan",
+        "gmail_account_removed": "Akaun telah dibuang",
+        "google_account_connected": "Akaun Google berjaya disambungkan",
+        "twofa_enabled": "2FA berjaya diaktifkan",
+        "twofa_disabled": "2FA berjaya dinyahaktifkan"
     }
  
 }

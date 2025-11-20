@@ -113,7 +113,7 @@ function GoogleDocumentPage() {
             {error && <div className="bg-red-100 text-red-600 px-4 py-2 rounded mb-4">{error}</div>}
             {success && <div className="bg-green-100 text-green-600 px-4 py-2 rounded mb-4">{success}</div>}
 
-            <h2 className="text-xl font-bold mb-4">{t("googleDocumentManagement.title")}</h2>
+            <h2 className="text-xl font-bold mb-4">{t("googleDocumentManagement.googleDocuments")}</h2>
 
             {/* Search Filters */}
             <form onSubmit={handleSearch} className="flex flex-col justify-between gap-4 flex-wrap bg-white p-4 rounded shadow-sm mb-4">
@@ -141,11 +141,11 @@ function GoogleDocumentPage() {
                     </div>
 
                     <div>
-                        <label>{t("googleDocumentManagement.form.filters.fromDate")}</label>
+                        <label>{t("fromDate")}</label>
                         <input type="date" value={filters.fdate} onChange={(e) => setFilters({ ...filters, fdate: e.target.value })} className="border rounded p-2 w-full" />
                     </div>
                     <div>
-                        <label>{t("googleDocumentManagement.form.filters.toDate")}</label>
+                        <label>{t("toDate")}</label>
                         <input type="date" value={filters.tdate} onChange={(e) => setFilters({ ...filters, tdate: e.target.value })} className="border rounded p-2 w-full" />
                     </div>
                 </div>

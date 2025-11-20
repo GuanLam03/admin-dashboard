@@ -80,13 +80,13 @@ function GoogleDocumentEditPage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">{t("googleDocumentManagement.editPage.title")}</h2>
+      <h2 className="text-xl font-bold mb-4">{t("googleDocumentManagement.editPage.editGoogleDocument")}</h2>
 
       <form
         onSubmit={handleSubmit}
         className="bg-white p-4 rounded shadow-sm w-full"
       >
-        <h4 className="text-lg font-semibold mb-4">{t("googleDocumentManagement.editPage.sectionTitle")}</h4>
+        <h4 className="text-lg font-semibold mb-4">{t("googleDocumentManagement.editPage.googleDocumentInfo")}</h4>
         <table className="w-full border-collapse">
           <tbody>
             <tr>

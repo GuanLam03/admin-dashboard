@@ -125,12 +125,18 @@ function SchedulePage() {
       );
 
 
-    } catch (err) { console.error("Error fetching schedules:", err); setError("Error fetching schedules: " + err.message); }
+    } catch (err) { 
+      console.error("Error fetching schedules:", err); 
+      setError(err.response?.data?.error ? t(err.response.data.error) : ""); 
+    }
   };
 
 
+  // Note: fetchSchedules uses 'filters' but it's not in deps
+  // This is intentional - initial load only. Filters are applied via handleSearch
   useEffect(() => {
     fetchSchedules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -218,7 +224,7 @@ function SchedulePage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.title")}</h2>
+      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.schedules")}</h2>
 
 
       {/* Search Filters */}
@@ -250,7 +256,7 @@ function SchedulePage() {
           </div>
 
           <div>
-            <label>{t("scheduleManagement.form.filters.fromDate")}</label>
+            <label>{t("fromDate")}</label>
             <input
               type="date"
               name="fdate"
@@ -261,7 +267,7 @@ function SchedulePage() {
           </div>
 
           <div>
-            <label>{t("scheduleManagement.form.filters.toDate")}</label>
+            <label>{t("toDate")}</label>
             <input
               type="date"
               name="tdate"

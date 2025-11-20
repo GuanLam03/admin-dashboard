@@ -99,7 +99,27 @@
 
     "messageSuccessful": {
         "profile_updated": "个人资料更新成功",
-        "password_changed": "密码修改成功"
+        "password_changed": "密码修改成功",
+        "user_registered": "用户注册成功",
+        "twofa_required": "需要双重验证",
+        "login_success": "登录成功",
+        "logged_out": "已登出",
+        "schedule_created": "日程创建成功",
+        "schedule_updated": "日程更新成功",
+        "schedule_removed": "日程已移除",
+        "files_uploaded": "文件已上传",
+        "role_assigned": "角色分配成功",
+        "role_permissions_updated": "角色与权限已更新",
+        "google_document_updated": "Google 文档更新成功",
+        "google_document_removed": "Google 文档已移除",
+        "ads_campaign_updated": "广告活动更新成功",
+        "gmail_template_deleted": "模板删除成功",
+        "gmail_reply_sent": "回复发送成功",
+        "gmail_account_connected": "邮箱连接成功",
+        "gmail_account_removed": "账户已移除",
+        "google_account_connected": "Google 账号已连接",
+        "twofa_enabled": "双重验证已启用",
+        "twofa_disabled": "双重验证已停用"
     }
  
 }

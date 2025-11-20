@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function TwoFactorSettingsPage() {
+  const {t} = useTranslation();
   const [qrCode, setQrCode] = useState("");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
@@ -26,9 +28,9 @@ export default function TwoFactorSettingsPage() {
         ) {
           const text = await err.response.data.text();
           const json = JSON.parse(text);
-          setError(json.error || "Failed to load QR code");
+          setError(json.error ? t(json.error) : t("settings.twoFactor.failedToLoadQrCode"));
         } else {
-          setError("Failed to load QR code");
+          setError(t("settings.twoFactor.failedToLoadQrCode"));
         }
       });
 
@@ -42,34 +44,34 @@ export default function TwoFactorSettingsPage() {
       setUser({ ...user, two_factor_enabled: true });
       navigate("/settings"); //  return to settings page
     } catch (err) {
-      setError(err.response?.data?.error || "Verification failed");
+      setError(err.response?.data?.error ? t(err.response.data.error) : t("settings.twoFactor.verificationFailed"));
     }
   };
 
   return (
     <div className="max-w-md mx-auto bg-white shadow rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-4">Two-Factor Authentication Setup</h2>
+      <h2 className="text-xl font-bold mb-4">{t("settings.twoFactor.setupTitle")}</h2>
       <p className="text-gray-600 mb-4">
-        Scan the QR code with Google Authenticator and enter the 6-digit code to
-        enable 2FA.
+        {t("settings.twoFactor.setupDescription")}
       </p>
 
-      {qrCode && <img src={qrCode} alt="2FA QR Code" className="mx-auto mb-4" />}
+      {qrCode && <img src={qrCode} alt={t("settings.twoFactor.qrCodeAlt")} className="mx-auto mb-4" />}
 
       {error && <div className="bg-red-100 text-red-600 px-4 py-2 rounded mb-4">{error}</div>}
 
       <form onSubmit={handleVerify} className="flex flex-col gap-4">
         <input
           type="text"
-          placeholder="Enter 6-digit code"
+          placeholder={t("settings.twoFactor.enterCodePlaceholder")}
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
           className="w-full px-4 py-2 border rounded-lg"
           required
         />
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-600">
-          Verify & Enable
+          {t("settings.twoFactor.verifyAndEnable")}
         </button>
+        
       </form>
     </div>
   );

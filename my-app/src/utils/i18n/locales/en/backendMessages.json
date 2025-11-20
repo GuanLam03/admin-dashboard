@@ -100,7 +100,27 @@
 
   "messageSuccessful":{
     "profile_updated": "Profile updated successfully",
-    "password_changed": "Password changed successfully"
+    "password_changed": "Password changed successfully",
+    "user_registered": "User registered successfully",
+    "twofa_required": "2FA required",
+    "login_success": "Login success",
+    "logged_out": "Logged out",
+    "schedule_created": "Schedule created successfully",
+    "schedule_updated": "Schedule updated successfully",
+    "schedule_removed": "Schedule removed",
+    "files_uploaded": "Files uploaded",
+    "role_assigned": "Role assigned successfully",
+    "role_permissions_updated": "Role and permissions updated",
+    "google_document_updated": "Google document updated successfully",
+    "google_document_removed": "Google document removed successfully",
+    "ads_campaign_updated": "Ads Campaign updated successfully",
+    "gmail_template_deleted": "Template deleted successfully",
+    "gmail_reply_sent": "Reply sent successfully",
+    "gmail_account_connected": "Mailbox connected successfully!",
+    "gmail_account_removed": "Account removed",
+    "google_account_connected": "Google account connected",
+    "twofa_enabled": "2FA enabled successfully",
+    "twofa_disabled": "2FA disabled successfully"
   }
   
 }

@@ -150,7 +150,7 @@ function DocumentPage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">{t("documentManagement.title")}</h2>
+      <h2 className="text-xl font-bold mb-4">{t("documentManagement.documents")}</h2>
 
       {/* Upload Form */}
       <form

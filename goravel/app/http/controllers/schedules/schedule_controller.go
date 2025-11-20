@@ -43,7 +43,7 @@ func (r *ScheduleController) ShowSchedule(ctx http.Context) http.Response {
 
 	if err := query.Order("start_at asc").Find(&schedules); err != nil {
 		return ctx.Response().Json(500, http.Json{
-			"error": messages.GetError("validation.internal_error"),
+			"error": messages.GetError("internal_error"),
 		})
 	}
 

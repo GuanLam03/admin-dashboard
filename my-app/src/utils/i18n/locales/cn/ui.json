@@ -1,15 +1,20 @@
 {
-    "appName": "管理面板",
+    "appName": "管理后台",
+    "logout": "登出",
+    "gmail": "Gmail",
+    "fromDate": "开始日期",
+    "toDate": "结束日期",
+
     "sidebar": {
         "home": "首页",
         "profile": "个人资料",
         "userManagement": "用户管理",
-        "roles": "角色",
+        "roles": "角色管理",
         "documents": "文件",
-        "googleDocuments": "谷歌文件",
+        "googleDocuments": "Google 文件",
         "schedules": "日程",
         "schedulesSettings": "日程设置",
-        "emails": "电子邮件",
+        "emails": "邮件",
         "emailsTechnical": "技术邮件",
         "emailsSupport": "支持邮件",
         "emailsSettings": "邮件设置",
@@ -20,8 +25,8 @@
         "settings": "设置"
     },
 
-    "home":{
-        "welcome":"欢迎，{{name}}！"
+    "home": {
+        "welcome": "欢迎，{{name}}！"
     },
 
     "user": {
@@ -36,8 +41,8 @@
         "newPassword": "新密码",
         "confirmPassword": "确认密码",
         "saveChanges": "保存更改",
-        "saving": "保存中...",
-        "passwordMismatch": "新密码不匹配",
+        "saving": "保存中…",
+        "passwordMismatch": "两次输入的新密码不一致",
         "updateFailed": "更新失败"
     },
 
@@ -46,7 +51,7 @@
             "action": "操作"
         },
         "buttons": {
-            "add": "新增",
+            "add": "添加",
             "edit": "编辑",
             "update": "更新",
             "download": "下载",
@@ -54,7 +59,10 @@
             "save": "保存",
             "upload": "上传",
             "search": "搜索",
-            "clearSearch": "清除搜索"
+            "clearSearch": "清除搜索",
+            "report": "报告",
+            "log": "日志",
+            "cancel": "取消"
         }
     },
 
@@ -62,34 +70,34 @@
         "fields": {
             "role": "角色",
             "name": "姓名",
-            "email": "电子邮件",
+            "email": "邮箱",
             "createdAt": "创建时间"
         },
-        "title": "用户管理"
+        "userManagement": "用户管理"
     },
-    
+
     "roleManagement": {
         "fields": {
             "name": "名称",
             "createdAt": "创建时间",
             "updatedAt": "更新时间"
         },
-        "title": "创建角色",
+        "createRole": "创建角色",
         "form": {
             "roleName": "角色名称",
-            "roleNamePlaceholder": "请输入角色名称"
+            "roleNamePlaceholder": "输入角色名称"
         }
     },
 
     "documentManagement": {
         "fields": {
-            "id": "编号",
-            "filename": "文件名称",
+            "id": "ID",
+            "filename": "文件名",
             "path": "路径",
             "createdAt": "创建时间",
             "updatedAt": "更新时间"
         },
-        "title": "文档管理",
+        "documents": "文件",
         "form": {
             "selectFiles": "选择文件"
         }
@@ -97,7 +105,7 @@
 
     "googleDocumentManagement": {
         "fields": {
-            "id": "编号",
+            "id": "ID",
             "name": "名称",
             "originalLink": "原始链接",
             "link": "链接",
@@ -105,26 +113,21 @@
             "createdAt": "创建时间",
             "updatedAt": "更新时间"
         },
-        "title": "Google 文档",
-        "form": {
-            
-            "filters": {
-                "fromDate": "开始日期",
-                "toDate": "结束日期"
-            }
-        },
+
+        "googleDocuments": "Google 文件",
+
         "addPage": {
-            "title": "新增 Google 文档",
-            "sectionTitle": "Google 文档信息",
+            "addGoogleDocument": "添加 Google 文件",
+            "googleDocumentInfo": "Google 文件信息",
             "form": {
-                "documentNamePlaceholder": "输入文档名称",
+                "documentNamePlaceholder": "输入文件名称",
                 "documentOriginalLinkPlaceholder": "粘贴 Google 文档链接"
             }
         },
+
         "editPage": {
-            "title": "编辑 Google 文档",
-            "sectionTitle": "Google 文档信息"
-            
+            "editGoogleDocument": "编辑 Google 文件",
+            "googleDocumentInfo": "Google 文件信息"
         }
     },
 
@@ -140,36 +143,172 @@
             "updatedAt": "更新时间",
             "notifyRoles": "通知角色"
         },
-        "title": "日程",
 
-        "form": {
-        "filters": {
-            "fromDate": "开始日期",
-            "toDate": "结束日期"
-        }
-        },
+        "schedules": "日程",
 
         "calendar": {
-            "fullCalendarTitle": "完整日历（JavaScript）",
+            "fullCalendarTitle": "Full Calendar Javascript",
             "googleCalendarTitle": "Google 日历"
         },
 
         "addPage": {
-            "title": "添加日程",
-            "sectionTitle": "日程信息",
+            "addSchedule": "添加日程",
+            "scheduleInfo": "日程信息",
 
             "form": {
                 "scheduleTitlePlaceholder": "输入日程标题",
-                "scheduleNotifyRolesPlaceholder": "选择要通知的角色（可选）"
+                "scheduleNotifyRolesPlaceholder": "选择通知角色（可选",
+                "scheduleNotifyRolesHint": "你可以选择多个角色，或留空表示不通知任何人"
             }
         },
 
         "editPage": {
-            "title": "编辑日程",
-            "sectionTitle": "日程信息"
+            "editSchedule": "编辑日程",
+            "scheduleinfo": "日程信息"
+        },
+
+        "settingsPage": {
+            "gmailAccountForGoogleCalendar": "用于 Google 日历的 Gmail 账号",
+            "connect": "连接",
+            "notConnected": "未连接"
+        }
+    },
+
+    "emailManagement": {
+        "emails": "邮件",
+        "chooseATemplate": "选择模板",
+        "close": "关闭",
+        "reply": "回复",
+        "forward": "转发",
+        "loadMore": "加载更多",
+
+        "settingsPage": {
+            "emailAccounts": "电子邮件账户",
+            "gmailAccountForGoogleCalendar": "用于 Google 日历的 Gmail 账户",
+            "connect": "连接",
+            "notConnected": "未连接",
+            "teams": "团队",
+            "email": "电子邮件",
+
+            "templates": "模板",
+            "noTemplatesYet": "尚无模板"
+        }
+    },
+
+
+    "adsCampaign": {
+        "field": {
+            "id": "ID",
+            "name": "名称",
+            "targetUrl": "目标链接",
+            "code": "代码",
+            "trackingLink": "追踪链接",
+            "postbackLink": "回传链接",
+            "status": "状态",
+            "createdAt": "创建时间",
+            "updatedAt": "更新时间"
+        },
+
+        "adsCampaign": "广告活动",
+
+        "createAdCampaignLink": "创建广告活动链接",
+        "postback": "回传",
+        "chooseTheEventToPostback": "选择要回传的事件",
+        "enterPostbackUrl": "输入 {{event}} 回传 URL",
+        "includeOrginalTrackingPatameters": "包含原始追踪参数",
+        "sendUtmAndClickDataDescription": "为此回传发送 UTM 和点击数据（来源、活动等）",
+        "generatedLinks": "生成的链接",
+        "copy": "复制",
+        "copied": "已复制",
+        "supportedParameter": "支持的参数",
+
+        "editAdsCampaign": "编辑广告活动",
+        "adsCampaignInfo": "广告活动信息",
+        "postbackEvents": "回传事件",
+        "selectEvent": "选择事件",
+        "enterPostbackUrlPlaceHolder": "输入回传 URL",
+        "noPostbacksConfigured": "未配置回传",
+
+        "adsCampaignReport": {
+            "adsCampaignReport": "广告活动报告",
+            "totalClicks": "总点击量",
+            "conversions": "转化数",
+            "conversionRate": "转化率",
+            "revenue": "收入",
+            "revenueByCountry": "按国家收入",
+            "country": "国家",
+            "clicksByCountry": "按国家点击量",
+            "clicks": "点击量",
+            "filter": "筛选",
+
+            "reportTableColumns": {
+                "clicks": "点击量",
+                "conversions": "转化数",
+                "groupName": "分组名称",
+                "uniqueClicks": "独立点击量"
+            }
+        }
+    },
+
+    "adsLogDetail": {
+        "field": {
+            "id": "ID",
+            "ip": "IP",
+            "country": "国家",
+            "region": "地区",
+            "city": "城市",
+            "userAgent": "用户代理",
+            "deviceType": "设备类型",
+            "deviceName": "设备名称",
+            "osName": "操作系统",
+            "osVersion": "系统版本",
+            "browserName": "浏览器",
+            "browserVersion": "浏览器版本",
+            "referrer": "来源",
+            "clickedUrl": "点击链接",
+            "createdAt": "创建时间",
+            "updatedAt": "更新时间"
+        },
+
+        "detailedLogs": "详细日志",
+        "event": "事件",
+        "day": "天",
+        "month": "月",
+        "hourOfDay": "小时",
+        "dayOfWeek": "星期"
+    },
+
+    "adsEventLog": {
+        "field": {
+            "id": "ID",
+            "adsLogId": "广告日志 ID",
+            "eventName": "事件名称",
+            "data": "数据",
+            "createdAt": "创建时间",
+            "updatedAt": "更新时间"
+        }
+    },
+
+    "settings": {
+        "settings": "设置",
+        "twoFactorAuthentication": "双重认证",
+        "on": "开启",
+        "off": "关闭",
+        "comingSoon": "敬请期待...",
+        "twoFactor": {
+            "setupTitle": "双重认证设置",
+            "setupDescription": "使用 Google 身份验证器扫描二维码，并输入 6 位验证码以启用 2FA。",
+            "qrCodeAlt": "2FA 二维码",
+            "enterCodePlaceholder": "输入 6 位验证码",
+            "verifyAndEnable": "验证并启用",
+            "failedToLoadQrCode": "加载二维码失败",
+            "verificationFailed": "验证失败",
+            "disableTitle": "关闭双重认证",
+            "disableDescription": "请输入身份验证器应用中的 6 位验证码以确认。",
+            "codePlaceholder": "123456",
+            "disableButton": "关闭 2FA",
+            "failedToDisable": "关闭 2FA 失败"
         }
     }
-
-
 
 }

@@ -63,7 +63,7 @@ function ScheduleEditPage() {
     //   }, 1000);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.error || "Failed to update schedule. Please try again.");
+      setError(err.response?.data?.error ? t(err.response.data.error) : "Failed to update schedule. Please try again.");
     }
   };
 
@@ -80,10 +80,10 @@ function ScheduleEditPage() {
         <div className="bg-green-100 text-green-600 px-4 py-2 rounded mb-4">{success}</div>
       )}
 
-      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.editPage.title")}</h2>
+      <h2 className="text-xl font-bold mb-4">{t("scheduleManagement.editPage.editSchedule")}</h2>
 
       <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow-sm w-full">
-        <h4 className="text-lg font-semibold mb-4">{t("scheduleManagement.editPage.sectionTitle")}</h4>
+        <h4 className="text-lg font-semibold mb-4">{t("scheduleManagement.editPage.scheduleinfo")}</h4>
         <table className="w-full border-collapse">
           <tbody>
             <tr>

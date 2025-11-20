@@ -1,6 +1,26 @@
 package messages
 
 var SuccessfulMessages = map[string]string{
-	"profile_updated":    "profile_updated",
-	"password_changed":   "password_changed",
+	"profile_updated":          "messageSuccessful.profile_updated",
+	"password_changed":         "messageSuccessful.password_changed",
+	"user_registered":          "messageSuccessful.user_registered",
+	"twofa_required":           "messageSuccessful.twofa_required",
+	"login_success":            "messageSuccessful.login_success",
+	"logged_out":               "messageSuccessful.logged_out",
+	"schedule_created":         "messageSuccessful.schedule_created",
+	"schedule_updated":         "messageSuccessful.schedule_updated",
+	"schedule_removed":         "messageSuccessful.schedule_removed",
+	"files_uploaded":           "messageSuccessful.files_uploaded",
+	"role_assigned":            "messageSuccessful.role_assigned",
+	"role_permissions_updated": "messageSuccessful.role_permissions_updated",
+	"google_document_updated":  "messageSuccessful.google_document_updated",
+	"google_document_removed":  "messageSuccessful.google_document_removed",
+	"ads_campaign_updated":     "messageSuccessful.ads_campaign_updated",
+	"gmail_template_deleted":   "messageSuccessful.gmail_template_deleted",
+	"gmail_reply_sent":         "messageSuccessful.gmail_reply_sent",
+	"gmail_account_connected":  "messageSuccessful.gmail_account_connected",
+	"gmail_account_removed":    "messageSuccessful.gmail_account_removed",
+	"google_account_connected": "messageSuccessful.google_account_connected",
+	"twofa_enabled":            "messageSuccessful.twofa_enabled",
+	"twofa_disabled":           "messageSuccessful.twofa_disabled",
 }

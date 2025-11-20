@@ -1,6 +1,9 @@
 {
     "appName": "Admin Dashboard",
-
+    "logout": "Logout",
+    "gmail" : "Gmail",
+    "fromDate": "From Date",
+    "toDate": "To Date",
     "sidebar": {
         "home": "Home",
         "profile": "Profile",
@@ -55,7 +58,10 @@
             "save": "Save",
             "upload": "Upload",
             "search": "Search",
-            "clearSearch": "Clear Search"
+            "clearSearch": "Clear Search",
+            "report": "Report",
+            "log": "Log",
+            "cancel": "Cancel"
         }
     },
 
@@ -66,7 +72,7 @@
             "email": "Email",
             "createdAt": "Created At"
         },
-        "title": "User Management"
+        "userManagement": "User Management"
         
     },
     
@@ -76,7 +82,7 @@
             "createdAt": "Created At",
             "updatedAt": "Updated At"
         },
-        "title": "Create Role", 
+        "createRole": "Create Role", 
         "form": {
             "roleName": "Role Name",
             "roleNamePlaceholder": "Enter role name"
@@ -93,7 +99,7 @@
             "createdAt": "Created At",
             "updatedAt": "Updated At"
         },
-        "title": "Documents",
+        "documents": "Documents",
         "form": {
             "selectFiles": "Select Files"
         }
@@ -110,16 +116,11 @@
             "updatedAt": "Updated At"
         },
 
-        "title": "Google Documents",
-        "form": {
-            "filters": {
-                "fromDate": "From Date",
-                "toDate": "To Date"
-            }
-        },
+        "googleDocuments": "Google Documents",
+        
         "addPage": {
-            "title": "Add Google Document",
-            "sectionTitle": "Google Document Info",
+            "addGoogleDocument": "Add Google Document",
+            "googleDocumentInfo": "Google Document Info",
             
             "form": {
                 "documentNamePlaceholder": "Enter document name",
@@ -128,8 +129,8 @@
             }
         },
         "editPage": {
-            "title": "Edit Google Document",
-            "sectionTitle": "Google Document Info"
+            "editGoogleDocument": "Edit Google Document",
+            "googleDocumentInfo": "Google Document Info"
             
             
         }
@@ -149,14 +150,7 @@
             "notifyRoles": "Notify Roles"
 
         },
-        "title": "Schedules",
-
-        "form": {
-            "filters": {
-                "fromDate": "From Date",
-                "toDate": "To Date"
-            }
-        },
+        "schedules": "Schedules",
         
         "calendar": {
             "fullCalendarTitle": "Full Calendar Javascript",
@@ -164,21 +158,166 @@
         },
 
         "addPage": {
-            "title": "Add Schedule",
-            "sectionTitle": "Schedule Info",
+            "addSchedule": "Add Schedule",
+            "scheduleInfo": "Schedule Info",
             
             "form": {
                 "scheduleTitlePlaceholder": "Enter schedule title",
-                "scheduleNotifyRolesPlaceholder": "Select roles to notify (optional)"
-                
+                "scheduleNotifyRolesPlaceholder": "Select roles to notify (optional)",
+                "scheduleNotifyRolesHint": "You can select multiple roles, or leave it blank to notify no one"
             }
         },
 
         "editPage": {
-            "title": "Edit Schedule",
-            "sectionTitle": "Schedule Info"
+            "editSchedule": "Edit Schedule",
+            "scheduleinfo": "Schedule Info"
+        },
+
+        "settingsPage": {
+            "gmailAccountForGoogleCalendar": "Gmail Account for Google Calendar",
+            "connect" : "Connect",
+            "notConnected": "Not connected"
+        }
+    },
+
+    "emailManagement": {
+        "emails": "Emails",
+        "chooseATemplate":"Choose a Template",
+        "close": "Close",
+        "reply": "Reply",
+        "forward": "Forward",
+        "loadMore": "Load More",
+
+        "settingsPage": {
+            "emailAccounts": "Email Accounts",
+            "gmailAccountForGoogleCalendar": "Gmail Account for Google Calendar",
+            "connect" : "Connect",
+            "notConnected": "Not connected",
+            "teams": "Teams",
+            "email": "Email",
+
+            "templates": "Templates",
+            "noTemplatesYet": "No templates yet"
+        }
+    },
+
+    "adsCampaign": {
+        "field": {
+            "id": "ID",
+            "name": "Name",
+            "targetUrl": "Target URL",
+            "code": "Code",
+            "trackingLink": "Tracking Link",
+            "postbackLink": "Postback Link",
+            "status": "Status",
+            "createdAt": "Created At",
+            "updatedAt": "Updated At"
+        },
+        "adsCampaign": "Ads Campaign",
+      
+        "createAdCampaignLink": "Create Ad Campaign Link",
+        "postback": "Postback",
+        "chooseTheEventToPostback" : "Choose the event to postback",
+        "enterPostbackUrl": "Enter {{event}} Postback URL",
+        "includeOrginalTrackingPatameters": "Include original tracking parameters",
+        "sendUtmAndClickDataDescription": "Send UTM and click data (source, campaign, etc.) for this postback",
+        "generatedLinks": "Generated Links",
+        "copy": "Copy",
+        "copied": "Copied",
+        "supportedParameter": "Supported Parameter",
+
+        "editAdsCampaign": "Edit Ads Campaign",
+        "adsCampaignInfo": "Ads Campaign Info",
+        "postbackEvents": "Postback Events",
+        "selectEvent": "Select Event",
+        "enterPostbackUrlPlaceHolder":"Enter Postback URL",
+        "noPostbacksConfigured": "No postbacks configured",
+
+        "adsCampaignReport": {
+            "adsCampaignReport": "Ads Campaign Report",
+            "totalClicks": "Total Clicks",
+            "conversions": "Conversions",
+            "conversionRate": "Conversion Rate",
+            "revenue": "Revenue",
+            "revenueByCountry": "Revenue by Country",
+            "country": "Country",
+            "clicksByCountry": "Clicks by Country",
+            "clicks": "Clicks",
+            "filter": "Filter",
+
+            "reportTableColumns": {
+                "clicks": "Clicks",
+                "conversions": "Conversions",
+                "groupName": "Group Name",
+                "uniqueClicks": "Unique Clicks"
+            }
+            
+        }
+
+    },
+
+    "adsLogDetail": {
+        "field": {
+            "id": "ID",
+            "ip": "IP",
+            "country": "Country",
+            "region": "Region",
+            "city": "City",
+            "userAgent": "User Agent",
+            "deviceType": "Device Type",
+            "deviceName": "Device Name",
+            "osName": "OS Name",
+            "osVersion": "OS Version",
+            "browserName": "Browser Name",
+            "browserVersion": "Browser Version",
+            "referrer": "Referrer",
+            "clickedUrl": "Clicked URL",
+            "createdAt": "Created At",
+            "updatedAt": "Updated At"
+        },
+
+        "detailedLogs": "Detailed Logs",
+        "event":"Event",
+        "day":"Day",
+        "month": "Month",
+        "hourOfDay": "Hour of day",
+        "dayOfWeek": "Day of week"
+
+    },
+
+    "adsEventLog":{
+        "field":{
+            "id": "ID",
+            "adsLogId": "Ads Log ID",
+            "eventName": "Event Name",
+            "data": "Data",
+            "createdAt": "Created At",
+            "updatedAt": "Updated At"
+        }
+    },
+
+    "settings": {
+        "settings": "Settings",
+        "twoFactorAuthentication": "Two-Factor Authentication",
+        "on": "On",
+        "off": "Off",
+        "comingSoon": "Coming Soon ...",
+        "twoFactor": {
+            "setupTitle": "Two-Factor Authentication Setup",
+            "setupDescription": "Scan the QR code with Google Authenticator and enter the 6-digit code to enable 2FA.",
+            "qrCodeAlt": "2FA QR Code",
+            "enterCodePlaceholder": "Enter 6-digit code",
+            "verifyAndEnable": "Verify & Enable",
+            "failedToLoadQrCode": "Failed to load QR code",
+            "verificationFailed": "Verification failed",
+            "disableTitle": "Disable Two-Factor Authentication",
+            "disableDescription": "Enter the 6-digit code from your authenticator app to confirm.",
+            "codePlaceholder": "123456",
+            "disableButton": "Disable 2FA",
+            "failedToDisable": "Failed to disable 2FA"
         }
     }
+
 
 
 
