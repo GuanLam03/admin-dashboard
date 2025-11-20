@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DataTable from "datatables.net-dt";
 import {
@@ -221,10 +221,20 @@ export default function AdsCampaignReportPage() {
     };
   
     // Get keys from first row to auto-generate columns
-    const columns = Object.keys(tableData[0]).map((key) => ({
-      title: key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
-      data: key,
-    }));
+    // const columns = Object.keys(tableData[0]).map((key) => ({
+    //   title: key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+    //   data: key,
+    // }));
+
+    const columns = Object.keys(tableData[0]).map((key) => {
+      // Convert xxx_bbb to xxxBbb
+      const camelCaseKey = key.replace(/_([a-z])/g, (_, p1) => p1.toUpperCase());
+      return {
+        title: t(`adsCampaign.adsCampaignReport.reportTableColumns.${camelCaseKey}`),
+        data: key,
+      };
+    });
+
 
     // Initialize DataTable
     const reportTable = new DataTable("#reportsTable", {

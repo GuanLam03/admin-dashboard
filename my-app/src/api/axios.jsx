@@ -4,6 +4,8 @@ const PUBLIC_ROUTES = ["/login", "/register"];
 
 const api = axios.create({
   baseURL: "http://127.0.0.1:3000",
+  // baseURL: "https://admin-dashboard.test/",
+ 
   withCredentials: true, // allow cookies (jwt_token) to be sent and received
   headers: {
     "Content-Type": "application/json",

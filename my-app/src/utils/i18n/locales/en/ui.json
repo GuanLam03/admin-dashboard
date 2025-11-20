@@ -243,7 +243,15 @@
             "country": "Country",
             "clicksByCountry": "Clicks by Country",
             "clicks": "Clicks",
-            "filter": "Filter"
+            "filter": "Filter",
+
+            "reportTableColumns": {
+                "clicks": "Clicks",
+                "conversions": "Conversions",
+                "groupName": "Group Name",
+                "uniqueClicks": "Unique Clicks"
+            }
+            
         }
 
     },

@@ -240,7 +240,14 @@
             "country": "Negara",
             "clicksByCountry": "Klik Mengikut Negara",
             "clicks": "Klik",
-            "filter": "Tapis"
+            "filter": "Tapis",
+
+            "reportTableColumns": {
+                "clicks": "Klik",
+                "conversions": "Penukaran",
+                "groupName": "Nama Kumpulan",
+                "uniqueClicks": "Klik Unik"
+            }
         }
     },
 

@@ -239,7 +239,14 @@
             "country": "国家",
             "clicksByCountry": "按国家点击量",
             "clicks": "点击量",
-            "filter": "筛选"
+            "filter": "筛选",
+
+            "reportTableColumns": {
+                "clicks": "点击量",
+                "conversions": "转化数",
+                "groupName": "分组名称",
+                "uniqueClicks": "独立点击量"
+            }
         }
     },
 
