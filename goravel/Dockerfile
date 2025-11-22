@@ -2,21 +2,18 @@ FROM golang:1.24
 
 WORKDIR /app
 
-# Install git only if needed — safe to keep, small package
-# RUN apk add --no-cache git
-
-# Copy Go module files first (build cache)
+# Copy Go modules and download dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy project
+# Copy project files
 COPY . .
 
+# Build Go binary
+RUN go build -o app main.go
+
+# Expose port (Render uses $PORT)
 EXPOSE 3000
 
-CMD sh -c " \
-  go run . artisan key:generate && \
-  go run . artisan migrate && \
-  go run . artisan db:seed && \
-  go run main.go \
-"
+# Run binary (server only)
+CMD ["./app"]
