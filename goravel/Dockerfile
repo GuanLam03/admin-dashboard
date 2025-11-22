@@ -3,7 +3,7 @@ FROM golang:1.23
 WORKDIR /app
 
 # Install git only if needed — safe to keep, small package
-RUN apk add --no-cache git
+# RUN apk add --no-cache git
 
 # Copy Go module files first (build cache)
 COPY go.mod go.sum ./
