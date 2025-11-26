@@ -56,6 +56,8 @@ func Api() {
 	adsTrackingController := adsTracking.NewAdsTrackingController()
 	//setting google authenticator
 	twofaController := googleAuthenticator.NewTwoFAController()
+	
+	centrifugoTokenController := controllers.NewCentrifugoTokenController()
 
 	facades.Route().Post("/login", authController.Login)
 	facades.Route().Post("/login/twofa",authController.VerifyTwoFA)
@@ -127,12 +129,15 @@ func Api() {
 		// show support parameter
 		router.Get("/add-ads-campaign/support-parameters",addAdsCampaignController.ShowSupportParameter)
 
-
-
+		//centrifugo token
+		router.Get("/centrifugo/token", centrifugoTokenController.Generate)
 
 
 		
 	})
+	
+
+
 
 
 	//rbac casbin middleware.CasbinMiddleware()

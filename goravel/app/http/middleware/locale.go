@@ -4,7 +4,7 @@ import (
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"goravel/app/helpers/system"
-	"fmt"
+	// "fmt"
 )
 
 func Locale() http.Middleware {
@@ -17,7 +17,7 @@ func Locale() http.Middleware {
 		
         facades.App().SetLocale(ctx, lang)
 		
-		fmt.Println("current lang:",facades.App().CurrentLocale(ctx))
+		// fmt.Println("current lang:",facades.App().CurrentLocale(ctx))
         ctx.Request().Next()
 	}
 }

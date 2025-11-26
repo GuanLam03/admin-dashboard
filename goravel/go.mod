@@ -48,6 +48,7 @@ require (
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
 	github.com/casbin/govaluate v1.3.0 // indirect
 	github.com/catppuccin/go v0.3.0 // indirect
+	github.com/centrifugal/gocent/v3 v3.4.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/charmbracelet/bubbles v0.21.0 // indirect
 	github.com/charmbracelet/bubbletea v1.3.5 // indirect

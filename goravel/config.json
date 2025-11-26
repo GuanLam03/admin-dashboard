@@ -1,0 +1,34 @@
+{
+  "client": {
+    "token": {
+      "hmac_secret_key": "PWOBiXthR_hZ3e6m_DU3M3OZDxsF8C4QDaXstfCFI7QG_xBFB_0GHMxsIUNAuocASVHGLX9JGog2GEg7WPelSA"
+    },
+    "allowed_origins": [ "http://localhost:5173","http://127.0.0.1:5173","http://127.0.0.1:3000","http://localhost:3000"]
+  },
+  "admin": {
+    "enabled": true,
+    "password": "3nHYxH5eEK3VZ1uQ7qWQ1Q",
+    "secret": "6NYpez5jZ0cdNPs54c9BIQDZMqVzyzn5xp6p70aPm8WvXz6safUs7WPGhD4VJesQj216V42p1lbX3BGnDcg2fg"
+  },
+  "http_api": {
+    "key": "PVcA8qZINuBVBlfsZV26GuLlF8hVsy89Lh7ij2aj5-qOg88YpRfdUsdBiQW0HB7ptPTcDbXmcx6LIULMkSFW1w"
+  },
+  "channel": {
+    "without_namespace": {
+      "allow_subscribe_for_client": true      
+    },
+    "namespaces": [
+      {
+        "name": "public",
+        "presence": true,
+        "join_leave": true,
+        "force_push_join_leave": true,
+        "allow_subscribe_for_client": true,
+        "allow_presence_for_client": true
+        
+      
+      }
+    ]
+  }
+
+}

@@ -73,6 +73,7 @@
             "email": "邮箱",
             "createdAt": "创建时间"
         },
+        "status": "状态",
         "userManagement": "用户管理"
     },
 

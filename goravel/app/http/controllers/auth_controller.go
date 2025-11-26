@@ -7,7 +7,7 @@ import (
 	"goravel/app/messages"
 	"goravel/app/models"
 	"goravel/app/permissions"
-
+// "goravel/app/websocket"
 	"github.com/casbin/casbin/v2"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
@@ -81,6 +81,9 @@ func (c *AuthController) Login(ctx http.Context) http.Response {
 	cookie := "jwt_token=" + token + "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400"
 	ctx.Response().Header("Set-Cookie", cookie)
 
+	// websocket.PublishToCentrifugo("public:online_users", map[string]interface{}{
+	// 	"user": user.ID,
+	// }) 
 	return ctx.Response().Json(200, http.Json{"message": messages.GetSuccess("login_success"), "token": token})
 }
 
@@ -139,6 +142,7 @@ func (a *AuthController) Profile(ctx http.Context) http.Response {
 	}
 
 	response := map[string]any{
+		"id": 				  user.ID,
 		"name":               user.Name,
 		"email":              user.Email,
 		"two_factor_enabled": user.TwoFactorEnabled,
