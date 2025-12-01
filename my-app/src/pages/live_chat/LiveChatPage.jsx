@@ -18,15 +18,15 @@ function LiveChatPage() {
   const [selectedUser, setSelectedUser] = useState(null); // chat target
   const [showChatBox, setShowChatBox] = useState(false);
 
-  const {centrifuge} = useCentrifuge();
- const [messagesMap, setMessagesMap] = useState({});
+  const { centrifuge } = useCentrifuge();
+  const [messagesMap, setMessagesMap] = useState({});
 
-const [input, setInput] = useState("");
-const chatBoxRef = useRef(null);
+  const [input, setInput] = useState("");
+  const chatBoxRef = useRef(null);
 
 
- 
- 
+
+
 
   // global online user list
   const { onlineUsers } = useCentrifuge();
@@ -97,98 +97,109 @@ const chatBoxRef = useRef(null);
   /** ------------------------------------------
    * 2️⃣ Fetch users
    * -------------------------------------------*/
+  const fetchUsers = async () => {
+    try {
+      const res = await api.get("/users");
+
+      const data = res.data.users.map((u) => ({
+        id: u.id,
+        role: u.role || "",
+        name: u.name,
+        email: u.email,
+        online: onlineUsers.includes(String(u.id)), // presence from Centrifuge
+      }));
+
+      const dt = tableRef.current;
+      dt.clear();
+      dt.rows.add(data);
+      dt.draw();
+    } catch (err) {
+      setError(`Error fetching users: ${err.message}`);
+    }
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await api.get("/users");
-        const data = res.data.users.map((u) => ({
-          id: u.id,
-          role: u.role || "",
-          name: u.name,
-          email: u.email,
-          online: onlineUsers.includes(String(u.id)),
-        }));
-
-        const dt = tableRef.current;
-        dt.clear();
-        dt.rows.add(data);
-        dt.draw();
-      } catch (err) {
-        setError(`Error fetching users: ${err.message}`);
-      }
-    };
-
     fetchUsers();
+  }, []); 
+
+  useEffect(() => {
+    const dt = tableRef.current;
+
+    dt.rows().every(function () {
+      const rowData = this.data();
+      const isOnline = onlineUsers.includes(String(rowData.id));
+
+      if (rowData.online !== isOnline) {
+        rowData.online = isOnline;
+        this.data(rowData);
+      }
+    });
+
+    dt.draw(false);
   }, [onlineUsers]);
 
   /** ------------------------------------------
    * 3️⃣ Auto-update online status
    * -------------------------------------------*/
-useEffect(() => {
-  if (!showChatBox || !selectedUser || !centrifuge) return;
+  useEffect(() => {
+    if (!showChatBox || !selectedUser || !centrifuge) return;
 
-  const chan = `private:chat.${[user.id, selectedUser.id].sort().join(".")}`;
+    const chan = `private:chat.${[user.id, selectedUser.id].sort().join(".")}`;
 
-  let sub = centrifuge.current.getSubscription(chan);
+    let sub = centrifuge.current.getSubscription(chan);
 
-  if (!sub) {
-    sub = centrifuge.current.newSubscription(chan);
+    if (!sub) {
+      sub = centrifuge.current.newSubscription(chan);
 
-    sub.on("publication", (ctx) => {
-      const msg = ctx.data;
+      sub.on("publication", (ctx) => {
+        const msg = ctx.data;
 
-      setMessagesMap((prev) => ({
-        ...prev,
-        [chan]: [...(prev[chan] || []), msg],
-      }));
-      
-      setTimeout(() => {
-        if (chatBoxRef.current) {
-          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-        }
-      }, 50);
-    });
+        setMessagesMap((prev) => ({
+          ...prev,
+          [chan]: [...(prev[chan] || []), msg],
+        }));
 
-    sub.subscribe();
-  }
+        setTimeout(() => {
+          if (chatBoxRef.current) {
+            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+          }
+        }, 50);
+      });
 
-  // Optionally unsubscribe when chat closes
-  return () => {
-    // sub.unsubscribe();
-  };
-}, [showChatBox, selectedUser, centrifuge]);
-
-
-
-const sendMessage = () => {
-  if (!input.trim() || !selectedUser || !centrifuge) return;
-
-  const chan = `private:chat.${[user.id, selectedUser.id].sort().join(".")}`;
-  
-  const messagePayload = {
-    from: user.id,
-    to: selectedUser.id,
-    text: input,
-    time: new Date().toISOString(),
-  };
-
-  // Publish to Centrifugo
-  centrifuge.current.publish(chan, messagePayload);
-
-  // Add message to this channel only
-//   setMessagesMap((prev) => ({
-//     ...prev,
-//     [chan]: [...(prev[chan] || []), messagePayload],
-//   }));
-
-  setInput("");
-
-  setTimeout(() => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+      sub.subscribe();
     }
-  }, 50);
-};
+
+    // Optionally unsubscribe when chat closes
+    return () => {
+      // sub.unsubscribe();
+    };
+  }, [showChatBox, selectedUser, centrifuge]);
+
+
+
+  const sendMessage = () => {
+    if (!input.trim() || !selectedUser || !centrifuge) return;
+
+    const chan = `private:chat.${[user.id, selectedUser.id].sort().join(".")}`;
+
+    const messagePayload = {
+      from: user.id,
+      to: selectedUser.id,
+      text: input,
+      time: new Date().toISOString(),
+    };
+
+    // Publish to Centrifugo
+    centrifuge.current.publish(chan, messagePayload);
+
+    setInput("");
+
+    setTimeout(() => {
+      if (chatBoxRef.current) {
+        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+      }
+    }, 50);
+  };
 
 
   return (
@@ -224,48 +235,48 @@ const sendMessage = () => {
           </div>
 
           {/* Chat Messages */}
-<div
-  ref={chatBoxRef}
-  className="h-64 overflow-y-auto p-3 bg-gray-50 flex flex-col gap-2"
->
-  {(messagesMap[`private:chat.${[user.id, selectedUser.id].sort().join(".")}`] || []).length === 0 && (
-    <p className="text-gray-400 text-sm">No messages yet...</p>
-  )}
+          <div
+            ref={chatBoxRef}
+            className="h-64 overflow-y-auto p-3 bg-gray-50 flex flex-col gap-2"
+          >
+            {(messagesMap[`private:chat.${[user.id, selectedUser.id].sort().join(".")}`] || []).length === 0 && (
+              <p className="text-gray-400 text-sm">No messages yet...</p>
+            )}
 
-  {(messagesMap[`private:chat.${[user.id, selectedUser.id].sort().join(".")}`] || []).map((msg, idx) => (
-    <div
-      key={idx}
-      className={`max-w-[75%] px-3 py-2 rounded-lg text-sm shadow
+            {(messagesMap[`private:chat.${[user.id, selectedUser.id].sort().join(".")}`] || []).map((msg, idx) => (
+              <div
+                key={idx}
+                className={`max-w-[75%] px-3 py-2 rounded-lg text-sm shadow
         ${msg.from == user.id ? "bg-blue-600 text-white self-end" : "bg-white border self-start"}
       `}
-    >
-      {msg.text}
-      <div className="text-[10px] opacity-70 mt-1">
-        {new Date(msg.time).toLocaleTimeString()}
-      </div>
-    </div>
-  ))}
-</div>
+              >
+                {msg.text}
+                <div className="text-[10px] opacity-70 mt-1">
+                  {new Date(msg.time).toLocaleTimeString()}
+                </div>
+              </div>
+            ))}
+          </div>
 
 
 
           {/* Input */}
           <div className="p-3 border-t flex gap-2">
-  <input
-    type="text"
-    className="flex-1 border rounded px-2 py-1"
-    placeholder="Type your message..."
-    value={input}
-    onChange={(e) => setInput(e.target.value)}
-    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-  />
-  <button
-    onClick={sendMessage}
-    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-  >
-    Send
-  </button>
-</div>
+            <input
+              type="text"
+              className="flex-1 border rounded px-2 py-1"
+              placeholder="Type your message..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            />
+            <button
+              onClick={sendMessage}
+              className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+            >
+              Send
+            </button>
+          </div>
 
         </div>
       )}

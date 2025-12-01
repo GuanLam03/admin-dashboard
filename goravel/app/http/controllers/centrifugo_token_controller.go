@@ -11,7 +11,6 @@ import (
 
 )
 
-var centrifugoSecret = facades.Config().Env("HMAC_SECRET_KEY", "").(string)
 
 type CentrifugoTokenController struct{}
 
@@ -29,7 +28,7 @@ func (c *CentrifugoTokenController) Generate(ctx http.Context) http.Response {
     userID := strconv.Itoa(int(user.ID))
 
     // Load HMAC secret key from config
-    hmacSecret := facades.Config().Env("hmac_secret_key").(string)
+    hmacSecret := facades.Config().Env("HMAC_SECRET_KEY").(string)
 
     if hmacSecret == "" {
         return ctx.Response().Json(500, http.Json{
