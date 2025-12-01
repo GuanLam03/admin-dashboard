@@ -11,7 +11,7 @@ import (
 
 )
 
-var centrifugoSecret = "6NYpez5jZ0cdNPs54c9BIQDZMqVzyzn5xp6p70aPm8WvXz6safUs7WPGhD4VJesQj216V42p1lbX3BGnDcg2fg" // SAME AS config.json
+var centrifugoSecret = facades.Config().Env("HMAC_SECRET_KEY", "").(string)
 
 type CentrifugoTokenController struct{}
 

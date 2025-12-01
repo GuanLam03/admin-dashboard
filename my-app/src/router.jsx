@@ -39,6 +39,7 @@ import AdsCampaignReportPage from './pages/ads_tracking/ads_campaign/AdsCampaign
 import AdsLogPage from './pages/ads_tracking/ads_log/AdsLogPage';
 import AdsCampaignLogPage from './pages/ads_tracking/ads_campaign/AdsCampaignLogPage';
 import ScheduleSettingsPage from './pages/schedule/ScheduleSettingsPage';
+import LiveChatPage from './pages/live_chat/LiveChatPage';
 
 
 
@@ -127,7 +128,7 @@ const router = createBrowserRouter([
             },
             
 
-
+            { path: '/live-chat', element: <LiveChatPage /> },
    
 
             { path: '/settings', element: <SettingsPage /> },

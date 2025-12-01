@@ -27,6 +27,15 @@
         "allow_presence_for_client": true
         
       
+      },
+      {
+        "name": "private",
+        "allow_subscribe_for_client": true,
+        "allow_publish_for_client": true,
+        "allow_presence_for_client": true,
+        "presence": true,
+        "history_size": 100,
+        "history_ttl": "1h"
       }
     ]
   }

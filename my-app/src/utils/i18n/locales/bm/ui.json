@@ -22,6 +22,7 @@
         "adsCampaign": "Kempen Iklan",
         "adsLog": "Log Iklan",
         "adsReport": "Laporan Iklan",
+        "liveChat": "Sembang Langsung",
         "settings": "Tetapan"
     },
 
@@ -62,7 +63,8 @@
             "clearSearch": "Padam Carian",
             "report": "Laporan",
             "log": "Log",
-            "cancel": "Batal"
+            "cancel": "Batal",
+            "chat": "Sembang"
         }
     },
 
