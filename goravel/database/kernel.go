@@ -44,6 +44,7 @@ func (kernel Kernel) Migrations() []schema.Migration {
 		&migrations.M20251118152237UpdateAdsLogsTable{},
 		&migrations.M20251118152258UpdateAdsEventLogsTable{},
 		&migrations.M20251120145235UpdateActivityLogTable{},
+		&migrations.M20251201113352UpdateAdsLogsTable{},
 	}
 }
 func (kernel Kernel) Seeders() []seeder.Seeder {
@@ -55,6 +56,6 @@ func (kernel Kernel) Seeders() []seeder.Seeder {
 		&seeders.GoogleDocumentSeeder{},
 		&seeders.UserRoleSeeder{},
 		&seeders.RolePermissionSeeder{},
-		&seeders.AdsTrackingSeeder{},
+		// &seeders.AdsTrackingSeeder{},
 	}
 }

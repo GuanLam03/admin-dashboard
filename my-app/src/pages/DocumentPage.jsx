@@ -3,14 +3,19 @@ import DataTable from "datatables.net-dt";
 import api from "../api/axios";
 import { useTranslation } from "react-i18next";
 import dataTableLocales from "../utils/i18n/datatableLocales";
+import { useCentrifuge } from "../contexts/CentrifugeContext";
+import { toast } from "react-toastify";
+import { useAuth } from "../contexts/AuthContext";
 
 function DocumentPage() {
+  const { user }  = useAuth();
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const {t,i18n} = useTranslation();
-
+  const { centrifuge,connected } = useCentrifuge();
+  
   // Fetch documents
   const fetchDocuments = async () => {
     try {
@@ -135,6 +140,43 @@ function DocumentPage() {
       alert("Error downloading file");
     }
   };
+
+
+
+  // websocket noti
+ useEffect(() => {
+    if (!connected || !centrifuge.current) return;
+
+    // Check if sub already exists in centrifuge client
+    let sub = centrifuge.current.getSubscription("document_notifications");
+
+    if (!sub) {
+      //  Only create new subscription IF NOT exist
+      sub = centrifuge.current.newSubscription("document_notifications");
+
+      sub.on("publication", (ctx) => {
+        const userId = ctx.data.user_id;
+        if (userId === user.id) return;
+        toast.info(ctx.data.message);
+      });
+
+      sub.subscribe();
+      // console.log("Subscription created");
+    } 
+
+    // Cleanup when component unmounts
+    return () => {
+      if (sub) {
+        // console.log("Unsubscribing...");
+        sub.unsubscribe();
+        centrifuge.current.removeSubscription(sub); 
+      }
+    };
+
+  }, [connected]);
+
+
+
 
   return (
     <div>

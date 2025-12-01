@@ -19,10 +19,25 @@ func NewAddAdsCampaignController() *AddAdsCampaignController {
 	return &AddAdsCampaignController{}
 }
 
+func buildURL(base string, port string, path string) string {
+	// If production → no port
+	if facades.Config().Env("APP_ENV") == "production" {
+		return fmt.Sprintf("%s/%s", base, path)
+	}
+
+	// Development → keep port
+	if port != "" {
+		return fmt.Sprintf("%s:%s/%s", base, port, path)
+	}
+
+	// No port defined → fallback
+	return fmt.Sprintf("%s/%s", base, path)
+}
+
 
 func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Response {
-	basedUrl := facades.Config().Env("APP_URL", "")
-	port := facades.Config().Env("APP_PORT", "")
+	basedUrl := facades.Config().Env("APP_URL", "").(string)
+	port := facades.Config().Env("APP_PORT", "").(string)
 
 	type PostbackEvent struct {
 		EventName string `json:"event_name"`
@@ -93,10 +108,12 @@ func (a *AddAdsCampaignController) AddAdsCampaign(ctx http.Context) http.Respons
 	adsCampaign.Code = code
 
 	// Set tracking and postback links
-	trackingLink := fmt.Sprintf("%s:%s/%s", basedUrl, port, adsCampaign.Code)
-	adsCampaign.TrackingLink = &trackingLink
+	// Build URLs based on environment
+	trackingLink := buildURL(basedUrl, port, adsCampaign.Code)
+	postbackLink := buildURL(basedUrl, port, "postback/")
 
-	postbackLink := fmt.Sprintf("%s:%s/postback/", basedUrl, port)
+		
+	adsCampaign.TrackingLink = &trackingLink
 	adsCampaign.PostbackLink = &postbackLink
 
 	// Transaction: create campaign and optional postbacks

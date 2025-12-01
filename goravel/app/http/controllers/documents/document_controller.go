@@ -2,10 +2,10 @@
 package docuements
 
 import (
-	// "fmt"
+	"fmt"
 	"path/filepath"
 	"strconv"
-
+	"goravel/app/websocket"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"goravel/app/messages"
@@ -27,7 +27,6 @@ func (c *DocumentController) Store(ctx http.Context) http.Response {
 	if err != nil || len(files) == 0 {
 		return ctx.Response().Json(422, http.Json{"error": messages.GetError("validation_failed")})
 	}
-
 	for _, file := range files {
 		filename := file.GetClientOriginalName()
 		if _, err := file.StoreAs("uploads", filename); err != nil {
@@ -50,7 +49,19 @@ func (c *DocumentController) Store(ctx http.Context) http.Response {
 				"error": messages.GetError("internal_error"),
 			})
 		}
+
+
+		// websocket notification
+		var user models.User
+		facades.Auth(ctx).User(&user)
+		websocket.PublishToCentrifugo("document_notifications", map[string]interface{}{
+			"user_id": user.ID, 
+			"message": fmt.Sprintf("New document added: %s, Please refresh the page", doc.Filename),
+		})
 	}
+
+	
+
 
 	return ctx.Response().Json(200, http.Json{"message": messages.GetSuccess("files_uploaded")})
 }

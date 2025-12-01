@@ -252,6 +252,12 @@ export default function DefaultLayout() {
             </li>
             
 
+            <li>
+              <NavLink to="/live-chat" className={({ isActive }) =>
+                `block px-4 py-2 hover:bg-blue-100 ${isActive ? "bg-blue-500 text-white" : "text-gray-700"}`}>
+                {t("sidebar.liveChat")}
+              </NavLink>
+            </li>
 
             <li>
               <NavLink to="/settings" className={({ isActive }) =>

@@ -22,6 +22,7 @@
         "adsCampaign": "广告活动",
         "adsLog": "广告日志",
         "adsReport": "广告报告",
+        "liveChat": "实时聊天",
         "settings": "设置"
     },
 
@@ -62,7 +63,8 @@
             "clearSearch": "清除搜索",
             "report": "报告",
             "log": "日志",
-            "cancel": "取消"
+            "cancel": "取消",
+            "chat": "聊天"
         }
     },
 
@@ -73,6 +75,7 @@
             "email": "邮箱",
             "createdAt": "创建时间"
         },
+        "status": "状态",
         "userManagement": "用户管理"
     },
 

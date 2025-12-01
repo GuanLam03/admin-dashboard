@@ -21,6 +21,7 @@
         "adsCampaign": "Ads Campaign",
         "adsLog": "Ads Log",
         "adsReport": "Ads Report",
+        "liveChat": "Live Chat",
         "settings": "Settings"
     },
 
@@ -61,7 +62,8 @@
             "clearSearch": "Clear Search",
             "report": "Report",
             "log": "Log",
-            "cancel": "Cancel"
+            "cancel": "Cancel",
+            "chat": "Chat"
         }
     },
 
@@ -72,6 +74,7 @@
             "email": "Email",
             "createdAt": "Created At"
         },
+        "status": "Status",
         "userManagement": "User Management"
         
     },
