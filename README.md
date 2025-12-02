@@ -14,7 +14,15 @@ Manually Setup
       2. npm run dev
 6. After successfully, click http://localhost:5173/ to run the website
 
+Additional: 
+1. To test scheduled tasks:
+   Run: "go run . artisan schedule:run"
+This is only needed if you want to manually trigger scheduled postback sending.
 
+2. To test WebSocket (Centrifugo):
+Go to the "websocket" folder.
+   Run "centrifugo --config=centrifugo.json"
+This starts the realtime server. Without this, any realtime feature like notifications or chat will not work.
 
 --- 
 ---
