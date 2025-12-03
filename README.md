@@ -18,14 +18,14 @@ Manually Setup
 
 Additional: 
 1. To test scheduled tasks:
-   Run: "go run . artisan schedule:run"
-This is only needed if you want to manually trigger scheduled postback sending.
+   - Run: "go run . artisan schedule:run"
+   - This is only needed if you want to manually trigger scheduled postback sending.
 
 2. To test WebSocket (Centrifugo):
-Download and install the centrifugo (https://github.com/centrifugal/centrifugo/releases)
-Go to the "websocket" folder.
-   Run "centrifugo --config=centrifugo.json"
-This starts the realtime server. Without this, any realtime feature like notifications or chat will not work.
+   - Download and install the centrifugo (https://github.com/centrifugal/centrifugo/releases)
+   - Go to the "websocket" folder.
+   - Run "centrifugo --config=centrifugo.json"
+   - This starts the realtime server. Without this, any realtime feature like notifications or chat will not work.
 
 --- 
 ---
