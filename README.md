@@ -2,7 +2,8 @@ Manually Setup
 1. Clone the repository at here
 2. cd admin-dashboard
 3. Copy .env and paste it to goravel folder
-4. For Goravel (go to goravel folder)
+4. create database name as "testgoravel"
+5. For Goravel (go to goravel folder)
    Run:
       1.  go run . artisan key:generate
       2.  go run . artisan migrate
@@ -10,11 +11,11 @@ Manually Setup
       4.  go mod vendor
       5.  go build -mod=vendor
       6.  go run main.go
-5. For React (go to my-app folder)
+6. For React (go to my-app folder)
    Run:
       1. npm install
       2. npm run dev
-6. After successfully, click http://localhost:5173/ to run the website
+7. After successfully, click http://localhost:5173/ to run the website
 
 Additional: 
 1. To test scheduled tasks:
