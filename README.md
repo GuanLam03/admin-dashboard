@@ -2,7 +2,8 @@ Manually Setup
 1. Clone the repository at here
 2. cd admin-dashboard
 3. Copy .env and paste it to goravel folder
-4. For Goravel (go to goravel folder)
+4. create database name as "testgoravel"
+5. For Goravel (go to goravel folder)
    Run:
       1.  go run . artisan key:generate
       2.  go run . artisan migrate
@@ -10,22 +11,22 @@ Manually Setup
       4.  go mod vendor
       5.  go build -mod=vendor
       6.  go run main.go
-5. For React (go to my-app folder)
+6. For React (go to my-app folder)
    Run:
       1. npm install
       2. npm run dev
-6. After successfully, click http://localhost:5173/ to run the website
+7. After successfully, click http://localhost:5173/ to run the website
 
 Additional: 
 1. To test scheduled tasks:
-   Run: "go run . artisan schedule:run"
-This is only needed if you want to manually trigger scheduled postback sending.
+   - Run: "go run . artisan schedule:run"
+   - This is only needed if you want to manually trigger scheduled postback sending.
 
 2. To test WebSocket (Centrifugo):
-Download and install the centrifugo (https://github.com/centrifugal/centrifugo/releases)
-Go to the "websocket" folder.
-   Run "centrifugo --config=centrifugo.json"
-This starts the realtime server. Without this, any realtime feature like notifications or chat will not work.
+   - Download and install the centrifugo (https://github.com/centrifugal/centrifugo/releases)
+   - Go to the "websocket" folder.
+   - Run "centrifugo --config=centrifugo.json"
+   - This starts the realtime server. Without this, any realtime feature like notifications or chat will not work.
 
 --- 
 ---
