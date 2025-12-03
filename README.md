@@ -1,7 +1,7 @@
 Manually Setup
 1. Clone the repository at here
 2. cd admin-dashboard
-3. Copy 2 .env and paste it to goravel folder and my-app folder
+3. Copy .env and paste it to goravel folder
 4. For Goravel (go to goravel folder)
    Run:
       1.  go run . artisan key:generate
