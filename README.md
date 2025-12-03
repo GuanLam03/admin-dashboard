@@ -7,7 +7,9 @@ Manually Setup
       1.  go run . artisan key:generate
       2.  go run . artisan migrate
       3.  go run . artisan db:seed
-      4.  go run main.go
+      4.  go mod vendor
+      5.  go build -mod=vendor
+      6.  go run main.go
 5. For React (go to my-app folder)
    Run:
       1. npm install
@@ -20,6 +22,7 @@ Additional:
 This is only needed if you want to manually trigger scheduled postback sending.
 
 2. To test WebSocket (Centrifugo):
+Download and install the centrifugo (https://github.com/centrifugal/centrifugo/releases)
 Go to the "websocket" folder.
    Run "centrifugo --config=centrifugo.json"
 This starts the realtime server. Without this, any realtime feature like notifications or chat will not work.
